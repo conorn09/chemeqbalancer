@@ -534,11 +534,13 @@ const COMPOUND_DATABASE = [
     { formula: "MgSO₄", name: "Magnesium sulfate", category: "Salt" },
     { formula: "BaSO₄", name: "Barium sulfate", category: "Salt" },
     { formula: "PbSO₄", name: "Lead(II) sulfate", category: "Salt" },
+    { formula: "Pb(SO₄)₂", name: "Lead(IV) sulfate", category: "Salt" },
     { formula: "Ag₂SO₄", name: "Silver sulfate", category: "Salt" },
 
     // Nitrates
     { formula: "AgNO₃", name: "Silver nitrate", category: "Salt" },
     { formula: "Pb(NO₃)₂", name: "Lead(II) nitrate", category: "Salt" },
+    { formula: "Pb(NO₃)₄", name: "Lead(IV) nitrate", category: "Salt" },
     { formula: "Cu(NO₃)₂", name: "Copper(II) nitrate", category: "Salt" },
     { formula: "Fe(NO₃)₃", name: "Iron(III) nitrate", category: "Salt" },
     { formula: "Fe(NO₃)₂", name: "Iron(II) nitrate", category: "Salt" },
@@ -564,6 +566,7 @@ const COMPOUND_DATABASE = [
     { formula: "AlCl₃", name: "Aluminum chloride", category: "Salt" },
     { formula: "AgCl", name: "Silver chloride", category: "Salt" },
     { formula: "PbCl₂", name: "Lead(II) chloride", category: "Salt" },
+    { formula: "PbCl₄", name: "Lead(IV) chloride", category: "Salt" },
     { formula: "BaCl₂", name: "Barium chloride", category: "Salt" },
     { formula: "NH₄Cl", name: "Ammonium chloride", category: "Salt" },
 
@@ -587,8 +590,22 @@ const COMPOUND_DATABASE = [
     { formula: "Ca₃(PO₄)₂", name: "Calcium phosphate", category: "Salt" },
     { formula: "Mg₃(PO₄)₂", name: "Magnesium phosphate", category: "Salt" },
     { formula: "FePO₄", name: "Iron(III) phosphate", category: "Salt" },
+    { formula: "Fe₃(PO₄)₂", name: "Iron(II) phosphate", category: "Salt" },
     { formula: "AlPO₄", name: "Aluminum phosphate", category: "Salt" },
+    { formula: "Pb₃(PO₄)₂", name: "Lead(II) phosphate", category: "Salt" },
+    { formula: "Pb₃(PO₄)₄", name: "Lead(IV) phosphate", category: "Salt" },
+    { formula: "Cu₃(PO₄)₂", name: "Copper(II) phosphate", category: "Salt" },
+    { formula: "Zn₃(PO₄)₂", name: "Zinc phosphate", category: "Salt" },
+    { formula: "Ag₃PO₄", name: "Silver phosphate", category: "Salt" },
+    { formula: "Ba₃(PO₄)₂", name: "Barium phosphate", category: "Salt" },
+    { formula: "Sr₃(PO₄)₂", name: "Strontium phosphate", category: "Salt" },
+    { formula: "Mn₃(PO₄)₂", name: "Manganese(II) phosphate", category: "Salt" },
+    { formula: "Co₃(PO₄)₂", name: "Cobalt(II) phosphate", category: "Salt" },
+    { formula: "Ni₃(PO₄)₂", name: "Nickel(II) phosphate", category: "Salt" },
+    { formula: "Cr₃(PO₄)₄", name: "Chromium(III) phosphate", category: "Salt" },
     { formula: "(NH₄)₃PO₄", name: "Ammonium phosphate", category: "Salt" },
+    { formula: "(NH₄)₂HPO₄", name: "Diammonium phosphate", category: "Salt" },
+    { formula: "NH₄H₂PO₄", name: "Monoammonium phosphate", category: "Salt" },
 
     // Ammonium compounds
     { formula: "NH₄Cl", name: "Ammonium chloride", category: "Salt" },
@@ -666,7 +683,76 @@ const COMPOUND_DATABASE = [
     { formula: "SiC", name: "Silicon carbide", category: "Carbide" },
     { formula: "CaF₂", name: "Calcium fluoride", category: "Fluoride" },
     { formula: "NaF", name: "Sodium fluoride", category: "Fluoride" },
-    { formula: "AlF₃", name: "Aluminum fluoride", category: "Fluoride" }
+    { formula: "AlF₃", name: "Aluminum fluoride", category: "Fluoride" },
+
+    // Additional Lead Compounds
+    { formula: "PbO", name: "Lead(II) oxide", category: "Oxide" },
+    { formula: "PbO₂", name: "Lead(IV) oxide", category: "Oxide" },
+    { formula: "Pb₃O₄", name: "Lead(II,IV) oxide", category: "Oxide" },
+    { formula: "PbS", name: "Lead(II) sulfide", category: "Sulfide" },
+    { formula: "PbCO₃", name: "Lead(II) carbonate", category: "Salt" },
+    { formula: "Pb(OH)₂", name: "Lead(II) hydroxide", category: "Base" },
+    { formula: "Pb(OH)₄", name: "Lead(IV) hydroxide", category: "Base" },
+
+    // More Tin Compounds
+    { formula: "SnO", name: "Tin(II) oxide", category: "Oxide" },
+    { formula: "SnO₂", name: "Tin(IV) oxide", category: "Oxide" },
+    { formula: "SnCl₂", name: "Tin(II) chloride", category: "Salt" },
+    { formula: "SnCl₄", name: "Tin(IV) chloride", category: "Salt" },
+    { formula: "Sn(SO₄)₂", name: "Tin(IV) sulfate", category: "Salt" },
+    { formula: "SnSO₄", name: "Tin(II) sulfate", category: "Salt" },
+
+    // More Chromium Compounds
+    { formula: "CrCl₂", name: "Chromium(II) chloride", category: "Salt" },
+    { formula: "CrCl₃", name: "Chromium(III) chloride", category: "Salt" },
+    { formula: "Cr₂(SO₄)₃", name: "Chromium(III) sulfate", category: "Salt" },
+    { formula: "CrSO₄", name: "Chromium(II) sulfate", category: "Salt" },
+    { formula: "K₂Cr₂O₇", name: "Potassium dichromate", category: "Salt" },
+    { formula: "K₂CrO₄", name: "Potassium chromate", category: "Salt" },
+
+    // More Manganese Compounds
+    { formula: "MnCl₂", name: "Manganese(II) chloride", category: "Salt" },
+    { formula: "MnSO₄", name: "Manganese(II) sulfate", category: "Salt" },
+    { formula: "Mn(NO₃)₂", name: "Manganese(II) nitrate", category: "Salt" },
+    { formula: "KMnO₄", name: "Potassium permanganate", category: "Salt" },
+
+    // More Cobalt and Nickel Compounds
+    { formula: "CoCl₂", name: "Cobalt(II) chloride", category: "Salt" },
+    { formula: "CoSO₄", name: "Cobalt(II) sulfate", category: "Salt" },
+    { formula: "Co(NO₃)₂", name: "Cobalt(II) nitrate", category: "Salt" },
+    { formula: "NiCl₂", name: "Nickel(II) chloride", category: "Salt" },
+    { formula: "NiSO₄", name: "Nickel(II) sulfate", category: "Salt" },
+    { formula: "Ni(NO₃)₂", name: "Nickel(II) nitrate", category: "Salt" },
+
+    // Sulfides
+    { formula: "H₂S", name: "Hydrogen sulfide", category: "Sulfide" },
+    { formula: "Na₂S", name: "Sodium sulfide", category: "Sulfide" },
+    { formula: "K₂S", name: "Potassium sulfide", category: "Sulfide" },
+    { formula: "CaS", name: "Calcium sulfide", category: "Sulfide" },
+    { formula: "MgS", name: "Magnesium sulfide", category: "Sulfide" },
+    { formula: "FeS", name: "Iron(II) sulfide", category: "Sulfide" },
+    { formula: "Fe₂S₃", name: "Iron(III) sulfide", category: "Sulfide" },
+    { formula: "CuS", name: "Copper(II) sulfide", category: "Sulfide" },
+    { formula: "Cu₂S", name: "Copper(I) sulfide", category: "Sulfide" },
+    { formula: "ZnS", name: "Zinc sulfide", category: "Sulfide" },
+    { formula: "Ag₂S", name: "Silver sulfide", category: "Sulfide" },
+    { formula: "Al₂S₃", name: "Aluminum sulfide", category: "Sulfide" },
+
+    // More Complex Compounds
+    { formula: "Ca(ClO)₂", name: "Calcium hypochlorite", category: "Salt" },
+    { formula: "NaClO", name: "Sodium hypochlorite", category: "Salt" },
+    { formula: "NaClO₂", name: "Sodium chlorite", category: "Salt" },
+    { formula: "NaClO₃", name: "Sodium chlorate", category: "Salt" },
+    { formula: "NaClO₄", name: "Sodium perchlorate", category: "Salt" },
+    { formula: "KClO₃", name: "Potassium chlorate", category: "Salt" },
+    { formula: "KClO₄", name: "Potassium perchlorate", category: "Salt" },
+
+    // Hydrates (common in chemistry)
+    { formula: "CuSO₄·5H₂O", name: "Copper(II) sulfate pentahydrate", category: "Hydrate" },
+    { formula: "FeSO₄·7H₂O", name: "Iron(II) sulfate heptahydrate", category: "Hydrate" },
+    { formula: "MgSO₄·7H₂O", name: "Magnesium sulfate heptahydrate", category: "Hydrate" },
+    { formula: "CaCl₂·2H₂O", name: "Calcium chloride dihydrate", category: "Hydrate" },
+    { formula: "Na₂CO₃·10H₂O", name: "Sodium carbonate decahydrate", category: "Hydrate" }
 ];
 
 // UI Controller
