@@ -9,10 +9,18 @@ class ChemicalEquationBalancer {
     // Parse chemical formula to extract elements and their counts
     parseFormula(formula) {
         const elements = {};
+        
+        // Convert subscript numbers to regular numbers
+        const normalizedFormula = formula
+            .replace(/₀/g, '0').replace(/₁/g, '1').replace(/₂/g, '2')
+            .replace(/₃/g, '3').replace(/₄/g, '4').replace(/₅/g, '5')
+            .replace(/₆/g, '6').replace(/₇/g, '7').replace(/₈/g, '8')
+            .replace(/₉/g, '9');
+        
         const regex = /([A-Z][a-z]?)(\d*)/g;
         let match;
         
-        while ((match = regex.exec(formula)) !== null) {
+        while ((match = regex.exec(normalizedFormula)) !== null) {
             const element = match[1];
             const count = match[2] ? parseInt(match[2]) : 1;
             elements[element] = (elements[element] || 0) + count;
@@ -264,11 +272,97 @@ class ChemicalEquationBalancer {
     }
 }
 
+// Compound Database
+const COMPOUND_DATABASE = [
+    // Common gases
+    { formula: "H₂", name: "Hydrogen gas", category: "Gas" },
+    { formula: "O₂", name: "Oxygen gas", category: "Gas" },
+    { formula: "N₂", name: "Nitrogen gas", category: "Gas" },
+    { formula: "CO₂", name: "Carbon dioxide", category: "Gas" },
+    { formula: "CO", name: "Carbon monoxide", category: "Gas" },
+    { formula: "NH₃", name: "Ammonia", category: "Gas" },
+    { formula: "CH₄", name: "Methane", category: "Gas" },
+    { formula: "C₂H₆", name: "Ethane", category: "Gas" },
+    { formula: "C₃H₈", name: "Propane", category: "Gas" },
+    { formula: "SO₂", name: "Sulfur dioxide", category: "Gas" },
+    { formula: "H₂S", name: "Hydrogen sulfide", category: "Gas" },
+    { formula: "NO", name: "Nitric oxide", category: "Gas" },
+    { formula: "NO₂", name: "Nitrogen dioxide", category: "Gas" },
+    { formula: "Cl₂", name: "Chlorine gas", category: "Gas" },
+    
+    // Water and common liquids
+    { formula: "H₂O", name: "Water", category: "Liquid" },
+    { formula: "H₂O₂", name: "Hydrogen peroxide", category: "Liquid" },
+    { formula: "C₂H₅OH", name: "Ethanol", category: "Liquid" },
+    { formula: "CH₃OH", name: "Methanol", category: "Liquid" },
+    
+    // Common acids
+    { formula: "HCl", name: "Hydrochloric acid", category: "Acid" },
+    { formula: "H₂SO₄", name: "Sulfuric acid", category: "Acid" },
+    { formula: "HNO₃", name: "Nitric acid", category: "Acid" },
+    { formula: "CH₃COOH", name: "Acetic acid", category: "Acid" },
+    { formula: "H₃PO₄", name: "Phosphoric acid", category: "Acid" },
+    { formula: "HF", name: "Hydrofluoric acid", category: "Acid" },
+    { formula: "HBr", name: "Hydrobromic acid", category: "Acid" },
+    { formula: "HI", name: "Hydroiodic acid", category: "Acid" },
+    
+    // Common bases
+    { formula: "NaOH", name: "Sodium hydroxide", category: "Base" },
+    { formula: "KOH", name: "Potassium hydroxide", category: "Base" },
+    { formula: "Ca(OH)₂", name: "Calcium hydroxide", category: "Base" },
+    { formula: "Mg(OH)₂", name: "Magnesium hydroxide", category: "Base" },
+    { formula: "Ba(OH)₂", name: "Barium hydroxide", category: "Base" },
+    
+    // Common salts
+    { formula: "NaCl", name: "Sodium chloride", category: "Salt" },
+    { formula: "KCl", name: "Potassium chloride", category: "Salt" },
+    { formula: "CaCl₂", name: "Calcium chloride", category: "Salt" },
+    { formula: "MgCl₂", name: "Magnesium chloride", category: "Salt" },
+    { formula: "Na₂SO₄", name: "Sodium sulfate", category: "Salt" },
+    { formula: "K₂SO₄", name: "Potassium sulfate", category: "Salt" },
+    { formula: "CaSO₄", name: "Calcium sulfate", category: "Salt" },
+    { formula: "Na₂CO₃", name: "Sodium carbonate", category: "Salt" },
+    { formula: "CaCO₃", name: "Calcium carbonate", category: "Salt" },
+    { formula: "NaHCO₃", name: "Sodium bicarbonate", category: "Salt" },
+    { formula: "AgNO₃", name: "Silver nitrate", category: "Salt" },
+    { formula: "Pb(NO₃)₂", name: "Lead nitrate", category: "Salt" },
+    
+    // Common oxides
+    { formula: "Fe₂O₃", name: "Iron(III) oxide", category: "Oxide" },
+    { formula: "FeO", name: "Iron(II) oxide", category: "Oxide" },
+    { formula: "Al₂O₃", name: "Aluminum oxide", category: "Oxide" },
+    { formula: "CuO", name: "Copper(II) oxide", category: "Oxide" },
+    { formula: "Cu₂O", name: "Copper(I) oxide", category: "Oxide" },
+    { formula: "ZnO", name: "Zinc oxide", category: "Oxide" },
+    { formula: "MgO", name: "Magnesium oxide", category: "Oxide" },
+    { formula: "CaO", name: "Calcium oxide", category: "Oxide" },
+    { formula: "Na₂O", name: "Sodium oxide", category: "Oxide" },
+    { formula: "K₂O", name: "Potassium oxide", category: "Oxide" },
+    
+    // Elements
+    { formula: "Fe", name: "Iron", category: "Element" },
+    { formula: "Cu", name: "Copper", category: "Element" },
+    { formula: "Zn", name: "Zinc", category: "Element" },
+    { formula: "Al", name: "Aluminum", category: "Element" },
+    { formula: "Mg", name: "Magnesium", category: "Element" },
+    { formula: "Ca", name: "Calcium", category: "Element" },
+    { formula: "Na", name: "Sodium", category: "Element" },
+    { formula: "K", name: "Potassium", category: "Element" },
+    { formula: "Ag", name: "Silver", category: "Element" },
+    { formula: "Pb", name: "Lead", category: "Element" },
+    { formula: "C", name: "Carbon", category: "Element" },
+    { formula: "S", name: "Sulfur", category: "Element" },
+    { formula: "P", name: "Phosphorus", category: "Element" }
+];
+
 // UI Controller
 class EquationBalancerUI {
     constructor() {
         this.balancer = new ChemicalEquationBalancer();
+        this.compounds = COMPOUND_DATABASE;
+        this.activeDropdown = null;
         this.initializeEventListeners();
+        this.setupDropdowns();
     }
 
     initializeEventListeners() {
@@ -320,6 +414,218 @@ class EquationBalancerUI {
 
         // Add example placeholders
         this.addExamplePlaceholders();
+        
+        // Setup dropdown functionality
+        this.setupDropdownEvents();
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.relative')) {
+                this.closeAllDropdowns();
+            }
+        });
+    }
+
+    setupDropdowns() {
+        this.populateDropdown('reactants');
+        this.populateDropdown('products');
+    }
+
+    setupDropdownEvents() {
+        // Reactants dropdown
+        const reactantsBtn = document.getElementById('reactants-dropdown-btn');
+        const reactantsDropdown = document.getElementById('reactants-dropdown');
+        const reactantsSearch = document.getElementById('reactants-search');
+        const reactantsInput = document.getElementById('reactants-input');
+
+        if (reactantsBtn && reactantsDropdown) {
+            reactantsBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.toggleDropdown('reactants');
+            });
+
+            reactantsInput.addEventListener('focus', () => {
+                this.showDropdown('reactants');
+            });
+
+            reactantsInput.addEventListener('input', (e) => {
+                const query = e.target.value.split('+').pop().trim();
+                this.filterDropdown('reactants', query);
+            });
+        }
+
+        if (reactantsSearch) {
+            reactantsSearch.addEventListener('input', (e) => {
+                this.filterDropdown('reactants', e.target.value);
+            });
+        }
+
+        // Products dropdown
+        const productsBtn = document.getElementById('products-dropdown-btn');
+        const productsDropdown = document.getElementById('products-dropdown');
+        const productsSearch = document.getElementById('products-search');
+        const productsInput = document.getElementById('products-input');
+
+        if (productsBtn && productsDropdown) {
+            productsBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.toggleDropdown('products');
+            });
+
+            productsInput.addEventListener('focus', () => {
+                this.showDropdown('products');
+            });
+
+            productsInput.addEventListener('input', (e) => {
+                const query = e.target.value.split('+').pop().trim();
+                this.filterDropdown('products', query);
+            });
+        }
+
+        if (productsSearch) {
+            productsSearch.addEventListener('input', (e) => {
+                this.filterDropdown('products', e.target.value);
+            });
+        }
+    }
+
+    populateDropdown(type) {
+        const listElement = document.getElementById(`${type}-list`);
+        if (!listElement) return;
+
+        // Group compounds by category
+        const categories = {};
+        this.compounds.forEach(compound => {
+            if (!categories[compound.category]) {
+                categories[compound.category] = [];
+            }
+            categories[compound.category].push(compound);
+        });
+
+        let html = '';
+        Object.keys(categories).sort().forEach(category => {
+            html += `<div class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide bg-gray-50">${category}</div>`;
+            categories[category].forEach(compound => {
+                html += `
+                    <div class="compound-option px-3 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0" 
+                         data-formula="${compound.formula}" data-name="${compound.name}">
+                        <div class="flex justify-between items-center">
+                            <span class="font-mono text-lg">${compound.formula}</span>
+                            <span class="text-sm text-gray-500">${compound.name}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        });
+
+        listElement.innerHTML = html;
+
+        // Add click handlers
+        listElement.querySelectorAll('.compound-option').forEach(option => {
+            option.addEventListener('click', () => {
+                this.selectCompound(type, option.dataset.formula);
+            });
+        });
+    }
+
+    filterDropdown(type, query) {
+        const listElement = document.getElementById(`${type}-list`);
+        if (!listElement) return;
+
+        const options = listElement.querySelectorAll('.compound-option');
+        const categories = listElement.querySelectorAll('.px-3.py-2.text-xs');
+
+        if (!query.trim()) {
+            // Show all options
+            options.forEach(option => option.style.display = 'block');
+            categories.forEach(cat => cat.style.display = 'block');
+            return;
+        }
+
+        const queryLower = query.toLowerCase();
+        let visibleCategories = new Set();
+
+        options.forEach(option => {
+            const formula = option.dataset.formula.toLowerCase();
+            const name = option.dataset.name.toLowerCase();
+            
+            if (formula.includes(queryLower) || name.includes(queryLower)) {
+                option.style.display = 'block';
+                // Find the category for this option
+                let categoryElement = option.previousElementSibling;
+                while (categoryElement && !categoryElement.classList.contains('text-xs')) {
+                    categoryElement = categoryElement.previousElementSibling;
+                }
+                if (categoryElement) {
+                    visibleCategories.add(categoryElement);
+                }
+            } else {
+                option.style.display = 'none';
+            }
+        });
+
+        // Show/hide categories based on whether they have visible options
+        categories.forEach(cat => {
+            cat.style.display = visibleCategories.has(cat) ? 'block' : 'none';
+        });
+    }
+
+    selectCompound(type, formula) {
+        const input = document.getElementById(`${type}-input`);
+        if (!input) return;
+
+        const currentValue = input.value.trim();
+        let newValue;
+
+        if (currentValue === '') {
+            newValue = formula;
+        } else if (currentValue.endsWith('+')) {
+            newValue = currentValue + ' ' + formula;
+        } else {
+            newValue = currentValue + ' + ' + formula;
+        }
+
+        input.value = newValue;
+        input.focus();
+        this.closeDropdown(type);
+    }
+
+    toggleDropdown(type) {
+        if (this.activeDropdown === type) {
+            this.closeDropdown(type);
+        } else {
+            this.closeAllDropdowns();
+            this.showDropdown(type);
+        }
+    }
+
+    showDropdown(type) {
+        const dropdown = document.getElementById(`${type}-dropdown`);
+        if (dropdown) {
+            dropdown.classList.remove('hidden');
+            this.activeDropdown = type;
+            
+            // Focus search input
+            const searchInput = document.getElementById(`${type}-search`);
+            if (searchInput) {
+                setTimeout(() => searchInput.focus(), 100);
+            }
+        }
+    }
+
+    closeDropdown(type) {
+        const dropdown = document.getElementById(`${type}-dropdown`);
+        if (dropdown) {
+            dropdown.classList.add('hidden');
+            if (this.activeDropdown === type) {
+                this.activeDropdown = null;
+            }
+        }
+    }
+
+    closeAllDropdowns() {
+        this.closeDropdown('reactants');
+        this.closeDropdown('products');
     }
 
     addExamplePlaceholders() {
@@ -592,6 +898,18 @@ class EquationBalancerUI {
         if (productsInput) {
             productsInput.value = '';
         }
+        
+        // Clear search inputs
+        const reactantsSearch = document.getElementById('reactants-search');
+        const productsSearch = document.getElementById('products-search');
+        if (reactantsSearch) reactantsSearch.value = '';
+        if (productsSearch) productsSearch.value = '';
+        
+        // Reset dropdown filters
+        this.filterDropdown('reactants', '');
+        this.filterDropdown('products', '');
+        
+        this.closeAllDropdowns();
         this.hideError();
         this.hideResults();
     }

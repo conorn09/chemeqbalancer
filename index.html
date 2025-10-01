@@ -7,6 +7,29 @@
     <title>Chemical Equation Balancer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .compound-option:hover {
+            background-color: #dbeafe;
+        }
+        .compound-option.selected {
+            background-color: #3b82f6;
+            color: white;
+        }
+        /* Custom scrollbar for dropdown */
+        .max-h-48::-webkit-scrollbar {
+            width: 6px;
+        }
+        .max-h-48::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .max-h-48::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        .max-h-48::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
 </head>
 
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
@@ -23,19 +46,51 @@
         <!-- Input Section -->
         <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
+                <div class="relative">
                     <label for="reactants-input" class="block text-sm font-medium text-gray-700 mb-2">
                         Reactants (separated by +)
                     </label>
-                    <input type="text" id="reactants-input" placeholder="e.g., H2 + O2"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg">
+                    <div class="relative">
+                        <input type="text" id="reactants-input" placeholder="Type or click dropdown to select compounds"
+                            class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+                            autocomplete="off">
+                        <button type="button" id="reactants-dropdown-btn" 
+                            class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div id="reactants-dropdown" class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto">
+                        <div class="p-2">
+                            <input type="text" id="reactants-search" placeholder="Search compounds..." 
+                                class="w-full px-3 py-2 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500">
+                        </div>
+                        <div id="reactants-list" class="max-h-48 overflow-y-auto">
+                            <!-- Compound options will be populated here -->
+                        </div>
+                    </div>
                 </div>
-                <div>
+                <div class="relative">
                     <label for="products-input" class="block text-sm font-medium text-gray-700 mb-2">
                         Products (separated by +)
                     </label>
-                    <input type="text" id="products-input" placeholder="e.g., H2O"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg">
+                    <div class="relative">
+                        <input type="text" id="products-input" placeholder="Type or click dropdown to select compounds"
+                            class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+                            autocomplete="off">
+                        <button type="button" id="products-dropdown-btn" 
+                            class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div id="products-dropdown" class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto">
+                        <div class="p-2">
+                            <input type="text" id="products-search" placeholder="Search compounds..." 
+                                class="w-full px-3 py-2 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500">
+                        </div>
+                        <div id="products-list" class="max-h-48 overflow-y-auto">
+                            <!-- Compound options will be populated here -->
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="flex gap-2">
@@ -51,9 +106,8 @@
                 </button>
             </div>
             <div class="text-sm text-gray-500 mt-2">
-                <p><strong>How to use:</strong> Enter reactants on the left, products on the right. Separate multiple
-                    compounds with + signs.</p>
-                <p><strong>Examples:</strong> Reactants: "CH4 + O2" → Products: "CO2 + H2O"</p>
+                <p><strong>How to use:</strong> Type compounds directly or use the dropdown to select from common compounds. Separate multiple compounds with + signs.</p>
+                <p><strong>Examples:</strong> Select H₂O, CH₄, CO₂, NaCl, etc. from the dropdown or type custom formulas.</p>
             </div>
         </div>
 
