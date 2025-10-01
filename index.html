@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemical Equation Balancer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">
+                <i class="fas fa-flask text-blue-600"></i>
+                Chemical Equation Balancer
+            </h1>
+            <p class="text-gray-600">Balance chemical equations instantly with step-by-step explanations</p>
+        </div>
+
+        <!-- Input Section -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label for="reactants-input" class="block text-sm font-medium text-gray-700 mb-2">
+                        Reactants (separated by +)
+                    </label>
+                    <input type="text" id="reactants-input" placeholder="e.g., H2 + O2"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg">
+                </div>
+                <div>
+                    <label for="products-input" class="block text-sm font-medium text-gray-700 mb-2">
+                        Products (separated by +)
+                    </label>
+                    <input type="text" id="products-input" placeholder="e.g., H2O"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg">
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button id="balance-btn"
+                    class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                    type="button">
+                    Balance Equation
+                </button>
+                <button id="clear-btn"
+                    class="px-4 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                    type="button">
+                    <i class="fas fa-times"></i> Clear
+                </button>
+            </div>
+            <div class="text-sm text-gray-500 mt-2">
+                <p><strong>How to use:</strong> Enter reactants on the left, products on the right. Separate multiple
+                    compounds with + signs.</p>
+                <p><strong>Examples:</strong> Reactants: "CH4 + O2" → Products: "CO2 + H2O"</p>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results-section" class="hidden">
+            <!-- Balanced Equation -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                    Balanced Equation
+                </h2>
+                <div id="balanced-equation"
+                    class="text-2xl font-mono bg-gray-50 p-4 rounded-lg border-l-4 border-green-500">
+                </div>
+                <button id="copy-btn"
+                    class="mt-3 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors text-sm">
+                    <i class="fas fa-copy mr-1"></i> Copy Result
+                </button>
+            </div>
+
+            <!-- Step-by-Step Explanation -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-list-ol text-blue-600 mr-2"></i>
+                    Step-by-Step Solution
+                </h2>
+                <div id="steps-container">
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Section -->
+        <div id="error-section" class="hidden bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-triangle text-red-600 mr-2"></i>
+                <span class="text-red-800 font-medium">Error:</span>
+            </div>
+            <p id="error-message" class="text-red-700 mt-1"></p>
+        </div>
+    </div>
+
+    <script src="equation-balancer.js"></script>
+</body>
+
+</html>
