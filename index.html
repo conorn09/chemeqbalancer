@@ -11,21 +11,26 @@
         .compound-option:hover {
             background-color: #dbeafe;
         }
+
         .compound-option.selected {
             background-color: #3b82f6;
             color: white;
         }
+
         /* Custom scrollbar for dropdown */
         .max-h-48::-webkit-scrollbar {
             width: 6px;
         }
+
         .max-h-48::-webkit-scrollbar-track {
             background: #f1f5f9;
         }
+
         .max-h-48::-webkit-scrollbar-thumb {
             background: #cbd5e1;
             border-radius: 3px;
         }
+
         .max-h-48::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
@@ -54,17 +59,14 @@
                         <input type="text" id="reactants-input" placeholder="Type or click dropdown to select compounds"
                             class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
                             autocomplete="off">
-                        <button type="button" id="reactants-dropdown-btn" 
+                        <button type="button" id="reactants-dropdown-btn"
                             class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
                             <i class="fas fa-chevron-down"></i>
                         </button>
                     </div>
-                    <div id="reactants-dropdown" class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto">
-                        <div class="p-2">
-                            <input type="text" id="reactants-search" placeholder="Search compounds..." 
-                                class="w-full px-3 py-2 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500">
-                        </div>
-                        <div id="reactants-list" class="max-h-48 overflow-y-auto">
+                    <div id="reactants-dropdown"
+                        class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto">
+                        <div id="reactants-list" class="max-h-60 overflow-y-auto">
                             <!-- Compound options will be populated here -->
                         </div>
                     </div>
@@ -77,17 +79,14 @@
                         <input type="text" id="products-input" placeholder="Type or click dropdown to select compounds"
                             class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
                             autocomplete="off">
-                        <button type="button" id="products-dropdown-btn" 
+                        <button type="button" id="products-dropdown-btn"
                             class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
                             <i class="fas fa-chevron-down"></i>
                         </button>
                     </div>
-                    <div id="products-dropdown" class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto">
-                        <div class="p-2">
-                            <input type="text" id="products-search" placeholder="Search compounds..." 
-                                class="w-full px-3 py-2 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500">
-                        </div>
-                        <div id="products-list" class="max-h-48 overflow-y-auto">
+                    <div id="products-dropdown"
+                        class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto">
+                        <div id="products-list" class="max-h-60 overflow-y-auto">
                             <!-- Compound options will be populated here -->
                         </div>
                     </div>
@@ -106,8 +105,10 @@
                 </button>
             </div>
             <div class="text-sm text-gray-500 mt-2">
-                <p><strong>How to use:</strong> Type compounds directly or use the dropdown to select from common compounds. Separate multiple compounds with + signs.</p>
-                <p><strong>Examples:</strong> Select H₂O, CH₄, CO₂, NaCl, etc. from the dropdown or type custom formulas.</p>
+                <p><strong>How to use:</strong> Type compounds directly or use the dropdown to select from common
+                    compounds. Separate multiple compounds with + signs.</p>
+                <p><strong>Examples:</strong> Select H₂O, CH₄, CO₂, NaCl, etc. from the dropdown or type custom
+                    formulas.</p>
             </div>
         </div>
 

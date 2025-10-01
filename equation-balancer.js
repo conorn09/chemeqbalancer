@@ -435,7 +435,6 @@ class EquationBalancerUI {
         // Reactants dropdown
         const reactantsBtn = document.getElementById('reactants-dropdown-btn');
         const reactantsDropdown = document.getElementById('reactants-dropdown');
-        const reactantsSearch = document.getElementById('reactants-search');
         const reactantsInput = document.getElementById('reactants-input');
 
         if (reactantsBtn && reactantsDropdown) {
@@ -446,24 +445,21 @@ class EquationBalancerUI {
 
             reactantsInput.addEventListener('focus', () => {
                 this.showDropdown('reactants');
+                // Filter based on current input
+                const query = this.getCurrentCompound(reactantsInput.value);
+                this.filterDropdown('reactants', query);
             });
 
             reactantsInput.addEventListener('input', (e) => {
-                const query = e.target.value.split('+').pop().trim();
+                const query = this.getCurrentCompound(e.target.value);
+                this.showDropdown('reactants');
                 this.filterDropdown('reactants', query);
-            });
-        }
-
-        if (reactantsSearch) {
-            reactantsSearch.addEventListener('input', (e) => {
-                this.filterDropdown('reactants', e.target.value);
             });
         }
 
         // Products dropdown
         const productsBtn = document.getElementById('products-dropdown-btn');
         const productsDropdown = document.getElementById('products-dropdown');
-        const productsSearch = document.getElementById('products-search');
         const productsInput = document.getElementById('products-input');
 
         if (productsBtn && productsDropdown) {
@@ -474,19 +470,22 @@ class EquationBalancerUI {
 
             productsInput.addEventListener('focus', () => {
                 this.showDropdown('products');
+                // Filter based on current input
+                const query = this.getCurrentCompound(productsInput.value);
+                this.filterDropdown('products', query);
             });
 
             productsInput.addEventListener('input', (e) => {
-                const query = e.target.value.split('+').pop().trim();
+                const query = this.getCurrentCompound(e.target.value);
+                this.showDropdown('products');
                 this.filterDropdown('products', query);
             });
         }
+    }
 
-        if (productsSearch) {
-            productsSearch.addEventListener('input', (e) => {
-                this.filterDropdown('products', e.target.value);
-            });
-        }
+    // Get the current compound being typed (after the last +)
+    getCurrentCompound(inputValue) {
+        return inputValue.split('+').pop().trim();
     }
 
     populateDropdown(type) {
@@ -532,41 +531,88 @@ class EquationBalancerUI {
         const listElement = document.getElementById(`${type}-list`);
         if (!listElement) return;
 
-        const options = listElement.querySelectorAll('.compound-option');
-        const categories = listElement.querySelectorAll('.px-3.py-2.text-xs');
-
         if (!query.trim()) {
-            // Show all options
-            options.forEach(option => option.style.display = 'block');
-            categories.forEach(cat => cat.style.display = 'block');
+            // Show all compounds organized by category
+            this.populateDropdown(type);
             return;
         }
 
-        const queryLower = query.toLowerCase();
-        let visibleCategories = new Set();
+        // Normalize query for better matching (handle subscripts)
+        const normalizedQuery = query.toLowerCase()
+            .replace(/2/g, '₂').replace(/3/g, '₃').replace(/4/g, '₄')
+            .replace(/5/g, '₅').replace(/6/g, '₆').replace(/7/g, '₇')
+            .replace(/8/g, '₈').replace(/9/g, '₉').replace(/0/g, '₀');
 
-        options.forEach(option => {
-            const formula = option.dataset.formula.toLowerCase();
-            const name = option.dataset.name.toLowerCase();
+        // Find matching compounds and score them
+        const matches = [];
+        this.compounds.forEach(compound => {
+            const formula = compound.formula.toLowerCase();
+            const name = compound.name.toLowerCase();
+            const queryLower = query.toLowerCase();
             
-            if (formula.includes(queryLower) || name.includes(queryLower)) {
-                option.style.display = 'block';
-                // Find the category for this option
-                let categoryElement = option.previousElementSibling;
-                while (categoryElement && !categoryElement.classList.contains('text-xs')) {
-                    categoryElement = categoryElement.previousElementSibling;
-                }
-                if (categoryElement) {
-                    visibleCategories.add(categoryElement);
-                }
-            } else {
-                option.style.display = 'none';
+            let score = 0;
+            
+            // Exact formula match gets highest score
+            if (formula === queryLower || formula === normalizedQuery.toLowerCase()) {
+                score = 1000;
+            }
+            // Formula starts with query
+            else if (formula.startsWith(queryLower) || formula.startsWith(normalizedQuery.toLowerCase())) {
+                score = 900;
+            }
+            // Formula contains query
+            else if (formula.includes(queryLower) || formula.includes(normalizedQuery.toLowerCase())) {
+                score = 800;
+            }
+            // Name starts with query
+            else if (name.startsWith(queryLower)) {
+                score = 700;
+            }
+            // Name contains query
+            else if (name.includes(queryLower)) {
+                score = 600;
+            }
+            
+            // Boost score for common compounds
+            const commonCompounds = ['h₂o', 'co₂', 'o₂', 'h₂', 'nacl', 'hcl', 'naoh', 'ch₄', 'nh₃'];
+            if (commonCompounds.includes(formula)) {
+                score += 100;
+            }
+            
+            if (score > 0) {
+                matches.push({ ...compound, score });
             }
         });
 
-        // Show/hide categories based on whether they have visible options
-        categories.forEach(cat => {
-            cat.style.display = visibleCategories.has(cat) ? 'block' : 'none';
+        // Sort by score (highest first)
+        matches.sort((a, b) => b.score - a.score);
+
+        // Display filtered results
+        let html = '';
+        if (matches.length > 0) {
+            html += '<div class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide bg-gray-50">Matching Compounds</div>';
+            matches.slice(0, 10).forEach(compound => { // Show top 10 matches
+                html += `
+                    <div class="compound-option px-3 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0" 
+                         data-formula="${compound.formula}" data-name="${compound.name}">
+                        <div class="flex justify-between items-center">
+                            <span class="font-mono text-lg">${compound.formula}</span>
+                            <span class="text-sm text-gray-500">${compound.name}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        } else {
+            html = '<div class="px-3 py-2 text-sm text-gray-500">No compounds found</div>';
+        }
+
+        listElement.innerHTML = html;
+
+        // Add click handlers to new options
+        listElement.querySelectorAll('.compound-option').forEach(option => {
+            option.addEventListener('click', () => {
+                this.selectCompound(type, option.dataset.formula);
+            });
         });
     }
 
@@ -575,19 +621,32 @@ class EquationBalancerUI {
         if (!input) return;
 
         const currentValue = input.value.trim();
-        let newValue;
-
-        if (currentValue === '') {
-            newValue = formula;
-        } else if (currentValue.endsWith('+')) {
-            newValue = currentValue + ' ' + formula;
+        const compounds = currentValue.split('+').map(c => c.trim()).filter(c => c.length > 0);
+        
+        // Replace the last compound (the one being typed) with the selected formula
+        if (compounds.length === 0 || currentValue === '') {
+            input.value = formula;
         } else {
-            newValue = currentValue + ' + ' + formula;
+            // Check if we're replacing an incomplete compound or adding a new one
+            const lastCompound = compounds[compounds.length - 1];
+            const currentTyping = this.getCurrentCompound(currentValue);
+            
+            if (currentTyping && currentTyping.length > 0) {
+                // Replace the compound being typed
+                compounds[compounds.length - 1] = formula;
+            } else {
+                // Add new compound
+                compounds.push(formula);
+            }
+            
+            input.value = compounds.join(' + ');
         }
 
-        input.value = newValue;
         input.focus();
         this.closeDropdown(type);
+        
+        // Set cursor at the end
+        input.setSelectionRange(input.value.length, input.value.length);
     }
 
     toggleDropdown(type) {
@@ -604,12 +663,6 @@ class EquationBalancerUI {
         if (dropdown) {
             dropdown.classList.remove('hidden');
             this.activeDropdown = type;
-            
-            // Focus search input
-            const searchInput = document.getElementById(`${type}-search`);
-            if (searchInput) {
-                setTimeout(() => searchInput.focus(), 100);
-            }
         }
     }
 
@@ -669,14 +722,29 @@ class EquationBalancerUI {
             return;
         }
 
-        const reactants = reactantsInput.value.trim();
-        const products = productsInput.value.trim();
+        let reactants = reactantsInput.value.trim();
+        let products = productsInput.value.trim();
+
+        // Remove trailing plus signs and clean up
+        reactants = reactants.replace(/\+\s*$/, '').trim();
+        products = products.replace(/\+\s*$/, '').trim();
+        
+        // Update the input fields to show cleaned values
+        reactantsInput.value = reactants;
+        productsInput.value = products;
 
         console.log('Reactants:', reactants);
         console.log('Products:', products);
 
         if (!reactants || !products) {
             this.showError('Please enter both reactants and products');
+            return;
+        }
+
+        // Check for empty compounds (double plus signs, etc.)
+        if (reactants.includes('++') || products.includes('++') || 
+            reactants.startsWith('+') || products.startsWith('+')) {
+            this.showError('Invalid format: Please check for extra plus signs or empty compounds');
             return;
         }
 
@@ -691,9 +759,136 @@ class EquationBalancerUI {
         console.log('Balance result:', result);
 
         if (result.success) {
-            this.showResults(result, equation);
+            // Check if equation is already balanced
+            if (this.isAlreadyBalanced(result)) {
+                this.showAlreadyBalanced(result, equation);
+            } else {
+                this.showResults(result, equation);
+            }
         } else {
-            this.showError(result.error);
+            this.showSmartError(result.error, equation);
+        }
+    }
+
+    // Check if the equation is already balanced (all coefficients are 1)
+    isAlreadyBalanced(result) {
+        return result.coefficients.every(coeff => coeff === 1);
+    }
+
+    // Show message for already balanced equations
+    showAlreadyBalanced(result, originalEquation) {
+        const resultsSection = document.getElementById('results-section');
+        const balancedEquationDiv = document.getElementById('balanced-equation');
+        const stepsContainer = document.getElementById('steps-container');
+
+        if (!resultsSection || !balancedEquationDiv || !stepsContainer) {
+            console.error('Results elements not found');
+            return;
+        }
+
+        // Show the equation
+        balancedEquationDiv.textContent = result.balancedEquation;
+
+        // Show explanation for already balanced equation
+        stepsContainer.innerHTML = `
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div class="flex items-center mb-2">
+                    <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                    <h3 class="text-lg font-semibold text-green-800">Equation Already Balanced!</h3>
+                </div>
+                <p class="text-green-700 mb-3">
+                    This equation is already balanced as written. All elements have the same number of atoms on both sides.
+                </p>
+                <div class="bg-white p-3 rounded border">
+                    <h4 class="font-medium text-gray-800 mb-2">Element Verification:</h4>
+                    ${this.generateElementVerification(result)}
+                </div>
+            </div>
+        `;
+
+        resultsSection.classList.remove('hidden');
+        resultsSection.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Generate element verification for already balanced equations
+    generateElementVerification(result) {
+        let content = '';
+        result.elements.forEach(element => {
+            let reactantCount = 0;
+            let productCount = 0;
+            
+            result.compounds.forEach((compound, i) => {
+                const count = (compound.elements[element] || 0) * result.coefficients[i];
+                if (compound.isReactant) {
+                    reactantCount += count;
+                } else {
+                    productCount += count;
+                }
+            });
+            
+            content += `<p class="text-sm"><strong>${element}:</strong> ${reactantCount} (reactants) = ${productCount} (products) ✓</p>`;
+        });
+        return content;
+    }
+
+    // Show smarter error messages
+    showSmartError(errorMessage, equation) {
+        let smartMessage = errorMessage;
+        let suggestions = [];
+
+        // Analyze the error and provide helpful suggestions
+        if (errorMessage.includes('Could not find a valid solution')) {
+            smartMessage = 'This equation cannot be balanced';
+            suggestions = [
+                'Check if all compounds are written correctly',
+                'Verify that this is a valid chemical reaction',
+                'Some reactions may require additional reactants or products',
+                'Consider if this might be a nuclear reaction (not supported)'
+            ];
+        } else if (errorMessage.includes('Empty compound')) {
+            smartMessage = 'Empty compound detected';
+            suggestions = [
+                'Check for extra plus signs (+ +)',
+                'Make sure all compounds are properly entered',
+                'Remove any trailing plus signs'
+            ];
+        } else if (errorMessage.includes('Could not parse compound')) {
+            smartMessage = 'Invalid compound formula detected';
+            suggestions = [
+                'Check chemical formulas for typos',
+                'Use proper capitalization (H2O, not h2o)',
+                'Make sure all elements are valid',
+                'Use numbers for subscripts (H2O, not H₂O if typing manually)'
+            ];
+        } else if (errorMessage.includes('Invalid equation format')) {
+            smartMessage = 'Equation format error';
+            suggestions = [
+                'Make sure both reactants and products are filled in',
+                'Check for proper compound separation with + signs',
+                'Verify all chemical formulas are complete'
+            ];
+        }
+
+        // Display the smart error
+        const errorSection = document.getElementById('error-section');
+        const errorMessage_elem = document.getElementById('error-message');
+        
+        if (errorSection && errorMessage_elem) {
+            let content = `<strong>${smartMessage}</strong>`;
+            
+            if (suggestions.length > 0) {
+                content += '<br><br><strong>Suggestions:</strong><ul class="mt-2 ml-4">';
+                suggestions.forEach(suggestion => {
+                    content += `<li class="text-sm">• ${suggestion}</li>`;
+                });
+                content += '</ul>';
+            }
+            
+            content += `<br><br><em class="text-sm">Original equation: ${equation}</em>`;
+            
+            errorMessage_elem.innerHTML = content;
+            errorSection.classList.remove('hidden');
+            errorSection.scrollIntoView({ behavior: 'smooth' });
         }
     }
 
@@ -898,12 +1093,6 @@ class EquationBalancerUI {
         if (productsInput) {
             productsInput.value = '';
         }
-        
-        // Clear search inputs
-        const reactantsSearch = document.getElementById('reactants-search');
-        const productsSearch = document.getElementById('products-search');
-        if (reactantsSearch) reactantsSearch.value = '';
-        if (productsSearch) productsSearch.value = '';
         
         // Reset dropdown filters
         this.filterDropdown('reactants', '');
