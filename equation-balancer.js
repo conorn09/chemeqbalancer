@@ -8,8 +8,6 @@ class ChemicalEquationBalancer {
 
     // Parse chemical formula to extract elements and their counts
     parseFormula(formula) {
-        const elements = {};
-
         // Convert subscript numbers to regular numbers
         const normalizedFormula = formula
             .replace(/₀/g, '0').replace(/₁/g, '1').replace(/₂/g, '2')
@@ -17,16 +15,68 @@ class ChemicalEquationBalancer {
             .replace(/₆/g, '6').replace(/₇/g, '7').replace(/₈/g, '8')
             .replace(/₉/g, '9');
 
-        const regex = /([A-Z][a-z]?)(\d*)/g;
-        let match;
+        return this.parseFormulaWithParentheses(normalizedFormula);
+    }
 
-        while ((match = regex.exec(normalizedFormula)) !== null) {
-            const element = match[1];
-            const count = match[2] ? parseInt(match[2]) : 1;
-            elements[element] = (elements[element] || 0) + count;
+    parseFormulaWithParentheses(formula) {
+        const elements = {};
+        const stack = [{}]; // Stack to handle nested parentheses
+        let i = 0;
+
+        while (i < formula.length) {
+            const char = formula[i];
+
+            if (char === '(') {
+                // Start a new group
+                stack.push({});
+                i++;
+            } else if (char === ')') {
+                // End current group and apply multiplier
+                i++;
+                let multiplier = '';
+
+                // Read the number after closing parenthesis
+                while (i < formula.length && /\d/.test(formula[i])) {
+                    multiplier += formula[i];
+                    i++;
+                }
+
+                const mult = multiplier ? parseInt(multiplier) : 1;
+                const group = stack.pop();
+                const currentLevel = stack[stack.length - 1];
+
+                // Add elements from group to current level with multiplier
+                for (const [element, count] of Object.entries(group)) {
+                    currentLevel[element] = (currentLevel[element] || 0) + (count * mult);
+                }
+            } else if (/[A-Z]/.test(char)) {
+                // Parse element
+                let element = char;
+                i++;
+
+                // Check for lowercase letter (like Cl, Ca, etc.)
+                if (i < formula.length && /[a-z]/.test(formula[i])) {
+                    element += formula[i];
+                    i++;
+                }
+
+                // Parse number after element
+                let number = '';
+                while (i < formula.length && /\d/.test(formula[i])) {
+                    number += formula[i];
+                    i++;
+                }
+
+                const count = number ? parseInt(number) : 1;
+                const currentLevel = stack[stack.length - 1];
+                currentLevel[element] = (currentLevel[element] || 0) + count;
+            } else {
+                // Skip unknown characters
+                i++;
+            }
         }
 
-        return elements;
+        return stack[0];
     }
 
     // Parse the entire equation
@@ -114,96 +164,216 @@ class ChemicalEquationBalancer {
         return this.matrix;
     }
 
-    // Solve the system using Gaussian elimination
+    // Solve using proper null space computation (following the pseudocode)
     solveMatrix() {
         const matrix = this.matrix.map(row => [...row]);
         const numRows = matrix.length;
         const numCols = matrix[0].length;
 
-        // Gaussian elimination
-        for (let i = 0; i < Math.min(numRows, numCols - 1); i++) {
+        // Helper functions
+        const gcd = (a, b) => b === 0 ? Math.abs(a) : gcd(b, a % b);
+        const lcm = (a, b) => Math.abs(a * b) / gcd(a, b);
+        const Fraction = (num, den = 1) => {
+            const g = gcd(Math.abs(num), Math.abs(den));
+            return { num: num / g, den: den / g };
+        };
+
+        // Convert matrix to fractions for exact arithmetic
+        const fracMatrix = matrix.map(row =>
+            row.map(val => Fraction(Math.round(val * 1000), 1000))
+        );
+
+        // Perform RREF (Reduced Row Echelon Form)
+        const rref = this.computeRREF(fracMatrix);
+
+        // Compute null space from RREF
+        const nullBasis = this.computeNullspaceFromRREF(rref);
+
+        if (nullBasis.length === 0) {
+            throw new Error('No nontrivial solution exists');
+        }
+
+        // Pick first basis vector (it's in fractions)
+        const basisVector = nullBasis[0];
+
+        // Find LCM of all denominators
+        let commonDen = 1;
+        basisVector.forEach(frac => {
+            if (frac.den !== 1) {
+                commonDen = lcm(commonDen, Math.abs(frac.den));
+            }
+        });
+
+        // Multiply by LCM to get integers
+        const integers = basisVector.map(frac => (frac.num * commonDen) / frac.den);
+
+        // Ensure all positive (flip sign if needed)
+        const hasNegative = integers.some(x => x < 0);
+        if (hasNegative) {
+            integers.forEach((val, i) => {
+                integers[i] = -val;
+            });
+        }
+
+        // Divide by GCD to get minimal integers
+        const allGcd = integers.reduce((acc, val) =>
+            val === 0 ? acc : gcd(acc, Math.abs(val)), Math.abs(integers.find(x => x !== 0) || 1)
+        );
+
+        const minimalInts = integers.map(val => Math.round(val / allGcd));
+
+        // Ensure all coefficients are positive integers
+        const finalSolution = minimalInts.map(x => Math.max(1, Math.abs(x)));
+
+        this.solution = finalSolution;
+        return finalSolution;
+    }
+
+    // Compute RREF using exact fraction arithmetic
+    computeRREF(fracMatrix) {
+        const matrix = fracMatrix.map(row => row.map(frac => ({ ...frac })));
+        const numRows = matrix.length;
+        const numCols = matrix[0].length;
+
+        const addFractions = (a, b) => {
+            const num = a.num * b.den + b.num * a.den;
+            const den = a.den * b.den;
+            const g = this.gcd(Math.abs(num), Math.abs(den));
+            return { num: num / g, den: den / g };
+        };
+
+        const multiplyFractions = (a, b) => {
+            const num = a.num * b.num;
+            const den = a.den * b.den;
+            const g = this.gcd(Math.abs(num), Math.abs(den));
+            return { num: num / g, den: den / g };
+        };
+
+        const divideFractions = (a, b) => {
+            if (b.num === 0) return { num: 0, den: 1 };
+            return multiplyFractions(a, { num: b.den, den: b.num });
+        };
+
+        let currentRow = 0;
+
+        for (let col = 0; col < numCols && currentRow < numRows; col++) {
             // Find pivot
-            let maxRow = i;
-            for (let k = i + 1; k < numRows; k++) {
-                if (Math.abs(matrix[k][i]) > Math.abs(matrix[maxRow][i])) {
-                    maxRow = k;
+            let pivotRow = -1;
+            for (let row = currentRow; row < numRows; row++) {
+                if (matrix[row][col].num !== 0) {
+                    pivotRow = row;
+                    break;
                 }
             }
 
-            // Swap rows
-            [matrix[i], matrix[maxRow]] = [matrix[maxRow], matrix[i]];
+            if (pivotRow === -1) continue; // No pivot in this column
 
-            // Make all rows below this one 0 in current column
-            for (let k = i + 1; k < numRows; k++) {
-                if (matrix[i][i] !== 0) {
-                    const factor = matrix[k][i] / matrix[i][i];
-                    for (let j = i; j < numCols; j++) {
-                        matrix[k][j] -= factor * matrix[i][j];
+            // Swap rows
+            if (pivotRow !== currentRow) {
+                [matrix[currentRow], matrix[pivotRow]] = [matrix[pivotRow], matrix[currentRow]];
+            }
+
+            // Scale pivot row to make pivot = 1
+            const pivot = matrix[currentRow][col];
+            if (pivot.num !== 0) {
+                for (let j = 0; j < numCols; j++) {
+                    matrix[currentRow][j] = divideFractions(matrix[currentRow][j], pivot);
+                }
+            }
+
+            // Eliminate column
+            for (let row = 0; row < numRows; row++) {
+                if (row !== currentRow && matrix[row][col].num !== 0) {
+                    const factor = matrix[row][col];
+                    for (let j = 0; j < numCols; j++) {
+                        const term = multiplyFractions(factor, matrix[currentRow][j]);
+                        matrix[row][j] = addFractions(matrix[row][j], { num: -term.num, den: term.den });
                     }
                 }
             }
+
+            currentRow++;
         }
 
-        // Back substitution to find a particular solution
-        const solution = new Array(numCols).fill(0);
-        solution[numCols - 1] = 1; // Set last coefficient to 1
+        return matrix;
+    }
 
-        for (let i = Math.min(numRows, numCols - 1) - 1; i >= 0; i--) {
-            let sum = 0;
-            for (let j = i + 1; j < numCols; j++) {
-                sum += matrix[i][j] * solution[j];
+    // Compute null space from RREF matrix
+    computeNullspaceFromRREF(rref) {
+        const numRows = rref.length;
+        const numCols = rref[0].length;
+
+        // Find pivot columns
+        const pivotCols = [];
+        const freeVars = [];
+
+        for (let row = 0; row < numRows; row++) {
+            for (let col = 0; col < numCols; col++) {
+                if (rref[row][col].num !== 0) {
+                    pivotCols.push(col);
+                    break;
+                }
             }
-            if (matrix[i][i] !== 0) {
-                solution[i] = -sum / matrix[i][i];
+        }
+
+        // Identify free variables
+        for (let col = 0; col < numCols; col++) {
+            if (!pivotCols.includes(col)) {
+                freeVars.push(col);
             }
         }
 
-        // Convert to positive integers
-        const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
-        const lcm = (a, b) => Math.abs(a * b) / gcd(a, b);
+        if (freeVars.length === 0) {
+            return []; // No free variables, no null space
+        }
 
-        // Find LCM of denominators to make all coefficients integers
-        let denominator = 1;
-        const fractions = solution.map(x => {
-            if (x === 0) return { num: 0, den: 1 };
-            const precision = 1000000;
-            const num = Math.round(x * precision);
-            const den = precision;
-            const g = gcd(Math.abs(num), den);
-            return { num: num / g, den: den / g };
-        });
+        // Generate basis vectors for null space
+        const nullBasis = [];
 
-        fractions.forEach(frac => {
-            if (frac.den !== 1) {
-                denominator = lcm(denominator, frac.den);
+        for (const freeVar of freeVars) {
+            const basisVector = new Array(numCols).fill(null).map(() => ({ num: 0, den: 1 }));
+            basisVector[freeVar] = { num: 1, den: 1 }; // Set free variable to 1
+
+            // Back substitute to find values of pivot variables
+            for (let row = pivotCols.length - 1; row >= 0; row--) {
+                const pivotCol = pivotCols[row];
+                if (pivotCol < numCols) {
+                    let sum = { num: 0, den: 1 };
+
+                    for (let col = pivotCol + 1; col < numCols; col++) {
+                        if (rref[row][col].num !== 0) {
+                            const term = this.multiplyFractions(rref[row][col], basisVector[col]);
+                            sum = this.addFractions(sum, term);
+                        }
+                    }
+
+                    basisVector[pivotCol] = { num: -sum.num, den: sum.den };
+                }
             }
-        });
 
-        const integerSolution = fractions.map(frac =>
-            Math.round((frac.num * denominator) / frac.den)
-        );
-
-        // Make all coefficients positive
-        const minCoeff = Math.min(...integerSolution.filter(x => x !== 0));
-        if (minCoeff < 0) {
-            integerSolution.forEach((coeff, i) => {
-                integerSolution[i] = -coeff;
-            });
+            nullBasis.push(basisVector);
         }
 
-        // Reduce to smallest integers
-        const coeffGcd = integerSolution.reduce((acc, val) =>
-            val === 0 ? acc : gcd(acc, Math.abs(val)), 0
-        );
+        return nullBasis;
+    }
 
-        if (coeffGcd > 1) {
-            integerSolution.forEach((coeff, i) => {
-                integerSolution[i] = Math.round(coeff / coeffGcd);
-            });
-        }
+    // Helper methods for fraction arithmetic
+    gcd(a, b) {
+        return b === 0 ? Math.abs(a) : this.gcd(b, a % b);
+    }
 
-        this.solution = integerSolution;
-        return integerSolution;
+    addFractions(a, b) {
+        const num = a.num * b.den + b.num * a.den;
+        const den = a.den * b.den;
+        const g = this.gcd(Math.abs(num), Math.abs(den));
+        return { num: num / g, den: den / g };
+    }
+
+    multiplyFractions(a, b) {
+        const num = a.num * b.num;
+        const den = a.den * b.den;
+        const g = this.gcd(Math.abs(num), Math.abs(den));
+        return { num: num / g, den: den / g };
     }
 
     // Balance the equation
@@ -237,14 +407,23 @@ class ChemicalEquationBalancer {
     // Verify that the solution balances the equation
     verifySolution(coefficients) {
         for (let i = 0; i < this.elements.length; i++) {
-            let sum = 0;
+            let reactantSum = 0;
+            let productSum = 0;
+
             for (let j = 0; j < this.compounds.length; j++) {
                 const element = this.elements[i];
                 const count = this.compounds[j].elements[element] || 0;
                 const coeff = coefficients[j];
-                sum += (this.compounds[j].isReactant ? count : -count) * coeff;
+
+                if (this.compounds[j].isReactant) {
+                    reactantSum += count * coeff;
+                } else {
+                    productSum += count * coeff;
+                }
             }
-            if (Math.abs(sum) > 1e-10) {
+
+            if (Math.abs(reactantSum - productSum) > 1e-10) {
+                console.log(`Element ${this.elements[i]}: ${reactantSum} ≠ ${productSum}`);
                 return false;
             }
         }
@@ -284,17 +463,33 @@ const COMPOUND_DATABASE = [
     { formula: "CH₄", name: "Methane", category: "Gas" },
     { formula: "C₂H₆", name: "Ethane", category: "Gas" },
     { formula: "C₃H₈", name: "Propane", category: "Gas" },
+    { formula: "C₄H₁₀", name: "Butane", category: "Gas" },
+    { formula: "C₂H₄", name: "Ethylene", category: "Gas" },
+    { formula: "C₂H₂", name: "Acetylene", category: "Gas" },
     { formula: "SO₂", name: "Sulfur dioxide", category: "Gas" },
+    { formula: "SO₃", name: "Sulfur trioxide", category: "Gas" },
     { formula: "H₂S", name: "Hydrogen sulfide", category: "Gas" },
     { formula: "NO", name: "Nitric oxide", category: "Gas" },
     { formula: "NO₂", name: "Nitrogen dioxide", category: "Gas" },
+    { formula: "N₂O", name: "Nitrous oxide", category: "Gas" },
+    { formula: "N₂O₄", name: "Dinitrogen tetroxide", category: "Gas" },
     { formula: "Cl₂", name: "Chlorine gas", category: "Gas" },
+    { formula: "F₂", name: "Fluorine gas", category: "Gas" },
+    { formula: "Br₂", name: "Bromine gas", category: "Gas" },
+    { formula: "I₂", name: "Iodine gas", category: "Gas" },
+    { formula: "HCN", name: "Hydrogen cyanide", category: "Gas" },
+    { formula: "PH₃", name: "Phosphine", category: "Gas" },
 
     // Water and common liquids
     { formula: "H₂O", name: "Water", category: "Liquid" },
     { formula: "H₂O₂", name: "Hydrogen peroxide", category: "Liquid" },
     { formula: "C₂H₅OH", name: "Ethanol", category: "Liquid" },
     { formula: "CH₃OH", name: "Methanol", category: "Liquid" },
+    { formula: "C₃H₇OH", name: "Propanol", category: "Liquid" },
+    { formula: "C₆H₆", name: "Benzene", category: "Liquid" },
+    { formula: "CCl₄", name: "Carbon tetrachloride", category: "Liquid" },
+    { formula: "CHCl₃", name: "Chloroform", category: "Liquid" },
+    { formula: "CS₂", name: "Carbon disulfide", category: "Liquid" },
 
     // Common acids
     { formula: "HCl", name: "Hydrochloric acid", category: "Acid" },
@@ -302,9 +497,15 @@ const COMPOUND_DATABASE = [
     { formula: "HNO₃", name: "Nitric acid", category: "Acid" },
     { formula: "CH₃COOH", name: "Acetic acid", category: "Acid" },
     { formula: "H₃PO₄", name: "Phosphoric acid", category: "Acid" },
+    { formula: "H₂CO₃", name: "Carbonic acid", category: "Acid" },
     { formula: "HF", name: "Hydrofluoric acid", category: "Acid" },
     { formula: "HBr", name: "Hydrobromic acid", category: "Acid" },
     { formula: "HI", name: "Hydroiodic acid", category: "Acid" },
+    { formula: "H₂S", name: "Hydrosulfuric acid", category: "Acid" },
+    { formula: "HClO₄", name: "Perchloric acid", category: "Acid" },
+    { formula: "HClO₃", name: "Chloric acid", category: "Acid" },
+    { formula: "HClO₂", name: "Chlorous acid", category: "Acid" },
+    { formula: "HClO", name: "Hypochlorous acid", category: "Acid" },
 
     // Common bases
     { formula: "NaOH", name: "Sodium hydroxide", category: "Base" },
@@ -312,34 +513,115 @@ const COMPOUND_DATABASE = [
     { formula: "Ca(OH)₂", name: "Calcium hydroxide", category: "Base" },
     { formula: "Mg(OH)₂", name: "Magnesium hydroxide", category: "Base" },
     { formula: "Ba(OH)₂", name: "Barium hydroxide", category: "Base" },
+    { formula: "Al(OH)₃", name: "Aluminum hydroxide", category: "Base" },
+    { formula: "Fe(OH)₂", name: "Iron(II) hydroxide", category: "Base" },
+    { formula: "Fe(OH)₃", name: "Iron(III) hydroxide", category: "Base" },
+    { formula: "Cu(OH)₂", name: "Copper(II) hydroxide", category: "Base" },
+    { formula: "Zn(OH)₂", name: "Zinc hydroxide", category: "Base" },
+    { formula: "LiOH", name: "Lithium hydroxide", category: "Base" },
+    { formula: "RbOH", name: "Rubidium hydroxide", category: "Base" },
+    { formula: "CsOH", name: "Cesium hydroxide", category: "Base" },
 
-    // Common salts
+    // Sulfates (including Iron(III) sulfate!)
+    { formula: "Fe₂(SO₄)₃", name: "Iron(III) sulfate", category: "Salt" },
+    { formula: "FeSO₄", name: "Iron(II) sulfate", category: "Salt" },
+    { formula: "CuSO₄", name: "Copper(II) sulfate", category: "Salt" },
+    { formula: "ZnSO₄", name: "Zinc sulfate", category: "Salt" },
+    { formula: "Al₂(SO₄)₃", name: "Aluminum sulfate", category: "Salt" },
+    { formula: "Na₂SO₄", name: "Sodium sulfate", category: "Salt" },
+    { formula: "K₂SO₄", name: "Potassium sulfate", category: "Salt" },
+    { formula: "CaSO₄", name: "Calcium sulfate", category: "Salt" },
+    { formula: "MgSO₄", name: "Magnesium sulfate", category: "Salt" },
+    { formula: "BaSO₄", name: "Barium sulfate", category: "Salt" },
+    { formula: "PbSO₄", name: "Lead(II) sulfate", category: "Salt" },
+    { formula: "Ag₂SO₄", name: "Silver sulfate", category: "Salt" },
+
+    // Nitrates
+    { formula: "AgNO₃", name: "Silver nitrate", category: "Salt" },
+    { formula: "Pb(NO₃)₂", name: "Lead(II) nitrate", category: "Salt" },
+    { formula: "Cu(NO₃)₂", name: "Copper(II) nitrate", category: "Salt" },
+    { formula: "Fe(NO₃)₃", name: "Iron(III) nitrate", category: "Salt" },
+    { formula: "Fe(NO₃)₂", name: "Iron(II) nitrate", category: "Salt" },
+    { formula: "Al(NO₃)₃", name: "Aluminum nitrate", category: "Salt" },
+    { formula: "Zn(NO₃)₂", name: "Zinc nitrate", category: "Salt" },
+    { formula: "Ca(NO₃)₂", name: "Calcium nitrate", category: "Salt" },
+    { formula: "Mg(NO₃)₂", name: "Magnesium nitrate", category: "Salt" },
+    { formula: "Ba(NO₃)₂", name: "Barium nitrate", category: "Salt" },
+    { formula: "NaNO₃", name: "Sodium nitrate", category: "Salt" },
+    { formula: "KNO₃", name: "Potassium nitrate", category: "Salt" },
+    { formula: "NH₄NO₃", name: "Ammonium nitrate", category: "Salt" },
+
+    // Chlorides
     { formula: "NaCl", name: "Sodium chloride", category: "Salt" },
     { formula: "KCl", name: "Potassium chloride", category: "Salt" },
     { formula: "CaCl₂", name: "Calcium chloride", category: "Salt" },
     { formula: "MgCl₂", name: "Magnesium chloride", category: "Salt" },
-    { formula: "Na₂SO₄", name: "Sodium sulfate", category: "Salt" },
-    { formula: "K₂SO₄", name: "Potassium sulfate", category: "Salt" },
-    { formula: "CaSO₄", name: "Calcium sulfate", category: "Salt" },
+    { formula: "FeCl₃", name: "Iron(III) chloride", category: "Salt" },
+    { formula: "FeCl₂", name: "Iron(II) chloride", category: "Salt" },
+    { formula: "CuCl₂", name: "Copper(II) chloride", category: "Salt" },
+    { formula: "CuCl", name: "Copper(I) chloride", category: "Salt" },
+    { formula: "ZnCl₂", name: "Zinc chloride", category: "Salt" },
+    { formula: "AlCl₃", name: "Aluminum chloride", category: "Salt" },
+    { formula: "AgCl", name: "Silver chloride", category: "Salt" },
+    { formula: "PbCl₂", name: "Lead(II) chloride", category: "Salt" },
+    { formula: "BaCl₂", name: "Barium chloride", category: "Salt" },
+    { formula: "NH₄Cl", name: "Ammonium chloride", category: "Salt" },
+
+    // Carbonates and Bicarbonates
     { formula: "Na₂CO₃", name: "Sodium carbonate", category: "Salt" },
+    { formula: "K₂CO₃", name: "Potassium carbonate", category: "Salt" },
     { formula: "CaCO₃", name: "Calcium carbonate", category: "Salt" },
+    { formula: "MgCO₃", name: "Magnesium carbonate", category: "Salt" },
+    { formula: "BaCO₃", name: "Barium carbonate", category: "Salt" },
+    { formula: "FeCO₃", name: "Iron(II) carbonate", category: "Salt" },
+    { formula: "CuCO₃", name: "Copper(II) carbonate", category: "Salt" },
+    { formula: "ZnCO₃", name: "Zinc carbonate", category: "Salt" },
     { formula: "NaHCO₃", name: "Sodium bicarbonate", category: "Salt" },
-    { formula: "AgNO₃", name: "Silver nitrate", category: "Salt" },
-    { formula: "Pb(NO₃)₂", name: "Lead nitrate", category: "Salt" },
+    { formula: "KHCO₃", name: "Potassium bicarbonate", category: "Salt" },
+    { formula: "Ca(HCO₃)₂", name: "Calcium bicarbonate", category: "Salt" },
+    { formula: "Mg(HCO₃)₂", name: "Magnesium bicarbonate", category: "Salt" },
+
+    // Phosphates
+    { formula: "Na₃PO₄", name: "Sodium phosphate", category: "Salt" },
+    { formula: "K₃PO₄", name: "Potassium phosphate", category: "Salt" },
+    { formula: "Ca₃(PO₄)₂", name: "Calcium phosphate", category: "Salt" },
+    { formula: "Mg₃(PO₄)₂", name: "Magnesium phosphate", category: "Salt" },
+    { formula: "FePO₄", name: "Iron(III) phosphate", category: "Salt" },
+    { formula: "AlPO₄", name: "Aluminum phosphate", category: "Salt" },
+    { formula: "(NH₄)₃PO₄", name: "Ammonium phosphate", category: "Salt" },
+
+    // Ammonium compounds
+    { formula: "NH₄Cl", name: "Ammonium chloride", category: "Salt" },
+    { formula: "(NH₄)₂SO₄", name: "Ammonium sulfate", category: "Salt" },
+    { formula: "NH₄NO₃", name: "Ammonium nitrate", category: "Salt" },
+    { formula: "(NH₄)₃PO₄", name: "Ammonium phosphate", category: "Salt" },
+    { formula: "(NH₄)₂CO₃", name: "Ammonium carbonate", category: "Salt" },
+    { formula: "NH₄OH", name: "Ammonium hydroxide", category: "Base" },
 
     // Common oxides
     { formula: "Fe₂O₃", name: "Iron(III) oxide", category: "Oxide" },
     { formula: "FeO", name: "Iron(II) oxide", category: "Oxide" },
+    { formula: "Fe₃O₄", name: "Iron(II,III) oxide", category: "Oxide" },
     { formula: "Al₂O₃", name: "Aluminum oxide", category: "Oxide" },
     { formula: "CuO", name: "Copper(II) oxide", category: "Oxide" },
     { formula: "Cu₂O", name: "Copper(I) oxide", category: "Oxide" },
     { formula: "ZnO", name: "Zinc oxide", category: "Oxide" },
     { formula: "MgO", name: "Magnesium oxide", category: "Oxide" },
     { formula: "CaO", name: "Calcium oxide", category: "Oxide" },
+    { formula: "BaO", name: "Barium oxide", category: "Oxide" },
     { formula: "Na₂O", name: "Sodium oxide", category: "Oxide" },
     { formula: "K₂O", name: "Potassium oxide", category: "Oxide" },
+    { formula: "Li₂O", name: "Lithium oxide", category: "Oxide" },
+    { formula: "PbO", name: "Lead(II) oxide", category: "Oxide" },
+    { formula: "PbO₂", name: "Lead(IV) oxide", category: "Oxide" },
+    { formula: "Ag₂O", name: "Silver oxide", category: "Oxide" },
+    { formula: "MnO", name: "Manganese(II) oxide", category: "Oxide" },
+    { formula: "MnO₂", name: "Manganese(IV) oxide", category: "Oxide" },
+    { formula: "Mn₂O₃", name: "Manganese(III) oxide", category: "Oxide" },
+    { formula: "Cr₂O₃", name: "Chromium(III) oxide", category: "Oxide" },
+    { formula: "CrO₃", name: "Chromium(VI) oxide", category: "Oxide" },
 
-    // Elements
+    // Elements (metals)
     { formula: "Fe", name: "Iron", category: "Element" },
     { formula: "Cu", name: "Copper", category: "Element" },
     { formula: "Zn", name: "Zinc", category: "Element" },
@@ -348,11 +630,43 @@ const COMPOUND_DATABASE = [
     { formula: "Ca", name: "Calcium", category: "Element" },
     { formula: "Na", name: "Sodium", category: "Element" },
     { formula: "K", name: "Potassium", category: "Element" },
+    { formula: "Li", name: "Lithium", category: "Element" },
     { formula: "Ag", name: "Silver", category: "Element" },
     { formula: "Pb", name: "Lead", category: "Element" },
+    { formula: "Sn", name: "Tin", category: "Element" },
+    { formula: "Ni", name: "Nickel", category: "Element" },
+    { formula: "Co", name: "Cobalt", category: "Element" },
+    { formula: "Mn", name: "Manganese", category: "Element" },
+    { formula: "Cr", name: "Chromium", category: "Element" },
+    { formula: "Ba", name: "Barium", category: "Element" },
+    { formula: "Sr", name: "Strontium", category: "Element" },
+
+    // Elements (nonmetals)
     { formula: "C", name: "Carbon", category: "Element" },
     { formula: "S", name: "Sulfur", category: "Element" },
-    { formula: "P", name: "Phosphorus", category: "Element" }
+    { formula: "P", name: "Phosphorus", category: "Element" },
+    { formula: "Si", name: "Silicon", category: "Element" },
+    { formula: "B", name: "Boron", category: "Element" },
+
+    // Organic compounds
+    { formula: "C₆H₁₂O₆", name: "Glucose", category: "Organic" },
+    { formula: "C₁₂H₂₂O₁₁", name: "Sucrose", category: "Organic" },
+    { formula: "C₂H₄O₂", name: "Acetic acid", category: "Organic" },
+    { formula: "C₃H₆O₃", name: "Lactic acid", category: "Organic" },
+    { formula: "C₄H₆O₄", name: "Succinic acid", category: "Organic" },
+    { formula: "C₆H₈O₇", name: "Citric acid", category: "Organic" },
+    { formula: "C₈H₁₈", name: "Octane", category: "Organic" },
+    { formula: "C₁₀H₈", name: "Naphthalene", category: "Organic" },
+
+    // Peroxides and special compounds
+    { formula: "Na₂O₂", name: "Sodium peroxide", category: "Peroxide" },
+    { formula: "BaO₂", name: "Barium peroxide", category: "Peroxide" },
+    { formula: "CaC₂", name: "Calcium carbide", category: "Carbide" },
+    { formula: "Al₄C₃", name: "Aluminum carbide", category: "Carbide" },
+    { formula: "SiC", name: "Silicon carbide", category: "Carbide" },
+    { formula: "CaF₂", name: "Calcium fluoride", category: "Fluoride" },
+    { formula: "NaF", name: "Sodium fluoride", category: "Fluoride" },
+    { formula: "AlF₃", name: "Aluminum fluoride", category: "Fluoride" }
 ];
 
 // UI Controller
@@ -452,6 +766,16 @@ class EquationBalancerUI {
 
             reactantsInput.addEventListener('input', (e) => {
                 const query = this.getCurrentCompound(e.target.value);
+
+                // If user just typed a space after a compound, prepare for next compound
+                if (e.target.value.endsWith(' ') && !e.target.value.endsWith(' + ')) {
+                    const trimmed = e.target.value.trim();
+                    if (trimmed && !trimmed.endsWith('+')) {
+                        e.target.value = trimmed + ' + ';
+                        e.target.setSelectionRange(e.target.value.length, e.target.value.length);
+                    }
+                }
+
                 this.showDropdown('reactants');
                 this.filterDropdown('reactants', query);
             });
@@ -477,6 +801,16 @@ class EquationBalancerUI {
 
             productsInput.addEventListener('input', (e) => {
                 const query = this.getCurrentCompound(e.target.value);
+
+                // If user just typed a space after a compound, prepare for next compound
+                if (e.target.value.endsWith(' ') && !e.target.value.endsWith(' + ')) {
+                    const trimmed = e.target.value.trim();
+                    if (trimmed && !trimmed.endsWith('+')) {
+                        e.target.value = trimmed + ' + ';
+                        e.target.setSelectionRange(e.target.value.length, e.target.value.length);
+                    }
+                }
+
                 this.showDropdown('products');
                 this.filterDropdown('products', query);
             });
@@ -621,25 +955,27 @@ class EquationBalancerUI {
         if (!input) return;
 
         const currentValue = input.value.trim();
-        const compounds = currentValue.split('+').map(c => c.trim()).filter(c => c.length > 0);
 
-        // Replace the last compound (the one being typed) with the selected formula
-        if (compounds.length === 0 || currentValue === '') {
+        if (currentValue === '') {
+            // First compound - just add it
             input.value = formula;
         } else {
-            // Check if we're replacing an incomplete compound or adding a new one
-            const lastCompound = compounds[compounds.length - 1];
+            // Check if we're in the middle of typing a compound or adding a new one
             const currentTyping = this.getCurrentCompound(currentValue);
 
             if (currentTyping && currentTyping.length > 0) {
                 // Replace the compound being typed
+                const compounds = currentValue.split('+').map(c => c.trim()).filter(c => c.length > 0);
                 compounds[compounds.length - 1] = formula;
+                input.value = compounds.join(' + ');
             } else {
-                // Add new compound
-                compounds.push(formula);
+                // Add new compound - automatically add + if needed
+                if (currentValue.endsWith(' + ')) {
+                    input.value = currentValue + formula;
+                } else {
+                    input.value = currentValue + ' + ' + formula;
+                }
             }
-
-            input.value = compounds.join(' + ');
         }
 
         input.focus();
@@ -919,31 +1255,25 @@ class EquationBalancerUI {
 
         const steps = [
             {
-                title: '🔍 Step 1: Identify What We\'re Balancing',
+                title: '🔍 Step 1: Analyze the Equation & Count Atoms',
                 icon: 'fas fa-search',
                 color: 'blue',
-                content: this.generateIdentifyStep(originalEquation, result)
+                content: this.generateAnalyzeStep(originalEquation, result)
             },
             {
-                title: '🎯 Step 2: Count Atoms (Before Balancing)',
-                icon: 'fas fa-atom',
-                color: 'purple',
-                content: this.generateCountStep(result)
-            },
-            {
-                title: '⚖️ Step 3: Balance Step by Step',
+                title: '⚖️ Step 2: Balance Step by Step',
                 icon: 'fas fa-balance-scale',
                 color: 'indigo',
                 content: this.generateBalancingStep(result, originalEquation)
             },
             {
-                title: '🧮 Step 4: Apply the Coefficients',
+                title: '🧮 Step 3: Apply the Coefficients',
                 icon: 'fas fa-calculator',
                 color: 'orange',
                 content: this.generateApplyStep(result)
             },
             {
-                title: '✅ Step 5: Double-Check Our Work',
+                title: '✅ Step 4: Double-Check Our Work',
                 icon: 'fas fa-check-circle',
                 color: 'green',
                 content: this.generateVerificationStep(result)
@@ -1114,6 +1444,160 @@ class EquationBalancerUI {
                             <p class="text-purple-700 text-sm">
                                 By counting each type of atom in every compound, we can set up equations to ensure the same number 
                                 of each element appears on both sides of the reaction. This follows the Law of Conservation of Mass.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    generateAnalyzeStep(originalEquation, result) {
+        const elementColors = {
+            'H': 'bg-red-100 text-red-800 border-red-300',
+            'O': 'bg-blue-100 text-blue-800 border-blue-300',
+            'C': 'bg-gray-100 text-gray-800 border-gray-300',
+            'N': 'bg-green-100 text-green-800 border-green-300',
+            'S': 'bg-yellow-100 text-yellow-800 border-yellow-300',
+            'Cl': 'bg-purple-100 text-purple-800 border-purple-300',
+            'Na': 'bg-orange-100 text-orange-800 border-orange-300',
+            'Ca': 'bg-pink-100 text-pink-800 border-pink-300',
+            'Fe': 'bg-indigo-100 text-indigo-800 border-indigo-300'
+        };
+
+        const reactants = result.compounds.filter(c => c.isReactant);
+        const products = result.compounds.filter(c => !c.isReactant);
+
+        // Count atoms before balancing (assuming coefficient of 1 for all)
+        const atomCounts = {};
+        result.elements.forEach(element => {
+            let reactantCount = 0;
+            let productCount = 0;
+
+            result.compounds.forEach(compound => {
+                const count = compound.elements[element] || 0;
+                if (compound.isReactant) {
+                    reactantCount += count;
+                } else {
+                    productCount += count;
+                }
+            });
+
+            atomCounts[element] = { reactants: reactantCount, products: productCount };
+        });
+
+        return `
+            <div class="space-y-4">
+                <div class="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border-l-4 border-blue-500">
+                    <h4 class="font-bold text-blue-800 mb-2 flex items-center">
+                        <i class="fas fa-flask mr-2"></i>Our Unbalanced Equation
+                    </h4>
+                    <div class="text-xl font-mono bg-white p-3 rounded border text-center">
+                        ${originalEquation}
+                    </div>
+                    <p class="text-blue-700 text-sm mt-2 text-center">
+                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                        This equation is NOT balanced yet - let's see why!
+                    </p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-red-50 p-4 rounded-lg border-l-4 border-red-400">
+                        <h4 class="font-bold text-red-700 mb-3 flex items-center">
+                            <i class="fas fa-play mr-2"></i>Reactants (Left Side)
+                        </h4>
+                        <div class="space-y-2">
+                            ${reactants.map(c => `
+                                <div class="bg-white p-2 rounded border">
+                                    <span class="font-mono text-lg font-bold text-red-600">${c.formula}</span>
+                                    <div class="text-xs text-red-600 mt-1">
+                                        ${Object.entries(c.elements).map(([el, count]) => `${el}: ${count}`).join(', ')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="bg-green-50 p-4 rounded-lg border-l-4 border-green-400">
+                        <h4 class="font-bold text-green-700 mb-3 flex items-center">
+                            <i class="fas fa-flag-checkered mr-2"></i>Products (Right Side)
+                        </h4>
+                        <div class="space-y-2">
+                            ${products.map(c => `
+                                <div class="bg-white p-2 rounded border">
+                                    <span class="font-mono text-lg font-bold text-green-600">${c.formula}</span>
+                                    <div class="text-xs text-green-600 mt-1">
+                                        ${Object.entries(c.elements).map(([el, count]) => `${el}: ${count}`).join(', ')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white border-2 border-blue-200 rounded-lg overflow-hidden">
+                    <div class="bg-blue-100 p-3 border-b border-blue-200">
+                        <h4 class="font-bold text-blue-800 flex items-center">
+                            <i class="fas fa-table mr-2"></i>Atom Count T-Table
+                        </h4>
+                        <p class="text-blue-700 text-sm mt-1">Let's count atoms on each side to see the imbalance</p>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="text-left p-4 font-bold text-gray-700 border-r">Element</th>
+                                    <th class="text-center p-4 font-bold text-red-700 bg-red-50 border-r">Left Side<br><span class="text-xs font-normal">(Reactants)</span></th>
+                                    <th class="text-center p-4 font-bold text-green-700 bg-green-50 border-r">Right Side<br><span class="text-xs font-normal">(Products)</span></th>
+                                    <th class="text-center p-4 font-bold text-gray-700">Balanced?</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${result.elements.map(element => {
+            const colorClass = elementColors[element] || 'bg-gray-100 text-gray-800 border-gray-300';
+            const counts = atomCounts[element];
+            const isBalanced = counts.reactants === counts.products;
+
+            return `
+                                        <tr class="border-t hover:bg-gray-50">
+                                            <td class="p-4 border-r">
+                                                <div class="flex items-center">
+                                                    <span class="w-8 h-8 rounded-full border-2 ${colorClass} flex items-center justify-center text-sm font-bold mr-3">
+                                                        ${element}
+                                                    </span>
+                                                    <span class="font-bold text-gray-800">${element}</span>
+                                                </div>
+                                            </td>
+                                            <td class="text-center p-4 bg-red-50 border-r">
+                                                <div class="text-2xl font-bold text-red-600">${counts.reactants}</div>
+                                            </td>
+                                            <td class="text-center p-4 bg-green-50 border-r">
+                                                <div class="text-2xl font-bold text-green-600">${counts.products}</div>
+                                            </td>
+                                            <td class="text-center p-4">
+                                                <div class="text-2xl ${isBalanced ? 'text-green-500' : 'text-red-500'}">
+                                                    <i class="fas fa-${isBalanced ? 'check-circle' : 'times-circle'}"></i>
+                                                </div>
+                                                <div class="text-xs ${isBalanced ? 'text-green-600' : 'text-red-600'} mt-1">
+                                                    ${isBalanced ? 'Balanced' : 'Unbalanced'}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    `;
+        }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <div class="flex items-start">
+                        <i class="fas fa-lightbulb text-blue-600 mt-1 mr-3"></i>
+                        <div>
+                            <h5 class="font-semibold text-blue-800 mb-1">The Problem is Clear!</h5>
+                            <p class="text-blue-700 text-sm">
+                                The T-table shows us exactly which elements are unbalanced. We need to add coefficients 
+                                (numbers in front of compounds) to make the left and right sides equal for every element.
                             </p>
                         </div>
                     </div>
