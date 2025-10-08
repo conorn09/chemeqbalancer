@@ -34,10 +34,287 @@
         .max-h-48::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
+
+        /* Clean Dark Mode Implementation */
+        body {
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Dark Mode Styles */
+        body.dark-mode {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: #f8fafc;
+        }
+
+        /* White backgrounds become dark */
+        body.dark-mode .bg-white {
+            background-color: #1e293b !important;
+            color: #f8fafc !important;
+        }
+
+        /* Gray backgrounds */
+        body.dark-mode .bg-gray-50 {
+            background-color: #374151 !important;
+        }
+
+        body.dark-mode .bg-gray-100 {
+            background-color: #475569 !important;
+        }
+
+        /* Text colors */
+        body.dark-mode .text-gray-800 {
+            color: #f8fafc !important;
+        }
+
+        body.dark-mode .text-gray-600 {
+            color: #cbd5e1 !important;
+        }
+
+        body.dark-mode .text-gray-500 {
+            color: #94a3b8 !important;
+        }
+
+        body.dark-mode .text-gray-700 {
+            color: #e2e8f0 !important;
+        }
+
+        /* Borders */
+        body.dark-mode .border-gray-300 {
+            border-color: #475569 !important;
+        }
+
+        body.dark-mode .border-gray-200 {
+            border-color: #374151 !important;
+        }
+
+        /* Input fields */
+        body.dark-mode input {
+            background-color: #374151 !important;
+            color: #f8fafc !important;
+            border-color: #475569 !important;
+        }
+
+        body.dark-mode input:focus {
+            border-color: #60a5fa !important;
+        }
+
+        body.dark-mode input::placeholder {
+            color: #9ca3af !important;
+        }
+
+        /* Dropdown options */
+        body.dark-mode .compound-option {
+            background-color: #1e293b !important;
+            color: #f8fafc !important;
+        }
+
+        body.dark-mode .compound-option:hover {
+            background-color: #334155 !important;
+        }
+
+        /* Colored backgrounds in dark mode */
+        body.dark-mode .bg-blue-50 {
+            background-color: #1e3a8a !important;
+        }
+
+        body.dark-mode .bg-green-50 {
+            background-color: #14532d !important;
+        }
+
+        body.dark-mode .bg-red-50 {
+            background-color: #7f1d1d !important;
+        }
+
+        body.dark-mode .bg-yellow-50 {
+            background-color: #78350f !important;
+        }
+
+        body.dark-mode .bg-purple-50 {
+            background-color: #581c87 !important;
+        }
+
+        body.dark-mode .bg-orange-50 {
+            background-color: #9a3412 !important;
+        }
+
+        body.dark-mode .bg-indigo-50 {
+            background-color: #312e81 !important;
+        }
+
+        body.dark-mode .bg-emerald-50 {
+            background-color: #064e3b !important;
+        }
+
+        body.dark-mode .bg-amber-50 {
+            background-color: #78350f !important;
+        }
+
+        body.dark-mode .bg-slate-50 {
+            background-color: #0f172a !important;
+        }
+
+        /* Colored text adjustments */
+        body.dark-mode .text-blue-800,
+        body.dark-mode .text-blue-700,
+        body.dark-mode .text-blue-600 {
+            color: #93c5fd !important;
+        }
+
+        body.dark-mode .text-green-800,
+        body.dark-mode .text-green-700,
+        body.dark-mode .text-green-600 {
+            color: #86efac !important;
+        }
+
+        body.dark-mode .text-red-800,
+        body.dark-mode .text-red-700,
+        body.dark-mode .text-red-600 {
+            color: #fca5a5 !important;
+        }
+
+        body.dark-mode .text-yellow-800,
+        body.dark-mode .text-yellow-700,
+        body.dark-mode .text-yellow-600 {
+            color: #fde047 !important;
+        }
+
+        body.dark-mode .text-purple-800,
+        body.dark-mode .text-purple-700,
+        body.dark-mode .text-purple-600 {
+            color: #c4b5fd !important;
+        }
+
+        body.dark-mode .text-orange-800,
+        body.dark-mode .text-orange-700,
+        body.dark-mode .text-orange-600 {
+            color: #fdba74 !important;
+        }
+
+        body.dark-mode .text-indigo-800,
+        body.dark-mode .text-indigo-700,
+        body.dark-mode .text-indigo-600 {
+            color: #a5b4fc !important;
+        }
+
+        body.dark-mode .text-emerald-800,
+        body.dark-mode .text-emerald-700,
+        body.dark-mode .text-emerald-600 {
+            color: #6ee7b7 !important;
+        }
+
+        body.dark-mode .text-amber-800,
+        body.dark-mode .text-amber-700,
+        body.dark-mode .text-amber-600 {
+            color: #fcd34d !important;
+        }
+
+        body.dark-mode .text-slate-800,
+        body.dark-mode .text-slate-700,
+        body.dark-mode .text-slate-600 {
+            color: #cbd5e1 !important;
+        }
+
+        /* Border colors for colored sections */
+        body.dark-mode .border-blue-200,
+        body.dark-mode .border-blue-300 {
+            border-color: #1e40af !important;
+        }
+
+        body.dark-mode .border-green-200,
+        body.dark-mode .border-green-300 {
+            border-color: #166534 !important;
+        }
+
+        body.dark-mode .border-red-200,
+        body.dark-mode .border-red-300 {
+            border-color: #991b1b !important;
+        }
+
+        body.dark-mode .border-yellow-200,
+        body.dark-mode .border-yellow-300 {
+            border-color: #a16207 !important;
+        }
+
+        body.dark-mode .border-purple-200,
+        body.dark-mode .border-purple-300 {
+            border-color: #6b21a8 !important;
+        }
+
+        body.dark-mode .border-orange-200,
+        body.dark-mode .border-orange-300 {
+            border-color: #c2410c !important;
+        }
+
+        body.dark-mode .border-indigo-200,
+        body.dark-mode .border-indigo-300 {
+            border-color: #3730a3 !important;
+        }
+
+        body.dark-mode .border-emerald-200,
+        body.dark-mode .border-emerald-300 {
+            border-color: #047857 !important;
+        }
+
+        body.dark-mode .border-amber-200,
+        body.dark-mode .border-amber-300 {
+            border-color: #a16207 !important;
+        }
+
+        body.dark-mode .border-slate-200,
+        body.dark-mode .border-slate-300 {
+            border-color: #475569 !important;
+        }
+
+        /* Scrollbar */
+        body.dark-mode .max-h-48::-webkit-scrollbar-track {
+            background: #334155;
+        }
+
+        body.dark-mode .max-h-48::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+
+        body.dark-mode .max-h-48::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        /* Theme toggle button */
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 50%;
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        body.dark-mode .theme-toggle {
+            background: #1e293b;
+            border-color: #475569;
+            color: #f8fafc;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.05);
+        }
     </style>
 </head>
 
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <!-- Theme Toggle Button -->
+    <button id="theme-toggle" class="theme-toggle" title="Toggle Dark Mode">
+        <i class="fas fa-moon" id="theme-icon"></i>
+    </button>
+
     <div class="container mx-auto px-4 py-8 max-w-4xl">
         <!-- Header -->
         <div class="text-center mb-8">

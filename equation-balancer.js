@@ -2842,6 +2842,37 @@ class EquationBalancerUI {
     }
 }
 
+// Clean Dark Mode Implementation
+const toggleButton = document.getElementById('theme-toggle');
+const themeIcon = document.getElementById('theme-icon');
+const body = document.body;
+
+// Load saved theme
+if (localStorage.getItem('theme') === 'dark') {
+    body.classList.add('dark-mode');
+    if (themeIcon) themeIcon.className = 'fas fa-sun';
+}
+
+// When button is clicked, toggle theme
+if (toggleButton) {
+    toggleButton.addEventListener('click', () => {
+        body.classList.toggle('dark-mode');
+        
+        // Update icon
+        const isDark = body.classList.contains('dark-mode');
+        if (themeIcon) {
+            themeIcon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+        }
+        
+        // Save theme choice
+        if (body.classList.contains('dark-mode')) {
+            localStorage.setItem('theme', 'dark');
+        } else {
+            localStorage.setItem('theme', 'light');
+        }
+    });
+}
+
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM loaded, initializing app...');
