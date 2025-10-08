@@ -1965,25 +1965,56 @@ class EquationBalancerUI {
         const hasOxygen = result.elements.includes('O');
         const hasCarbon = result.elements.includes('C');
 
-        // Create balancing order
+        // Create smart balancing order that skips already balanced elements initially
         let balancingOrder = [];
         let strategy = "";
 
+        // Check which elements are already balanced with coefficient 1
+        const alreadyBalanced = [];
+        const needsBalancing = [];
+        
+        result.elements.forEach(element => {
+            let leftCount = 0;
+            let rightCount = 0;
+            
+            result.compounds.forEach(compound => {
+                const elementCount = compound.elements[element] || 0;
+                if (compound.isReactant) {
+                    leftCount += elementCount;
+                } else {
+                    rightCount += elementCount;
+                }
+            });
+            
+            if (leftCount === rightCount) {
+                alreadyBalanced.push(element);
+            } else {
+                needsBalancing.push(element);
+            }
+        });
+
         if (hasMetals) {
-            strategy = "We balance metals first (fewer compounds), then nonmetals, hydrogen second-to-last, and oxygen last.";
-            balancingOrder = result.elements.filter(el => ['Na', 'K', 'Ca', 'Mg', 'Fe', 'Cu', 'Zn', 'Al', 'Ag', 'Pb', 'Sn', 'Cr', 'Mn'].includes(el));
-            balancingOrder = balancingOrder.concat(result.elements.filter(el => !['Na', 'K', 'Ca', 'Mg', 'Fe', 'Cu', 'Zn', 'Al', 'Ag', 'Pb', 'Sn', 'Cr', 'Mn', 'H', 'O'].includes(el)));
-            if (hasHydrogen) balancingOrder.push('H');
-            if (hasOxygen) balancingOrder.push('O');
+            strategy = "We balance unbalanced elements first, saving already-balanced elements for when other changes affect them.";
+            // Start with unbalanced metals
+            balancingOrder = needsBalancing.filter(el => ['Na', 'K', 'Ca', 'Mg', 'Fe', 'Cu', 'Zn', 'Al', 'Ag', 'Pb', 'Sn', 'Cr', 'Mn'].includes(el));
+            // Add other unbalanced nonmetals (except H and O)
+            balancingOrder = balancingOrder.concat(needsBalancing.filter(el => !['Na', 'K', 'Ca', 'Mg', 'Fe', 'Cu', 'Zn', 'Al', 'Ag', 'Pb', 'Sn', 'Cr', 'Mn', 'H', 'O'].includes(el)));
+            // Add hydrogen if unbalanced
+            if (needsBalancing.includes('H')) balancingOrder.push('H');
+            // Add oxygen if unbalanced  
+            if (needsBalancing.includes('O')) balancingOrder.push('O');
+            // Finally add any previously balanced elements that might need rebalancing
+            balancingOrder = balancingOrder.concat(alreadyBalanced);
         } else if (hasCarbon) {
-            strategy = "For organic reactions: carbon first, then hydrogen, then oxygen last.";
-            balancingOrder = ['C'];
-            if (hasHydrogen) balancingOrder.push('H');
-            if (hasOxygen) balancingOrder.push('O');
-            balancingOrder = balancingOrder.concat(result.elements.filter(el => !['C', 'H', 'O'].includes(el)));
+            strategy = "For organic reactions: balance unbalanced elements first, then recheck others.";
+            if (needsBalancing.includes('C')) balancingOrder.push('C');
+            if (needsBalancing.includes('H')) balancingOrder.push('H');
+            if (needsBalancing.includes('O')) balancingOrder.push('O');
+            balancingOrder = balancingOrder.concat(needsBalancing.filter(el => !['C', 'H', 'O'].includes(el)));
+            balancingOrder = balancingOrder.concat(alreadyBalanced);
         } else {
-            strategy = "We balance elements that appear in fewer compounds first.";
-            balancingOrder = [...result.elements];
+            strategy = "We balance unbalanced elements first, then recheck previously balanced ones.";
+            balancingOrder = needsBalancing.concat(alreadyBalanced);
         }
 
         // Simulate the balancing process step by step
@@ -2125,6 +2156,19 @@ class EquationBalancerUI {
                                                 <div class="font-mono text-xl font-bold text-gray-800">
                                                     ${step.progressiveEquation}
                                                 </div>
+                                                ${step.isLastStep ? `
+                                                    <div class="mt-4 bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg border-l-4 border-green-500">
+                                                        <div class="text-center">
+                                                            <div class="w-12 h-12 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto mb-2">
+                                                                <i class="fas fa-trophy text-lg"></i>
+                                                            </div>
+                                                            <h4 class="text-lg font-bold text-green-800 mb-1">🎉 All Elements Balanced!</h4>
+                                                            <p class="text-green-700 text-sm">
+                                                                Every element now has equal atoms on both sides of the equation!
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                ` : ''}
                                             </div>
                                         ` : `
                                             <div class="text-sm text-orange-700 font-medium">
@@ -2151,23 +2195,6 @@ class EquationBalancerUI {
                         </div>
                     </div>
                 `).join('')}
-
-                <div class="bg-gradient-to-r from-green-50 to-green-100 p-6 rounded-lg border-l-4 border-green-500">
-                    <div class="text-center">
-                        <div class="w-16 h-16 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-trophy text-2xl"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold text-green-800 mb-2">🎉 All Elements Balanced!</h3>
-                        <div class="bg-white p-4 rounded-lg border-2 border-green-300 mb-4">
-                            <div class="font-mono text-3xl font-bold text-gray-800">
-                                ${result.balancedEquation}
-                            </div>
-                        </div>
-                        <p class="text-green-700 font-medium">
-                            Every element now has equal atoms on both sides of the equation!
-                        </p>
-                    </div>
-                </div>
             </div>
         `;
     }
@@ -2290,6 +2317,7 @@ class EquationBalancerUI {
             let rightSideReasoning = "";
             
             if (beforeLeftCount !== beforeRightCount) {
+                const imbalance = Math.abs(beforeLeftCount - beforeRightCount);
                 const leftChanges = [];
                 const rightChanges = [];
                 
@@ -2303,7 +2331,8 @@ class EquationBalancerUI {
                                 formula: compound.formula,
                                 beforeCoeff: beforeCoeffs[i],
                                 afterCoeff: afterCoeffs[i],
-                                atomChange: atomChange
+                                atomChange: atomChange,
+                                elementCount: elementCount
                             };
                             
                             if (compound.isReactant) {
@@ -2316,23 +2345,35 @@ class EquationBalancerUI {
                 });
 
                 if (leftChanges.length > 0) {
-                    leftSideReasoning = leftChanges.map(change => 
-                        `Changed ${change.formula} coefficient from ${change.beforeCoeff} to ${change.afterCoeff}, adding ${change.atomChange} ${element} atoms`
-                    ).join('. ');
+                    const totalAtomChange = leftChanges.reduce((sum, change) => sum + change.atomChange, 0);
+                    leftSideReasoning = `Need ${totalAtomChange} more ${element} atoms. ` + leftChanges.map(change => 
+                        `${change.formula}: ${change.elementCount} ${element} × ${change.afterCoeff} = ${change.elementCount * change.afterCoeff} atoms`
+                    ).join(', ');
                 } else {
-                    leftSideReasoning = `No coefficient changes needed on left side`;
+                    leftSideReasoning = `Left side already has correct ${element} count`;
                 }
 
                 if (rightChanges.length > 0) {
-                    rightSideReasoning = rightChanges.map(change => 
-                        `Changed ${change.formula} coefficient from ${change.beforeCoeff} to ${change.afterCoeff}, adding ${change.atomChange} ${element} atoms`
-                    ).join('. ');
+                    const totalAtomChange = rightChanges.reduce((sum, change) => sum + change.atomChange, 0);
+                    rightSideReasoning = `Need ${totalAtomChange} more ${element} atoms. ` + rightChanges.map(change => 
+                        `${change.formula}: ${change.elementCount} ${element} × ${change.afterCoeff} = ${change.elementCount * change.afterCoeff} atoms`
+                    ).join(', ');
                 } else {
-                    rightSideReasoning = `No coefficient changes needed on right side`;
+                    rightSideReasoning = `Right side already has correct ${element} count`;
                 }
             } else {
-                leftSideReasoning = `${element} was already balanced - no changes needed`;
-                rightSideReasoning = `${element} was already balanced - no changes needed`;
+                // Check if this element was affected by previous balancing steps
+                const wasAffected = result.compounds.some((compound, i) => 
+                    beforeCoeffs[i] !== 1 && compound.elements[element]
+                );
+                
+                if (wasAffected) {
+                    leftSideReasoning = `${element} rebalanced due to previous coefficient changes`;
+                    rightSideReasoning = `${element} rebalanced due to previous coefficient changes`;
+                } else {
+                    leftSideReasoning = `${element} was already balanced - no changes needed`;
+                    rightSideReasoning = `${element} was already balanced - no changes needed`;
+                }
             }
 
             // Determine explanation based on element type and position
