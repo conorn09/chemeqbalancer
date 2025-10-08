@@ -1378,8 +1378,10 @@ class EquationBalancerUI {
                     </div>
                     <i class="fas fa-chevron-down text-${step.color}-600 chevron transition-transform duration-300"></i>
                 </button>
-                <div class="p-6 bg-white border-t-2 border-${step.color}-100 ${index === 0 ? '' : 'hidden'}">
-                    ${step.content}
+                <div class="p-6 bg-white border-t-2 border-${step.color}-100 ${index === 0 ? '' : 'hidden'}" style="position: relative; overflow: hidden; contain: layout;">
+                    <div style="position: relative; z-index: 1;">
+                        ${step.content}
+                    </div>
                 </div>
             `;
 
@@ -2035,24 +2037,25 @@ class EquationBalancerUI {
                 </div>
 
                 ${balancingSteps.map((step, index) => `
-                    <div class="bg-white border-2 border-indigo-200 rounded-lg overflow-hidden">
-                        <div class="bg-indigo-100 p-4 border-b border-indigo-200">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold mr-3">
-                                        ${index + 1}
-                                    </div>
+                    <div class="bg-white border-2 border-indigo-200 rounded-lg overflow-hidden mb-4">
+                        <button class="w-full text-left p-4 bg-indigo-100 hover:bg-indigo-150 transition-all duration-300 flex items-center justify-between group" 
+                                onclick="const content = this.nextElementSibling; content.style.display = content.style.display === 'none' ? 'block' : 'none'; this.querySelector('.chevron').classList.toggle('rotate-180')">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold mr-3 group-hover:scale-110 transition-transform">
+                                    ${index + 1}
+                                </div>
+                                <div>
                                     <h4 class="font-bold text-indigo-800">
                                         ${step.title}
                                     </h4>
-                                </div>
-                                <div class="text-sm text-indigo-600 font-medium">
-                                    ${step.status}
+                                    <div class="text-sm text-indigo-600 font-medium">
+                                        ${step.status}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <div class="p-6">
+                            <i class="fas fa-chevron-down text-indigo-600 chevron transition-transform duration-300"></i>
+                        </button>
+                        <div class="hidden p-6 bg-white" style="display: none;">
                             <div class="mb-4">
                                 <h5 class="font-semibold text-gray-800 mb-2">Before Balancing ${step.element}:</h5>
                                 <div class="bg-orange-50 p-4 rounded-lg border-2 border-orange-200">
@@ -2067,23 +2070,6 @@ class EquationBalancerUI {
                                     </div>
                                 </div>
                             </div>
-                            
-                            ${step.balanced ? '' : `
-                                <div class="mb-4">
-                                    <h5 class="font-semibold text-gray-800 mb-2">After Balancing ${step.element}:</h5>
-                                    <div class="bg-green-50 p-4 rounded-lg border-2 border-green-200">
-                                        <div class="font-mono text-2xl text-center font-bold text-gray-800">
-                                            ${step.currentEquation.replace(/\d+/g, (match, offset, string) => {
-            // This is a simplified replacement - in practice you'd need the actual after equation
-            return match;
-        })}
-                                        </div>
-                                        <div class="text-center text-sm text-green-600 mt-2">
-                                            ✅ ${step.element}: ${step.leftCount} = ${step.rightCount} (balanced!)
-                                        </div>
-                                    </div>
-                                </div>
-                            `}
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
@@ -2140,7 +2126,6 @@ class EquationBalancerUI {
                                             </div>
                                         ` : ''}
                                     </div>
-                                    </div>
                                 </div>
                             </div>
 
@@ -2157,7 +2142,7 @@ class EquationBalancerUI {
                                                     ${step.progressiveEquation}
                                                 </div>
                                                 ${step.isLastStep ? `
-                                                    <div class="mt-4 bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg border-l-4 border-green-500">
+                                                    <div class="mt-4 bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg border-l-4 border-green-500" style="position: relative; z-index: 1;">
                                                         <div class="text-center">
                                                             <div class="w-12 h-12 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto mb-2">
                                                                 <i class="fas fa-trophy text-lg"></i>
