@@ -2105,9 +2105,18 @@ class EquationBalancerUI {
                                         <div class="text-3xl font-bold ${step.balanced ? 'text-green-600' : 'text-orange-600'} mb-2">
                                             ${step.leftCount} ${step.balanced ? '=' : '≠'} ${step.rightCount}
                                         </div>
-                                        <div class="text-sm ${step.balanced ? 'text-green-700' : 'text-orange-700'} font-medium">
-                                            ${step.balanced ? `✅ ${step.element} is now balanced!` : `⚖️ Adjusting coefficients to balance ${step.element}...`}
-                                        </div>
+                                        ${step.balanced ? `
+                                            <div class="mt-4 bg-white p-4 rounded-lg border-2 border-green-300">
+                                                <div class="text-sm text-green-700 font-semibold mb-2">After Balancing ${step.element}:</div>
+                                                <div class="font-mono text-xl font-bold text-gray-800">
+                                                    ${step.progressiveEquation}
+                                                </div>
+                                            </div>
+                                        ` : `
+                                            <div class="text-sm text-orange-700 font-medium">
+                                                ⚖️ Adjusting coefficients to balance ${step.element}...
+                                            </div>
+                                        `}
                                     </div>
                                 </div>
                             </div>
@@ -2150,43 +2159,66 @@ class EquationBalancerUI {
     simulateBalancingProcess(result, balancingOrder) {
         const steps = [];
 
-        // Start with all coefficients as 1 (unbalanced)
-        let currentCoeffs = new Array(result.compounds.length).fill(1);
+        // Generate the original unbalanced equation (all coefficients = 1)
+        const unbalancedReactants = [];
+        const unbalancedProducts = [];
+        result.compounds.forEach(compound => {
+            if (compound.isReactant) {
+                unbalancedReactants.push(compound.formula);
+            } else {
+                unbalancedProducts.push(compound.formula);
+            }
+        });
+        const unbalancedEquation = `${unbalancedReactants.join(' + ')} → ${unbalancedProducts.join(' + ')}`;
 
         balancingOrder.forEach((element, index) => {
-            // For this step, we need to determine what coefficients should be
-            // to balance this element, considering previously balanced elements
-
-            // Create a progressive coefficient array
-            // We'll simulate the balancing by gradually applying the final coefficients
-            const progressCoeffs = [...currentCoeffs];
-
-            // Apply coefficients progressively based on which elements we've balanced so far
-            if (index === 0) {
-                // First element - start with unbalanced (all 1s)
-                // But show what needs to change to balance this element
-                progressCoeffs.forEach((coeff, i) => {
-                    // Apply partial coefficients to show the progression
-                    const targetCoeff = result.coefficients[i];
-                    const elementInCompound = result.compounds[i].elements[element] || 0;
-
-                    if (elementInCompound > 0) {
-                        // For compounds containing this element, start applying the target coefficient
-                        progressCoeffs[i] = targetCoeff;
+            // Create "before" coefficients - only apply coefficients for elements balanced BEFORE this step
+            const beforeCoeffs = new Array(result.compounds.length).fill(1);
+            for (let stepIndex = 0; stepIndex < index; stepIndex++) {
+                const balancedElement = balancingOrder[stepIndex];
+                result.compounds.forEach((compound, i) => {
+                    if (compound.elements[balancedElement]) {
+                        beforeCoeffs[i] = result.coefficients[i];
                     }
-                });
-            } else {
-                // For subsequent elements, keep previously set coefficients and add new ones
-                balancingOrder.slice(0, index + 1).forEach(balancedElement => {
-                    result.compounds.forEach((compound, i) => {
-                        if (compound.elements[balancedElement]) {
-                            progressCoeffs[i] = result.coefficients[i];
-                        }
-                    });
                 });
             }
 
-            // Calculate atom counts for this element with current coefficients
+            // Create "after" coefficients - apply coefficients for elements balanced up to and including this step
+            const afterCoeffs = new Array(result.compounds.length).fill(1);
+            for (let stepIndex = 0; stepIndex <= index; stepIndex++) {
+                const balancedElement = balancingOrder[stepIndex];
+                result.compounds.forEach((compound, i) => {
+                    if (compound.elements[balancedElement]) {
+                        afterCoeffs[i] = result.coefficients[i];
+                    }
+                });
+            }
+
+            // Generate equations for before and after this step
+            const beforeReactants = [];
+            const beforeProducts = [];
+            const afterReactants = [];
+            const afterProducts = [];
+
+            result.compounds.forEach((compound, i) => {
+                const beforeCoeff = beforeCoeffs[i];
+                const afterCoeff = afterCoeffs[i];
+                const beforeFormatted = beforeCoeff === 1 ? compound.formula : `${beforeCoeff}${compound.formula}`;
+                const afterFormatted = afterCoeff === 1 ? compound.formula : `${afterCoeff}${compound.formula}`;
+
+                if (compound.isReactant) {
+                    beforeReactants.push(beforeFormatted);
+                    afterReactants.push(afterFormatted);
+                } else {
+                    beforeProducts.push(beforeFormatted);
+                    afterProducts.push(afterFormatted);
+                }
+            });
+
+            const beforeEquation = `${beforeReactants.join(' + ')} → ${beforeProducts.join(' + ')}`;
+            const afterEquation = `${afterReactants.join(' + ')} → ${afterProducts.join(' + ')}`;
+
+            // Calculate atom counts for this element with "after" coefficients
             let leftCount = 0;
             let rightCount = 0;
             let leftCompounds = [];
@@ -2194,7 +2226,7 @@ class EquationBalancerUI {
 
             result.compounds.forEach((compound, i) => {
                 const elementCount = compound.elements[element] || 0;
-                const coeff = progressCoeffs[i];
+                const coeff = afterCoeffs[i]; // Use "after" coefficients
                 const totalCount = elementCount * coeff;
 
                 const compoundDisplay = coeff === 1 ? compound.formula : `${coeff}${compound.formula}`;
@@ -2220,12 +2252,6 @@ class EquationBalancerUI {
                     }
                 }
             });
-
-            // Generate current equation state with progressive coefficients
-            const currentEquation = result.compounds.map((compound, i) => {
-                const coeff = progressCoeffs[i];
-                return coeff === 1 ? compound.formula : `${coeff}${compound.formula}`;
-            }).join(' + ').replace(/\+ (?=.*[A-Z].*→)/, ' → ');
 
             // Determine explanation based on element type and position
             let explanation = "";
@@ -2258,17 +2284,16 @@ class EquationBalancerUI {
                 element: element,
                 title: title,
                 status: status,
-                currentEquation: currentEquation,
-                leftCompounds: leftCompounds,
-                rightCompounds: rightCompounds,
-                leftCount: leftCount,
-                rightCount: rightCount,
-                balanced: leftCount === rightCount,
-                explanation: explanation
+                currentEquation: beforeEquation, // Show equation at start of this step
+                leftCompounds: leftCompounds, // These show "after" coefficients in the analysis
+                rightCompounds: rightCompounds, // These show "after" coefficients in the analysis
+                leftCount: leftCount, // "After" atom counts
+                rightCount: rightCount, // "After" atom counts
+                balanced: leftCount === rightCount, // Should be true when this element is balanced
+                explanation: explanation,
+                isLastStep: index === balancingOrder.length - 1,
+                progressiveEquation: afterEquation // Show equation after this step is balanced
             });
-
-            // Update current coefficients for next iteration
-            currentCoeffs = [...progressCoeffs];
         });
 
         return steps;
@@ -2295,7 +2320,7 @@ class EquationBalancerUI {
                         <div class="bg-slate-50 p-4 rounded-lg border-l-4 border-slate-400">
                             <h5 class="font-bold text-slate-700 mb-2">BEFORE (Unbalanced):</h5>
                             <div class="font-mono text-lg text-center bg-white p-3 rounded border">
-                                ${result.compounds.map(c => c.formula).join(' + ').replace(/\+ (?=.*[A-Z].*→)/, ' → ')}
+                                ${result.compounds.filter(c => c.isReactant).map(c => c.formula).join(' + ')} → ${result.compounds.filter(c => !c.isReactant).map(c => c.formula).join(' + ')}
                             </div>
                         </div>
                         
@@ -2480,12 +2505,17 @@ class EquationBalancerUI {
                     <div class="bg-white p-4 rounded-lg border-2 border-orange-200">
                         <div class="text-center">
                             <div class="text-2xl font-mono font-bold text-gray-800 mb-2">
-                                ${result.compounds.map((compound, i) => {
-            const coeff = result.coefficients[i];
+                                ${result.compounds.filter(c => c.isReactant).map((compound, i) => {
+            const originalIndex = result.compounds.indexOf(compound);
+            const coeff = result.coefficients[originalIndex];
             const formatted = coeff === 1 ? compound.formula : `${coeff}${compound.formula}`;
-            const color = compound.isReactant ? 'text-red-600' : 'text-green-600';
-            return `<span class="${color}">${formatted}</span>`;
-        }).join(' + ').replace(/\+ (?=.*text-green)/g, ' → ')}
+            return `<span class="text-red-600">${formatted}</span>`;
+        }).join(' + ')} → ${result.compounds.filter(c => !c.isReactant).map((compound, i) => {
+            const originalIndex = result.compounds.indexOf(compound);
+            const coeff = result.coefficients[originalIndex];
+            const formatted = coeff === 1 ? compound.formula : `${coeff}${compound.formula}`;
+            return `<span class="text-green-600">${formatted}</span>`;
+        }).join(' + ')}
                             </div>
                             <p class="text-sm text-gray-600">Balanced Chemical Equation</p>
                         </div>
