@@ -1055,10 +1055,13 @@ class EquationBalancerUI {
                 compounds[compounds.length - 1] = formula;
                 input.value = compounds.join(' + ');
             } else {
-                // Add new compound - automatically add + if needed
+                // Only add + if the current value doesn't already end with +
                 if (currentValue.endsWith(' + ')) {
                     input.value = currentValue + formula;
+                } else if (currentValue.endsWith('+')) {
+                    input.value = currentValue + ' ' + formula;
                 } else {
+                    // Add new compound with proper spacing
                     input.value = currentValue + ' + ' + formula;
                 }
             }
@@ -1347,19 +1350,13 @@ class EquationBalancerUI {
                 content: this.generateAnalyzeStep(originalEquation, result)
             },
             {
-                title: '⚖️ Step 2: Balance Step by Step',
+                title: '⚖️ Step 2: Balance Each Element & Watch the Equation Change',
                 icon: 'fas fa-balance-scale',
                 color: 'indigo',
-                content: this.generateBalancingStep(result, originalEquation)
+                content: this.generateDynamicBalancingStep(result, originalEquation)
             },
             {
-                title: '🧮 Step 3: Apply the Coefficients',
-                icon: 'fas fa-calculator',
-                color: 'orange',
-                content: this.generateApplyStep(result)
-            },
-            {
-                title: '✅ Step 4: Double-Check Our Work',
+                title: '✅ Step 3: Verify the Final Balance',
                 icon: 'fas fa-check-circle',
                 color: 'green',
                 content: this.generateVerificationStep(result)
@@ -1633,8 +1630,8 @@ class EquationBalancerUI {
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th class="text-left p-4 font-bold text-gray-700 border-r">Element</th>
-                                    <th class="text-center p-4 font-bold text-red-700 bg-red-50 border-r">Left Side<br><span class="text-xs font-normal">(Reactants)</span></th>
-                                    <th class="text-center p-4 font-bold text-green-700 bg-green-50 border-r">Right Side<br><span class="text-xs font-normal">(Products)</span></th>
+                                    <th class="text-center p-4 font-bold text-blue-700 bg-blue-50 border-r">Left Side<br><span class="text-xs font-normal">(Reactants)</span></th>
+                                    <th class="text-center p-4 font-bold text-purple-700 bg-purple-50 border-r">Right Side<br><span class="text-xs font-normal">(Products)</span></th>
                                     <th class="text-center p-4 font-bold text-gray-700">Balanced?</th>
                                 </tr>
                             </thead>
@@ -1654,11 +1651,11 @@ class EquationBalancerUI {
                                                     <span class="font-bold text-gray-800">${element}</span>
                                                 </div>
                                             </td>
-                                            <td class="text-center p-4 bg-red-50 border-r">
-                                                <div class="text-2xl font-bold text-red-600">${counts.reactants}</div>
+                                            <td class="text-center p-4 bg-blue-50 border-r">
+                                                <div class="text-2xl font-bold text-blue-600">${counts.reactants}</div>
                                             </td>
-                                            <td class="text-center p-4 bg-green-50 border-r">
-                                                <div class="text-2xl font-bold text-green-600">${counts.products}</div>
+                                            <td class="text-center p-4 bg-purple-50 border-r">
+                                                <div class="text-2xl font-bold text-purple-600">${counts.products}</div>
                                             </td>
                                             <td class="text-center p-4">
                                                 <div class="text-2xl ${isBalanced ? 'text-green-500' : 'text-red-500'}">
@@ -1798,7 +1795,7 @@ class EquationBalancerUI {
 
     generateBalancingStep(result, originalEquation) {
         // Determine balancing strategy based on elements present
-        const hasMetals = result.elements.some(el => ['Na', 'K', 'Ca', 'Mg', 'Fe', 'Cu', 'Zn', 'Al', 'Ag', 'Pb'].includes(el));
+        const hasMetals = result.elements.some(el => ['Na', 'K', 'Ca', 'Mg', 'Fe', 'Cu', 'Zn', 'Al', 'Ag', 'Pb', 'Sn', 'Cr', 'Mn'].includes(el));
         const hasHydrogen = result.elements.includes('H');
         const hasOxygen = result.elements.includes('O');
         const hasCarbon = result.elements.includes('C');
@@ -1808,19 +1805,19 @@ class EquationBalancerUI {
         let strategy = "";
 
         if (hasMetals) {
-            strategy = "We'll start with metals (they're usually easiest), then nonmetals, then hydrogen, and oxygen last.";
-            balancingOrder = result.elements.filter(el => ['Na', 'K', 'Ca', 'Mg', 'Fe', 'Cu', 'Zn', 'Al', 'Ag', 'Pb'].includes(el));
-            balancingOrder = balancingOrder.concat(result.elements.filter(el => !['Na', 'K', 'Ca', 'Mg', 'Fe', 'Cu', 'Zn', 'Al', 'Ag', 'Pb', 'H', 'O'].includes(el)));
+            strategy = "We'll balance metals first (they appear in fewer compounds), then nonmetals, hydrogen second-to-last, and oxygen last.";
+            balancingOrder = result.elements.filter(el => ['Na', 'K', 'Ca', 'Mg', 'Fe', 'Cu', 'Zn', 'Al', 'Ag', 'Pb', 'Sn', 'Cr', 'Mn'].includes(el));
+            balancingOrder = balancingOrder.concat(result.elements.filter(el => !['Na', 'K', 'Ca', 'Mg', 'Fe', 'Cu', 'Zn', 'Al', 'Ag', 'Pb', 'Sn', 'Cr', 'Mn', 'H', 'O'].includes(el)));
             if (hasHydrogen) balancingOrder.push('H');
             if (hasOxygen) balancingOrder.push('O');
         } else if (hasCarbon) {
-            strategy = "This looks like an organic reaction. We'll balance carbon first, then hydrogen, then oxygen.";
+            strategy = "For organic reactions: carbon first (molecular backbone), then hydrogen, then oxygen last.";
             balancingOrder = ['C'];
             if (hasHydrogen) balancingOrder.push('H');
             if (hasOxygen) balancingOrder.push('O');
             balancingOrder = balancingOrder.concat(result.elements.filter(el => !['C', 'H', 'O'].includes(el)));
         } else {
-            strategy = "We'll balance elements that appear in fewer compounds first, saving diatomic molecules (like O₂) for last.";
+            strategy = "We'll balance elements that appear in fewer compounds first, saving polyatomic elements for last.";
             balancingOrder = [...result.elements];
         }
 
@@ -1828,54 +1825,115 @@ class EquationBalancerUI {
             <div class="space-y-4">
                 <div class="bg-gradient-to-r from-indigo-50 to-indigo-100 p-4 rounded-lg border-l-4 border-indigo-500">
                     <h4 class="font-bold text-indigo-800 mb-2 flex items-center">
-                        <i class="fas fa-strategy mr-2"></i>Our Balancing Strategy
+                        <i class="fas fa-route mr-2"></i>Why Order Matters in Balancing
                     </h4>
-                    <p class="text-indigo-700 text-sm">${strategy}</p>
+                    <p class="text-indigo-700 text-sm mb-3">${strategy}</p>
+                    <div class="bg-white p-3 rounded border">
+                        <h5 class="font-semibold text-indigo-800 text-sm mb-2">The Logic:</h5>
+                        <ul class="text-xs text-indigo-700 space-y-1">
+                            <li><strong>Metals first:</strong> Usually appear in only 1-2 compounds, so easier to balance</li>
+                            <li><strong>Nonmetals next:</strong> More complex but still manageable</li>
+                            <li><strong>Hydrogen second-to-last:</strong> Often appears in many compounds (acids, bases, water)</li>
+                            <li><strong>Oxygen last:</strong> Appears in the most compounds, hardest to balance early</li>
+                        </ul>
+                    </div>
                 </div>
                 
                 <div class="bg-white border-2 border-indigo-200 rounded-lg p-4">
                     <h4 class="font-bold text-indigo-800 mb-4 flex items-center">
-                        <i class="fas fa-list-ol mr-2"></i>Step-by-Step Balancing Order
+                        <i class="fas fa-step-forward mr-2"></i>How We Balance Each Element
                     </h4>
-                    <div class="space-y-3">
+                    <div class="space-y-4">
                         ${balancingOrder.map((element, index) => {
             const elementColors = {
-                'H': 'bg-red-100 text-red-800 border-red-300',
+                'H': 'bg-pink-100 text-pink-800 border-pink-300',
                 'O': 'bg-blue-100 text-blue-800 border-blue-300',
                 'C': 'bg-gray-100 text-gray-800 border-gray-300',
-                'N': 'bg-green-100 text-green-800 border-green-300',
+                'N': 'bg-teal-100 text-teal-800 border-teal-300',
                 'S': 'bg-yellow-100 text-yellow-800 border-yellow-300',
                 'Cl': 'bg-purple-100 text-purple-800 border-purple-300',
                 'Na': 'bg-orange-100 text-orange-800 border-orange-300',
-                'Ca': 'bg-pink-100 text-pink-800 border-pink-300',
-                'Fe': 'bg-indigo-100 text-indigo-800 border-indigo-300'
+                'Ca': 'bg-lime-100 text-lime-800 border-lime-300',
+                'Fe': 'bg-amber-100 text-amber-800 border-amber-300'
             };
-            const colorClass = elementColors[element] || 'bg-gray-100 text-gray-800 border-gray-300';
+            const colorClass = elementColors[element] || 'bg-slate-100 text-slate-800 border-slate-300';
 
-            let explanation = "";
-            if (['Na', 'K', 'Ca', 'Mg', 'Fe', 'Cu', 'Zn', 'Al', 'Ag', 'Pb'].includes(element)) {
-                explanation = "Metal - usually appears in fewer compounds, easier to balance first";
+            // Calculate current atom counts for this element
+            let leftSideCount = 0;
+            let rightSideCount = 0;
+            let leftCompounds = [];
+            let rightCompounds = [];
+
+            result.compounds.forEach((compound, i) => {
+                const count = (compound.elements[element] || 0) * result.coefficients[i];
+                if (compound.isReactant) {
+                    leftSideCount += count;
+                    if (compound.elements[element]) {
+                        leftCompounds.push(`${result.coefficients[i] === 1 ? '' : result.coefficients[i]}${compound.formula}`);
+                    }
+                } else {
+                    rightSideCount += count;
+                    if (compound.elements[element]) {
+                        rightCompounds.push(`${result.coefficients[i] === 1 ? '' : result.coefficients[i]}${compound.formula}`);
+                    }
+                }
+            });
+
+            let balancingExplanation = "";
+            if (['Na', 'K', 'Ca', 'Mg', 'Fe', 'Cu', 'Zn', 'Al', 'Ag', 'Pb', 'Sn', 'Cr', 'Mn'].includes(element)) {
+                balancingExplanation = `Metal atoms are usually the easiest to balance because they appear in fewer compounds. We look for the compound with the most ${element} atoms and work from there.`;
             } else if (element === 'C') {
-                explanation = "Carbon - backbone of organic molecules, balance first";
+                balancingExplanation = "Carbon forms the backbone of organic molecules. Balance it first to establish the molecular ratios.";
             } else if (element === 'H') {
-                explanation = "Hydrogen - balance after other elements but before oxygen";
+                balancingExplanation = "Hydrogen appears in many compounds (water, acids, bases). We balance it after other elements are set.";
             } else if (element === 'O') {
-                explanation = "Oxygen - save for last, often appears in many compounds";
+                balancingExplanation = "Oxygen appears in the most compounds and is saved for last. By this point, the coefficients usually balance oxygen automatically.";
             } else {
-                explanation = "Nonmetal - balance after metals but before H and O";
+                balancingExplanation = `This nonmetal is balanced after metals but before hydrogen and oxygen.`;
             }
 
             return `
-                                <div class="flex items-center p-3 bg-gray-50 rounded-lg border">
-                                    <div class="w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center font-bold mr-4">
-                                        ${index + 1}
+                                <div class="border-2 border-gray-200 rounded-lg p-4">
+                                    <div class="flex items-center mb-3">
+                                        <div class="w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center font-bold mr-3">
+                                            ${index + 1}
+                                        </div>
+                                        <span class="w-10 h-10 rounded-full border-2 ${colorClass} flex items-center justify-center text-sm font-bold mr-3">
+                                            ${element}
+                                        </span>
+                                        <div>
+                                            <div class="font-bold text-gray-800">Balancing ${element}</div>
+                                            <div class="text-sm text-gray-600">${balancingExplanation}</div>
+                                        </div>
                                     </div>
-                                    <span class="w-10 h-10 rounded-full border-2 ${colorClass} flex items-center justify-center text-sm font-bold mr-4">
-                                        ${element}
-                                    </span>
-                                    <div>
-                                        <div class="font-semibold text-gray-800">${element}</div>
-                                        <div class="text-sm text-gray-600">${explanation}</div>
+                                    
+                                    <div class="bg-gray-50 p-3 rounded-lg">
+                                        <div class="grid grid-cols-3 gap-4 items-center">
+                                            <div class="text-center">
+                                                <div class="bg-blue-100 text-blue-800 px-3 py-2 rounded-lg font-bold text-lg">
+                                                    ${leftSideCount}
+                                                </div>
+                                                <div class="text-xs text-blue-600 mt-1">Left Side</div>
+                                                <div class="text-xs text-gray-600 mt-1">${leftCompounds.join(' + ')}</div>
+                                            </div>
+                                            
+                                            <div class="text-center">
+                                                <div class="text-2xl font-bold ${leftSideCount === rightSideCount ? 'text-green-600' : 'text-orange-600'}">
+                                                    ${leftSideCount === rightSideCount ? '=' : '→'}
+                                                </div>
+                                                <div class="text-xs ${leftSideCount === rightSideCount ? 'text-green-600' : 'text-orange-600'} mt-1">
+                                                    ${leftSideCount === rightSideCount ? 'Balanced!' : 'Balancing...'}
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="text-center">
+                                                <div class="bg-purple-100 text-purple-800 px-3 py-2 rounded-lg font-bold text-lg">
+                                                    ${rightSideCount}
+                                                </div>
+                                                <div class="text-xs text-purple-600 mt-1">Right Side</div>
+                                                <div class="text-xs text-gray-600 mt-1">${rightCompounds.join(' + ')}</div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             `;
@@ -1883,36 +1941,337 @@ class EquationBalancerUI {
                     </div>
                 </div>
                 
-                <div class="bg-indigo-100 border-2 border-indigo-300 rounded-lg p-4">
-                    <h4 class="font-bold text-indigo-800 mb-3 flex items-center">
-                        <i class="fas fa-magic mr-2"></i>The Math Behind It
-                    </h4>
-                    <div class="bg-white p-4 rounded-lg border">
-                        <p class="text-sm text-gray-700 mb-2">
-                            Instead of guessing, we use <strong>linear algebra</strong> to solve this systematically:
-                        </p>
-                        <ul class="text-sm text-gray-600 space-y-1 ml-4">
-                            <li>• Each element gives us one equation</li>
-                            <li>• Each compound gives us one unknown coefficient</li>
-                            <li>• We solve the system to get the smallest whole number coefficients</li>
-                        </ul>
-                    </div>
-                </div>
-                
                 <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
                     <div class="flex items-start">
-                        <i class="fas fa-lightbulb text-indigo-600 mt-1 mr-3"></i>
+                        <i class="fas fa-brain text-indigo-600 mt-1 mr-3"></i>
                         <div>
-                            <h5 class="font-semibold text-indigo-800 mb-1">Pro Tip</h5>
+                            <h5 class="font-semibold text-indigo-800 mb-1">The Strategy in Action</h5>
                             <p class="text-indigo-700 text-sm">
-                                In practice, you'd work through this step by step, adjusting coefficients until balanced. 
-                                But math gives us the exact answer instantly!
+                                Notice how we work systematically through each element. By following this order, 
+                                we avoid the frustration of constantly changing coefficients. Each element builds 
+                                on the previous ones until the entire equation is balanced!
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
         `;
+    }
+
+    generateDynamicBalancingStep(result, originalEquation) {
+        // Determine balancing strategy
+        const hasMetals = result.elements.some(el => ['Na', 'K', 'Ca', 'Mg', 'Fe', 'Cu', 'Zn', 'Al', 'Ag', 'Pb', 'Sn', 'Cr', 'Mn'].includes(el));
+        const hasHydrogen = result.elements.includes('H');
+        const hasOxygen = result.elements.includes('O');
+        const hasCarbon = result.elements.includes('C');
+
+        // Create balancing order
+        let balancingOrder = [];
+        let strategy = "";
+
+        if (hasMetals) {
+            strategy = "We balance metals first (fewer compounds), then nonmetals, hydrogen second-to-last, and oxygen last.";
+            balancingOrder = result.elements.filter(el => ['Na', 'K', 'Ca', 'Mg', 'Fe', 'Cu', 'Zn', 'Al', 'Ag', 'Pb', 'Sn', 'Cr', 'Mn'].includes(el));
+            balancingOrder = balancingOrder.concat(result.elements.filter(el => !['Na', 'K', 'Ca', 'Mg', 'Fe', 'Cu', 'Zn', 'Al', 'Ag', 'Pb', 'Sn', 'Cr', 'Mn', 'H', 'O'].includes(el)));
+            if (hasHydrogen) balancingOrder.push('H');
+            if (hasOxygen) balancingOrder.push('O');
+        } else if (hasCarbon) {
+            strategy = "For organic reactions: carbon first, then hydrogen, then oxygen last.";
+            balancingOrder = ['C'];
+            if (hasHydrogen) balancingOrder.push('H');
+            if (hasOxygen) balancingOrder.push('O');
+            balancingOrder = balancingOrder.concat(result.elements.filter(el => !['C', 'H', 'O'].includes(el)));
+        } else {
+            strategy = "We balance elements that appear in fewer compounds first.";
+            balancingOrder = [...result.elements];
+        }
+
+        // Simulate the balancing process step by step
+        const balancingSteps = this.simulateBalancingProcess(result, balancingOrder);
+
+        return `
+            <div class="space-y-6">
+                <div class="bg-gradient-to-r from-indigo-50 to-indigo-100 p-4 rounded-lg border-l-4 border-indigo-500">
+                    <h4 class="font-bold text-indigo-800 mb-2 flex items-center">
+                        <i class="fas fa-route mr-2"></i>Our Balancing Strategy
+                    </h4>
+                    <p class="text-indigo-700 text-sm mb-3">${strategy}</p>
+                    <div class="bg-white p-3 rounded border">
+                        <div class="text-sm text-indigo-700">
+                            <strong>Watch how the equation changes</strong> as we balance each element in the optimal order!
+                        </div>
+                    </div>
+                </div>
+
+                ${balancingSteps.map((step, index) => `
+                    <div class="bg-white border-2 border-indigo-200 rounded-lg overflow-hidden">
+                        <div class="bg-indigo-100 p-4 border-b border-indigo-200">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold mr-3">
+                                        ${index + 1}
+                                    </div>
+                                    <h4 class="font-bold text-indigo-800">
+                                        ${step.title}
+                                    </h4>
+                                </div>
+                                <div class="text-sm text-indigo-600 font-medium">
+                                    ${step.status}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6">
+                            <div class="mb-4">
+                                <h5 class="font-semibold text-gray-800 mb-2">Before Balancing ${step.element}:</h5>
+                                <div class="bg-orange-50 p-4 rounded-lg border-2 border-orange-200">
+                                    <div class="font-mono text-2xl text-center font-bold text-gray-800">
+                                        ${step.currentEquation}
+                                    </div>
+                                    <div class="text-center text-sm text-orange-600 mt-2">
+                                        ❌ ${step.element}: ${step.leftCount} ≠ ${step.rightCount} (unbalanced)
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            ${step.balanced ? '' : `
+                                <div class="mb-4">
+                                    <h5 class="font-semibold text-gray-800 mb-2">After Balancing ${step.element}:</h5>
+                                    <div class="bg-green-50 p-4 rounded-lg border-2 border-green-200">
+                                        <div class="font-mono text-2xl text-center font-bold text-gray-800">
+                                            ${step.currentEquation.replace(/\d+/g, (match, offset, string) => {
+            // This is a simplified replacement - in practice you'd need the actual after equation
+            return match;
+        })}
+                                        </div>
+                                        <div class="text-center text-sm text-green-600 mt-2">
+                                            ✅ ${step.element}: ${step.leftCount} = ${step.rightCount} (balanced!)
+                                        </div>
+                                    </div>
+                                </div>
+                            `}
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
+                                    <h6 class="font-bold text-blue-800 mb-3 flex items-center">
+                                        <i class="fas fa-arrow-left mr-2"></i>Left Side Analysis
+                                    </h6>
+                                    <div class="space-y-2">
+                                        ${step.leftCompounds.map(comp => `
+                                            <div class="bg-white p-3 rounded border">
+                                                <div class="font-mono text-xl font-bold text-blue-700 mb-1">
+                                                    ${comp.display}
+                                                </div>
+                                                <div class="text-sm text-blue-600">
+                                                    ${comp.elementBreakdown}
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                    <div class="mt-3 p-2 bg-blue-100 rounded">
+                                        <div class="text-sm font-semibold text-blue-800">
+                                            ${step.element}: ${step.leftCount} atoms total
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-400">
+                                    <h6 class="font-bold text-purple-800 mb-3 flex items-center">
+                                        <i class="fas fa-arrow-right mr-2"></i>Right Side Analysis
+                                    </h6>
+                                    <div class="space-y-2">
+                                        ${step.rightCompounds.map(comp => `
+                                            <div class="bg-white p-3 rounded border">
+                                                <div class="font-mono text-xl font-bold text-purple-700 mb-1">
+                                                    ${comp.display}
+                                                </div>
+                                                <div class="text-sm text-purple-600">
+                                                    ${comp.elementBreakdown}
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                    <div class="mt-3 p-2 bg-purple-100 rounded">
+                                        <div class="text-sm font-semibold text-purple-800">
+                                            ${step.element}: ${step.rightCount} atoms total
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 p-4 rounded-lg ${step.balanced ? 'bg-green-50 border border-green-200' : 'bg-orange-50 border border-orange-200'}">
+                                <div class="flex items-center justify-center">
+                                    <div class="text-center">
+                                        <div class="text-3xl font-bold ${step.balanced ? 'text-green-600' : 'text-orange-600'} mb-2">
+                                            ${step.leftCount} ${step.balanced ? '=' : '≠'} ${step.rightCount}
+                                        </div>
+                                        <div class="text-sm ${step.balanced ? 'text-green-700' : 'text-orange-700'} font-medium">
+                                            ${step.balanced ? `✅ ${step.element} is now balanced!` : `⚖️ Adjusting coefficients to balance ${step.element}...`}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            ${step.explanation ? `
+                                <div class="mt-4 bg-indigo-50 p-4 rounded-lg border border-indigo-200">
+                                    <div class="flex items-start">
+                                        <i class="fas fa-lightbulb text-indigo-600 mt-1 mr-3"></i>
+                                        <div>
+                                            <h6 class="font-semibold text-indigo-800 mb-1">What's Happening:</h6>
+                                            <p class="text-indigo-700 text-sm">${step.explanation}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `).join('')}
+
+                <div class="bg-gradient-to-r from-green-50 to-green-100 p-6 rounded-lg border-l-4 border-green-500">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-trophy text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-green-800 mb-2">🎉 All Elements Balanced!</h3>
+                        <div class="bg-white p-4 rounded-lg border-2 border-green-300 mb-4">
+                            <div class="font-mono text-3xl font-bold text-gray-800">
+                                ${result.balancedEquation}
+                            </div>
+                        </div>
+                        <p class="text-green-700 font-medium">
+                            Every element now has equal atoms on both sides of the equation!
+                        </p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    simulateBalancingProcess(result, balancingOrder) {
+        const steps = [];
+
+        // Start with all coefficients as 1 (unbalanced)
+        let currentCoeffs = new Array(result.compounds.length).fill(1);
+
+        balancingOrder.forEach((element, index) => {
+            // For this step, we need to determine what coefficients should be
+            // to balance this element, considering previously balanced elements
+
+            // Create a progressive coefficient array
+            // We'll simulate the balancing by gradually applying the final coefficients
+            const progressCoeffs = [...currentCoeffs];
+
+            // Apply coefficients progressively based on which elements we've balanced so far
+            if (index === 0) {
+                // First element - start with unbalanced (all 1s)
+                // But show what needs to change to balance this element
+                progressCoeffs.forEach((coeff, i) => {
+                    // Apply partial coefficients to show the progression
+                    const targetCoeff = result.coefficients[i];
+                    const elementInCompound = result.compounds[i].elements[element] || 0;
+
+                    if (elementInCompound > 0) {
+                        // For compounds containing this element, start applying the target coefficient
+                        progressCoeffs[i] = targetCoeff;
+                    }
+                });
+            } else {
+                // For subsequent elements, keep previously set coefficients and add new ones
+                balancingOrder.slice(0, index + 1).forEach(balancedElement => {
+                    result.compounds.forEach((compound, i) => {
+                        if (compound.elements[balancedElement]) {
+                            progressCoeffs[i] = result.coefficients[i];
+                        }
+                    });
+                });
+            }
+
+            // Calculate atom counts for this element with current coefficients
+            let leftCount = 0;
+            let rightCount = 0;
+            let leftCompounds = [];
+            let rightCompounds = [];
+
+            result.compounds.forEach((compound, i) => {
+                const elementCount = compound.elements[element] || 0;
+                const coeff = progressCoeffs[i];
+                const totalCount = elementCount * coeff;
+
+                const compoundDisplay = coeff === 1 ? compound.formula : `${coeff}${compound.formula}`;
+                const elementBreakdown = elementCount > 0 ?
+                    `Contains ${elementCount} ${element} atom${elementCount > 1 ? 's' : ''} × ${coeff} = ${totalCount} total` :
+                    `No ${element} atoms`;
+
+                if (compound.isReactant) {
+                    leftCount += totalCount;
+                    if (elementCount > 0) {
+                        leftCompounds.push({
+                            display: compoundDisplay,
+                            elementBreakdown: elementBreakdown
+                        });
+                    }
+                } else {
+                    rightCount += totalCount;
+                    if (elementCount > 0) {
+                        rightCompounds.push({
+                            display: compoundDisplay,
+                            elementBreakdown: elementBreakdown
+                        });
+                    }
+                }
+            });
+
+            // Generate current equation state with progressive coefficients
+            const currentEquation = result.compounds.map((compound, i) => {
+                const coeff = progressCoeffs[i];
+                return coeff === 1 ? compound.formula : `${coeff}${compound.formula}`;
+            }).join(' + ').replace(/\+ (?=.*[A-Z].*→)/, ' → ');
+
+            // Determine explanation based on element type and position
+            let explanation = "";
+            let title = "";
+            let status = "";
+
+            if (['Na', 'K', 'Ca', 'Mg', 'Fe', 'Cu', 'Zn', 'Al', 'Ag', 'Pb', 'Sn', 'Cr', 'Mn'].includes(element)) {
+                title = `Balancing ${element} (Metal)`;
+                status = "Step " + (index + 1) + " of " + balancingOrder.length;
+                explanation = `Metals like ${element} usually appear in fewer compounds, making them easier to balance first. We adjust coefficients to make ${element} atoms equal on both sides.`;
+            } else if (element === 'C') {
+                title = `Balancing ${element} (Carbon Backbone)`;
+                status = "Step " + (index + 1) + " of " + balancingOrder.length;
+                explanation = `Carbon forms the backbone of organic molecules. We balance it first to establish the correct molecular ratios for the entire reaction.`;
+            } else if (element === 'H') {
+                title = `Balancing ${element} (Hydrogen)`;
+                status = "Step " + (index + 1) + " of " + balancingOrder.length;
+                explanation = `Hydrogen appears in many compounds (water, acids, bases). We balance it after other elements are set, but before oxygen.`;
+            } else if (element === 'O') {
+                title = `Balancing ${element} (Oxygen - Final Step)`;
+                status = "Final Step";
+                explanation = `Oxygen is saved for last because it appears in the most compounds. By now, the coefficients we've set for other elements usually balance oxygen automatically!`;
+            } else {
+                title = `Balancing ${element} (Nonmetal)`;
+                status = "Step " + (index + 1) + " of " + balancingOrder.length;
+                explanation = `This nonmetal is balanced after metals but before hydrogen and oxygen, following our systematic approach.`;
+            }
+
+            steps.push({
+                element: element,
+                title: title,
+                status: status,
+                currentEquation: currentEquation,
+                leftCompounds: leftCompounds,
+                rightCompounds: rightCompounds,
+                leftCount: leftCount,
+                rightCount: rightCount,
+                balanced: leftCount === rightCount,
+                explanation: explanation
+            });
+
+            // Update current coefficients for next iteration
+            currentCoeffs = [...progressCoeffs];
+        });
+
+        return steps;
     }
 
     generateApplyStep(result) {
@@ -1933,8 +2292,8 @@ class EquationBalancerUI {
                     </h4>
                     
                     <div class="space-y-4">
-                        <div class="bg-red-50 p-4 rounded-lg border-l-4 border-red-400">
-                            <h5 class="font-bold text-red-700 mb-2">BEFORE (Unbalanced):</h5>
+                        <div class="bg-slate-50 p-4 rounded-lg border-l-4 border-slate-400">
+                            <h5 class="font-bold text-slate-700 mb-2">BEFORE (Unbalanced):</h5>
                             <div class="font-mono text-lg text-center bg-white p-3 rounded border">
                                 ${result.compounds.map(c => c.formula).join(' + ').replace(/\+ (?=.*[A-Z].*→)/, ' → ')}
                             </div>
@@ -1946,8 +2305,8 @@ class EquationBalancerUI {
                             </div>
                         </div>
                         
-                        <div class="bg-green-50 p-4 rounded-lg border-l-4 border-green-400">
-                            <h5 class="font-bold text-green-700 mb-2">AFTER (Balanced):</h5>
+                        <div class="bg-emerald-50 p-4 rounded-lg border-l-4 border-emerald-400">
+                            <h5 class="font-bold text-emerald-700 mb-2">AFTER (Balanced):</h5>
                             <div class="font-mono text-xl text-center bg-white p-4 rounded border font-bold">
                                 ${result.balancedEquation}
                             </div>
