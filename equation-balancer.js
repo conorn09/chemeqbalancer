@@ -2029,7 +2029,10 @@ class EquationBalancerUI {
                                         ${step.currentEquation}
                                     </div>
                                     <div class="text-center text-sm text-orange-600 mt-2">
-                                        ❌ ${step.element}: ${step.leftCount} ≠ ${step.rightCount} (unbalanced)
+                                        ${step.beforeLeftCount !== step.beforeRightCount ? 
+                                            `❌ ${step.element}: ${step.beforeLeftCount} ≠ ${step.beforeRightCount} (unbalanced)` :
+                                            `✅ ${step.element}: ${step.beforeLeftCount} = ${step.beforeRightCount} (already balanced)`
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -2072,6 +2075,11 @@ class EquationBalancerUI {
                                         <div class="text-sm font-semibold text-blue-800">
                                             ${step.element}: ${step.leftCount} atoms total
                                         </div>
+                                        ${step.leftSideReasoning ? `
+                                            <div class="text-xs text-blue-700 mt-1 italic">
+                                                ${step.leftSideReasoning}
+                                            </div>
+                                        ` : ''}
                                     </div>
                                 </div>
 
@@ -2095,6 +2103,12 @@ class EquationBalancerUI {
                                         <div class="text-sm font-semibold text-purple-800">
                                             ${step.element}: ${step.rightCount} atoms total
                                         </div>
+                                        ${step.rightSideReasoning ? `
+                                            <div class="text-xs text-purple-700 mt-1 italic">
+                                                ${step.rightSideReasoning}
+                                            </div>
+                                        ` : ''}
+                                    </div>
                                     </div>
                                 </div>
                             </div>
@@ -2132,6 +2146,8 @@ class EquationBalancerUI {
                                     </div>
                                 </div>
                             ` : ''}
+
+
                         </div>
                     </div>
                 `).join('')}
@@ -2218,6 +2234,22 @@ class EquationBalancerUI {
             const beforeEquation = `${beforeReactants.join(' + ')} → ${beforeProducts.join(' + ')}`;
             const afterEquation = `${afterReactants.join(' + ')} → ${afterProducts.join(' + ')}`;
 
+            // First calculate atom counts with "before" coefficients to show the imbalance
+            let beforeLeftCount = 0;
+            let beforeRightCount = 0;
+
+            result.compounds.forEach((compound, i) => {
+                const elementCount = compound.elements[element] || 0;
+                const coeff = beforeCoeffs[i];
+                const totalCount = elementCount * coeff;
+
+                if (compound.isReactant) {
+                    beforeLeftCount += totalCount;
+                } else {
+                    beforeRightCount += totalCount;
+                }
+            });
+
             // Calculate atom counts for this element with "after" coefficients
             let leftCount = 0;
             let rightCount = 0;
@@ -2252,6 +2284,56 @@ class EquationBalancerUI {
                     }
                 }
             });
+
+            // Generate coefficient reasoning for left and right sides
+            let leftSideReasoning = "";
+            let rightSideReasoning = "";
+            
+            if (beforeLeftCount !== beforeRightCount) {
+                const leftChanges = [];
+                const rightChanges = [];
+                
+                result.compounds.forEach((compound, i) => {
+                    if (beforeCoeffs[i] !== afterCoeffs[i]) {
+                        const elementCount = compound.elements[element] || 0;
+                        if (elementCount > 0) {
+                            const coeffChange = afterCoeffs[i] - beforeCoeffs[i];
+                            const atomChange = coeffChange * elementCount;
+                            const changeInfo = {
+                                formula: compound.formula,
+                                beforeCoeff: beforeCoeffs[i],
+                                afterCoeff: afterCoeffs[i],
+                                atomChange: atomChange
+                            };
+                            
+                            if (compound.isReactant) {
+                                leftChanges.push(changeInfo);
+                            } else {
+                                rightChanges.push(changeInfo);
+                            }
+                        }
+                    }
+                });
+
+                if (leftChanges.length > 0) {
+                    leftSideReasoning = leftChanges.map(change => 
+                        `Changed ${change.formula} coefficient from ${change.beforeCoeff} to ${change.afterCoeff}, adding ${change.atomChange} ${element} atoms`
+                    ).join('. ');
+                } else {
+                    leftSideReasoning = `No coefficient changes needed on left side`;
+                }
+
+                if (rightChanges.length > 0) {
+                    rightSideReasoning = rightChanges.map(change => 
+                        `Changed ${change.formula} coefficient from ${change.beforeCoeff} to ${change.afterCoeff}, adding ${change.atomChange} ${element} atoms`
+                    ).join('. ');
+                } else {
+                    rightSideReasoning = `No coefficient changes needed on right side`;
+                }
+            } else {
+                leftSideReasoning = `${element} was already balanced - no changes needed`;
+                rightSideReasoning = `${element} was already balanced - no changes needed`;
+            }
 
             // Determine explanation based on element type and position
             let explanation = "";
@@ -2289,8 +2371,12 @@ class EquationBalancerUI {
                 rightCompounds: rightCompounds, // These show "after" coefficients in the analysis
                 leftCount: leftCount, // "After" atom counts
                 rightCount: rightCount, // "After" atom counts
+                beforeLeftCount: beforeLeftCount, // "Before" atom counts for display
+                beforeRightCount: beforeRightCount, // "Before" atom counts for display
                 balanced: leftCount === rightCount, // Should be true when this element is balanced
                 explanation: explanation,
+                leftSideReasoning: leftSideReasoning, // Left side coefficient reasoning
+                rightSideReasoning: rightSideReasoning, // Right side coefficient reasoning
                 isLastStep: index === balancingOrder.length - 1,
                 progressiveEquation: afterEquation // Show equation after this step is balanced
             });
