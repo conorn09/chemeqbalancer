@@ -3268,17 +3268,17 @@ class EquationBalancerUI {
             stepDiv.className = `mb-6 border-2 border-${step.color}-200 rounded-xl shadow-lg overflow-hidden`;
 
             stepDiv.innerHTML = `
-                <button class="w-full text-left p-5 bg-gradient-to-r from-${step.color}-50 to-${step.color}-100 hover:from-${step.color}-100 hover:to-${step.color}-150 transition-all duration-300 flex items-center justify-between group" 
+                <button class="w-full text-left p-5 bg-gradient-to-r from-${step.color}-50 to-${step.color}-100 hover:from-${step.color}-100 hover:to-${step.color}-150 dark:from-${step.color}-800 dark:to-${step.color}-700 dark:hover:from-${step.color}-700 dark:hover:to-${step.color}-600 transition-all duration-300 flex items-center justify-between group" 
                         onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('.chevron').classList.toggle('rotate-180')">
                     <div class="flex items-center">
-                        <div class="w-10 h-10 bg-${step.color}-500 text-white rounded-full flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
+                        <div class="w-10 h-10 bg-${step.color}-500 dark:bg-${step.color}-600 text-white rounded-full flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
                             <i class="${step.icon} text-sm"></i>
                         </div>
-                        <span class="font-bold text-lg text-${step.color}-800">${step.title}</span>
+                        <span class="font-bold text-lg text-${step.color}-800 dark:text-${step.color}-100">${step.title}</span>
                     </div>
-                    <i class="fas fa-chevron-down text-${step.color}-600 chevron transition-transform duration-300"></i>
+                    <i class="fas fa-chevron-down text-${step.color}-600 dark:text-${step.color}-300 chevron transition-transform duration-300"></i>
                 </button>
-                <div class="p-6 bg-white border-t-2 border-${step.color}-100 ${index === 0 ? '' : 'hidden'}" style="position: relative; overflow: hidden; contain: layout;">
+                <div class="p-6 bg-white dark:bg-gray-800 border-t-2 border-${step.color}-100 dark:border-${step.color}-700 ${index === 0 ? '' : 'hidden'}" style="position: relative; overflow: hidden; contain: layout;">
                     <div style="position: relative; z-index: 1;">
                         ${step.content}
                     </div>
@@ -3924,40 +3924,40 @@ class EquationBalancerUI {
 
         return `
             <div class="space-y-6">
-                <div class="bg-gradient-to-r from-indigo-50 to-indigo-100 p-4 rounded-lg border-l-4 border-indigo-500">
-                    <h4 class="font-bold text-indigo-800 mb-2 flex items-center">
+                <div class="bg-gradient-to-r from-indigo-50 to-indigo-100 dark:from-indigo-800 dark:to-indigo-700 p-4 rounded-lg border-l-4 border-indigo-500 dark:border-indigo-400">
+                    <h4 class="font-bold text-indigo-800 dark:text-indigo-100 mb-2 flex items-center">
                         <i class="fas fa-route mr-2"></i>Our Balancing Strategy
                     </h4>
                     <p class="text-indigo-700 text-sm mb-3">${strategy}</p>
-                    <div class="bg-white p-3 rounded border">
-                        <div class="text-sm text-indigo-700">
+                    <div class="bg-white dark:bg-gray-700 p-3 rounded border dark:border-gray-600">
+                        <div class="text-sm text-indigo-700 dark:text-indigo-200">
                             <strong>Watch how the equation changes</strong> as we balance each element in the optimal order!
                         </div>
                     </div>
                 </div>
 
                 ${balancingSteps.map((step, index) => `
-                    <div class="bg-white border-2 border-indigo-200 rounded-lg overflow-hidden mb-4">
-                        <button class="w-full text-left p-4 bg-indigo-100 hover:bg-indigo-150 transition-all duration-300 flex items-center justify-between group" 
+                    <div class="bg-white dark:bg-gray-800 border-2 border-indigo-200 dark:border-indigo-600 rounded-lg overflow-hidden mb-4">
+                        <button class="w-full text-left p-4 bg-indigo-100 dark:bg-indigo-800 hover:bg-indigo-150 dark:hover:bg-indigo-700 transition-all duration-300 flex items-center justify-between group" 
                                 onclick="const content = this.nextElementSibling; content.style.display = content.style.display === 'none' ? 'block' : 'none'; this.querySelector('.chevron').classList.toggle('rotate-180')">
                             <div class="flex items-center">
                                 <div class="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold mr-3 group-hover:scale-110 transition-transform">
                                     ${index + 1}
                                 </div>
                                 <div>
-                                    <h4 class="font-bold text-indigo-800">
+                                    <h4 class="font-bold text-indigo-800 dark:text-indigo-100">
                                         ${step.title}
                                     </h4>
-                                    <div class="text-sm text-indigo-600 font-medium">
+                                    <div class="text-sm text-indigo-600 dark:text-indigo-300 font-medium">
                                         ${step.status}
                                     </div>
                                 </div>
                             </div>
-                            <i class="fas fa-chevron-down text-indigo-600 chevron transition-transform duration-300"></i>
+                            <i class="fas fa-chevron-down text-indigo-600 dark:text-indigo-300 chevron transition-transform duration-300"></i>
                         </button>
-                        <div class="hidden p-6 bg-white" style="display: none;">
+                        <div class="hidden p-6 bg-white dark:bg-gray-800" style="display: none;">
                             <div class="mb-4">
-                                <h5 class="font-semibold text-gray-800 mb-2">Before Balancing ${step.element}:</h5>
+                                <h5 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">Before Balancing ${step.element}:</h5>
                                 <div class="bg-orange-50 p-4 rounded-lg border-2 border-orange-200">
                                     <div class="font-mono text-2xl text-center font-bold text-gray-800">
                                         ${step.currentEquation}
@@ -3972,8 +3972,8 @@ class EquationBalancerUI {
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
-                                    <h6 class="font-bold text-blue-800 mb-3 flex items-center">
+                                <div class="bg-blue-50 dark:bg-blue-900 p-4 rounded-lg border-l-4 border-blue-400 dark:border-blue-500">
+                                    <h6 class="font-bold text-blue-800 dark:text-blue-100 mb-3 flex items-center">
                                         <i class="fas fa-arrow-left mr-2"></i>Left Side Analysis
                                     </h6>
                                     <div class="space-y-2">
@@ -4000,8 +4000,8 @@ class EquationBalancerUI {
                                     </div>
                                 </div>
 
-                                <div class="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-400">
-                                    <h6 class="font-bold text-purple-800 mb-3 flex items-center">
+                                <div class="bg-purple-50 dark:bg-purple-900 p-4 rounded-lg border-l-4 border-purple-400 dark:border-purple-500">
+                                    <h6 class="font-bold text-purple-800 dark:text-purple-100 mb-3 flex items-center">
                                         <i class="fas fa-arrow-right mr-2"></i>Right Side Analysis
                                     </h6>
                                     <div class="space-y-2">
