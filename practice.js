@@ -159,6 +159,7 @@ class ChemicalEquationPractice {
         if (isCorrect) {
             this.correctCount++;
             this.showFeedback(true, 'Correct! Well done!');
+            this.triggerConfetti();
         } else {
             this.incorrectCount++;
             this.showFeedback(false, 'Incorrect. Try again or use the hint button for help.');
@@ -312,6 +313,49 @@ class ChemicalEquationPractice {
         const total = this.correctCount + this.incorrectCount;
         const accuracy = total > 0 ? Math.round((this.correctCount / total) * 100) : 0;
         document.getElementById('accuracy').textContent = `${accuracy}%`;
+    }
+
+    triggerConfetti() {
+        // Create confetti container
+        const confettiContainer = document.createElement('div');
+        confettiContainer.style.position = 'fixed';
+        confettiContainer.style.top = '0';
+        confettiContainer.style.left = '0';
+        confettiContainer.style.width = '100%';
+        confettiContainer.style.height = '100%';
+        confettiContainer.style.pointerEvents = 'none';
+        confettiContainer.style.zIndex = '1000';
+        
+        // Create multiple confetti pieces
+        for (let i = 0; i < 50; i++) {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            
+            // Random properties for each confetti piece
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3', '#ff6348', '#2ed573', '#ffa502', '#3742fa', '#70a1ff', '#7bed9f', '#ff7675', '#fd79a8', '#fdcb6e', '#6c5ce7', '#a29bfe'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            confetti.style.backgroundColor = randomColor;
+            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.animationDelay = Math.random() * 2 + 's';
+            confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            
+            // Random shapes
+            if (Math.random() > 0.5) {
+                confetti.style.borderRadius = '50%';
+            } else {
+                confetti.style.transform = 'rotate(45deg)';
+            }
+            
+            confettiContainer.appendChild(confetti);
+        }
+        
+        document.body.appendChild(confettiContainer);
+        
+        // Remove confetti after animation completes
+        setTimeout(() => {
+            document.body.removeChild(confettiContainer);
+        }, 4000);
     }
 }
 
