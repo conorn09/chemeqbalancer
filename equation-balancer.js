@@ -3295,14 +3295,14 @@ class EquationBalancerUI {
 
         return `
             <div class="space-y-4">
-                <div class="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border-l-4 border-blue-500">
-                    <h4 class="font-bold text-blue-800 mb-2 flex items-center">
+                <div class="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-800 dark:to-blue-700 p-4 rounded-lg border-l-4 border-blue-500 dark:border-blue-400">
+                    <h4 class="font-bold text-blue-800 dark:text-blue-100 mb-2 flex items-center">
                         <i class="fas fa-flask mr-2"></i>Our Unbalanced Equation
                     </h4>
-                    <div class="text-xl font-mono bg-white p-3 rounded border text-center">
+                    <div class="text-xl font-mono bg-white dark:bg-gray-700 dark:text-white p-3 rounded border dark:border-gray-600 text-center">
                         ${originalEquation}
                     </div>
-                    <p class="text-blue-700 text-sm mt-2 text-center">
+                    <p class="text-blue-700 dark:text-blue-200 text-sm mt-2 text-center">
                         <i class="fas fa-exclamation-triangle mr-1"></i>
                         This equation is NOT balanced yet - we need to add coefficients!
                     </p>
@@ -3473,14 +3473,14 @@ class EquationBalancerUI {
 
         return `
             <div class="space-y-4">
-                <div class="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border-l-4 border-blue-500">
-                    <h4 class="font-bold text-blue-800 mb-2 flex items-center">
+                <div class="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-800 dark:to-blue-700 p-4 rounded-lg border-l-4 border-blue-500 dark:border-blue-400">
+                    <h4 class="font-bold text-blue-800 dark:text-blue-100 mb-2 flex items-center">
                         <i class="fas fa-flask mr-2"></i>Our Unbalanced Equation
                     </h4>
-                    <div class="text-xl font-mono bg-white p-3 rounded border text-center">
+                    <div class="text-xl font-mono bg-white dark:bg-gray-700 dark:text-white p-3 rounded border dark:border-gray-600 text-center">
                         ${originalEquation}
                     </div>
-                    <p class="text-blue-700 text-sm mt-2 text-center">
+                    <p class="text-blue-700 dark:text-blue-200 text-sm mt-2 text-center">
                         <i class="fas fa-exclamation-triangle mr-1"></i>
                         This equation is NOT balanced yet - let's see why!
                     </p>
@@ -3521,11 +3521,11 @@ class EquationBalancerUI {
                 </div>
 
                 <div class="bg-white border-2 border-blue-200 rounded-lg overflow-hidden">
-                    <div class="bg-blue-100 p-3 border-b border-blue-200">
-                        <h4 class="font-bold text-blue-800 flex items-center">
+                    <div class="bg-blue-100 dark:bg-blue-800 p-3 border-b border-blue-200 dark:border-blue-600">
+                        <h4 class="font-bold text-blue-800 dark:text-blue-100 flex items-center">
                             <i class="fas fa-table mr-2"></i>Atom Count T-Table
                         </h4>
-                        <p class="text-blue-700 text-sm mt-1">Let's count atoms on each side to see the imbalance</p>
+                        <p class="text-blue-700 dark:text-blue-200 text-sm mt-1">Let's count atoms on each side to see the imbalance</p>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full">
