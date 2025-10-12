@@ -857,6 +857,14 @@ class EquationBalancerUI {
                     }
                 }
                 
+                // Check if products field has content - show smart reactant suggestions
+                const productsValue = productsInput.value.trim();
+                if (productsValue && !reactantsInput.value.trim()) {
+                    console.log('Products field has content, showing smart reactant suggestions');
+                    this.showSmartSuggestionsBasedOnOtherField('reactants', productsValue);
+                    return;
+                }
+                
                 this.showDropdown('reactants');
                 // Filter based on current input
                 const query = this.getCurrentCompound(reactantsInput.value);
@@ -905,6 +913,9 @@ class EquationBalancerUI {
                 
                 // Update product suggestions when reactants change
                 this.updateProductSuggestions();
+                
+                // Update product placeholder in real-time
+                this.updateProductPlaceholder();
             });
         }
 
@@ -926,6 +937,15 @@ class EquationBalancerUI {
                     productsInput.classList.remove('has-suggestion');
                     productsInput.style.color = '';
                 }
+                
+                // Check if reactants field has content - show smart product suggestions
+                const reactantsValue = reactantsInput.value.trim();
+                if (reactantsValue && !productsInput.value.trim()) {
+                    console.log('Reactants field has content, showing smart product suggestions');
+                    this.showSmartSuggestionsBasedOnOtherField('products', reactantsValue);
+                    return;
+                }
+                
                 this.showDropdown('products');
                 const query = this.getCurrentCompound(productsInput.value);
                 this.filterDropdown('products', query);
@@ -966,6 +986,9 @@ class EquationBalancerUI {
 
                 this.showDropdown('products');
                 this.filterDropdown('products', query);
+                
+                // Update reactant placeholder in real-time
+                this.updateReactantPlaceholder();
             });
         }
     }
@@ -973,6 +996,54 @@ class EquationBalancerUI {
     // Get the current compound being typed (after the last +)
     getCurrentCompound(inputValue) {
         return inputValue.split('+').pop().trim();
+    }
+
+    // Update product placeholder based on current reactants
+    updateProductPlaceholder() {
+        const reactantsInput = document.getElementById('reactants-input');
+        const productsInput = document.getElementById('products-input');
+        
+        if (!reactantsInput || !productsInput) return;
+        if (productsInput.value.trim()) return; // Don't override if user has typed something
+
+        const reactants = reactantsInput.value.split('+').map(r => r.trim()).filter(r => r);
+        console.log('updateProductPlaceholder - reactants:', reactants);
+        
+        if (reactants.length > 0) {
+            const suggestedProducts = this.predictProducts(reactants);
+            console.log('updateProductPlaceholder - suggestedProducts:', suggestedProducts);
+            
+            if (suggestedProducts.length > 0) {
+                productsInput.placeholder = suggestedProducts.join(' + ');
+                console.log('Set placeholder to:', suggestedProducts.join(' + '));
+            } else {
+                productsInput.placeholder = 'Products will appear here';
+                console.log('No products found, set default placeholder');
+            }
+        } else {
+            productsInput.placeholder = 'CO₂ + H₂O'; // Default placeholder
+        }
+    }
+
+    // Update reactant placeholder based on current products
+    updateReactantPlaceholder() {
+        const reactantsInput = document.getElementById('reactants-input');
+        const productsInput = document.getElementById('products-input');
+        
+        if (!reactantsInput || !productsInput) return;
+        if (reactantsInput.value.trim()) return; // Don't override if user has typed something
+
+        const products = productsInput.value.split('+').map(p => p.trim()).filter(p => p);
+        if (products.length > 0) {
+            const suggestedReactants = this.predictReactants(products);
+            if (suggestedReactants.length > 0) {
+                reactantsInput.placeholder = suggestedReactants.join(' + ');
+            } else {
+                reactantsInput.placeholder = 'Reactants will appear here';
+            }
+        } else {
+            reactantsInput.placeholder = 'CH₄ + O₂'; // Default placeholder
+        }
     }
 
     // Smart suggestions based on existing compounds
@@ -1141,32 +1212,936 @@ class EquationBalancerUI {
 
     // Predict likely products based on reactants
     predictProducts(reactants) {
-        if (reactants.length < 2) return [];
+        if (reactants.length === 0) return [];
 
         const products = [];
         
-        // Common reaction patterns
-        if (this.isAcidBaseReaction(reactants)) {
-            products.push(...this.getAcidBaseProducts(reactants));
-        } else if (this.isCombustionReaction(reactants)) {
-            products.push('CO₂', 'H₂O');
+        // Handle single reactants - suggest what they commonly react with
+        if (reactants.length === 1) {
+            return this.getSingleReactantProducts(reactants[0]);
+        }
+        
+        // Handle multiple reactants - ORDERED BY SPECIFICITY (most specific first)
+        
+        // Handle multiple reactants - ORDERED BY SPECIFICITY (most specific first)
+        
+        // 1. VERY SPECIFIC REACTIONS (exact compound matches)
+        if (this.isPhotosynthesisReaction(reactants)) {
+            products.push(...this.getPhotosynthesisProducts(reactants));
+        } else if (this.isRespirationReaction(reactants)) {
+            products.push(...this.getRespirationProducts(reactants));
+        } else if (this.isFermentationReaction(reactants)) {
+            products.push(...this.getFermentationProducts(reactants));
+        } else if (this.isElectrolysisReaction(reactants)) {
+            products.push(...this.getElectrolysisProducts(reactants));
+        } else if (this.isDecompositionReaction(reactants)) {
+            products.push(...this.getDecompositionProducts(reactants));
+        }
+        
+        // 2. SPECIFIC COMPOUND TYPE REACTIONS
+        else if (this.isCarbonatAcidReaction(reactants)) {
+            products.push(...this.getCarbonateAcidProducts(reactants));
+        } else if (this.isAmmoniaReaction(reactants)) {
+            products.push(...this.getAmmoniaProducts(reactants));
+        } else if (this.isPeroxideReaction(reactants)) {
+            products.push(...this.getPeroxideProducts(reactants));
+        } else if (this.isNitrateReaction(reactants)) {
+            products.push(...this.getNitrateProducts(reactants));
+        } else if (this.isSulfideReaction(reactants)) {
+            products.push(...this.getSulfideProducts(reactants));
+        } else if (this.isPhosphateReaction(reactants)) {
+            products.push(...this.getPhosphateProducts(reactants));
+        }
+        
+        // 3. ORGANIC REACTIONS (specific organic patterns)
+        else if (this.isHydrogenationReaction(reactants)) {
+            products.push(...this.getHydrogenationProducts(reactants));
+        } else if (this.isDehydrationReaction(reactants)) {
+            products.push(...this.getDehydrationProducts(reactants));
+        } else if (this.isPolymerizationReaction(reactants)) {
+            products.push(...this.getPolymerizationProducts(reactants));
+        } else if (this.isOrganicReaction(reactants)) {
+            products.push(...this.getOrganicProducts(reactants));
+        }
+        
+        // 4. REDOX AND DISPLACEMENT REACTIONS (specific patterns)
+        else if (this.isReductionReaction(reactants)) {
+            products.push(...this.getReductionProducts(reactants));
+        } else if (this.isRedoxReaction(reactants)) {
+            products.push(...this.getRedoxProducts(reactants));
+        } else if (this.isHalogenDisplacement(reactants)) {
+            products.push(...this.getHalogenDisplacementProducts(reactants));
+        } else if (this.isSingleDisplacement(reactants)) {
+            products.push(...this.getSingleDisplacementProducts(reactants));
+        }
+        
+        // 5. METAL REACTIONS (specific metal + other compound)
+        else if (this.isMetalWaterReaction(reactants)) {
+            products.push(...this.getMetalWaterProducts(reactants));
+        } else if (this.isMetalAcidReaction(reactants)) {
+            products.push(...this.getMetalAcidProducts(reactants));
         } else if (this.isMetalOxidation(reactants)) {
             products.push(...this.getMetalOxidationProducts(reactants));
+        } else if (this.isComplexOxideReaction(reactants)) {
+            products.push(...this.getComplexOxideProducts(reactants));
+        }
+        
+        // 6. GENERAL REACTION TYPES (broader patterns)
+        else if (this.isAcidBaseReaction(reactants)) {
+            products.push(...this.getAcidBaseProducts(reactants));
         } else if (this.isDoubleDisplacement(reactants)) {
             products.push(...this.getDoubleDisplacementProducts(reactants));
+        } else if (this.isOxideWaterReaction(reactants)) {
+            products.push(...this.getOxideWaterProducts(reactants));
+        } else if (this.isCombustionReaction(reactants)) {
+            products.push('CO₂', 'H₂O');
+        } else if (this.isSynthesisReaction(reactants)) {
+            products.push(...this.getSynthesisProducts(reactants));
+        }
+        return products;
+    }
+
+    // Get products for single reactants
+    getSingleReactantProducts(reactant) {
+        const singleReactantMap = {
+            // Hydrocarbons
+            'CH₄': ['CO₂', 'H₂O'],
+            'C₂H₆': ['CO₂', 'H₂O'],
+            'C₃H₈': ['CO₂', 'H₂O'],
+            'C₄H₁₀': ['CO₂', 'H₂O'],
+            'C₂H₄': ['CO₂', 'H₂O'],
+            'C₂H₂': ['CO₂', 'H₂O'],
+            'C₆H₆': ['CO₂', 'H₂O'],
+            'C₂H₅OH': ['CO₂', 'H₂O'],
+            'CH₃OH': ['CO₂', 'H₂O'],
+            
+            // Acids
+            'HCl': ['NaCl', 'H₂O'],
+            'H₂SO₄': ['Na₂SO₄', 'H₂O'],
+            'HNO₃': ['NaNO₃', 'H₂O'],
+            'CH₃COOH': ['CH₃COONa', 'H₂O'],
+            'H₃PO₄': ['Na₃PO₄', 'H₂O'],
+            
+            // Bases
+            'NaOH': ['NaCl', 'H₂O'],
+            'KOH': ['KCl', 'H₂O'],
+            'Ca(OH)₂': ['CaCl₂', 'H₂O'],
+            'Mg(OH)₂': ['MgCl₂', 'H₂O'],
+            'Ba(OH)₂': ['BaCl₂', 'H₂O'],
+            
+            // Metals
+            'Fe': ['Fe₂O₃'],
+            'Cu': ['CuO'],
+            'Zn': ['ZnO'],
+            'Al': ['Al₂O₃'],
+            'Mg': ['MgO'],
+            'Ca': ['CaO'],
+            'Na': ['Na₂O'],
+            'K': ['K₂O'],
+            
+            // Elements
+            'H₂': ['H₂O'],
+            'O₂': ['H₂O'],
+            'N₂': ['NH₃'],
+            'Cl₂': ['NaCl'],
+            
+            // Compounds that decompose
+            'H₂O₂': ['H₂O', 'O₂'],
+            'KClO₃': ['KCl', 'O₂'],
+            'CaCO₃': ['CaO', 'CO₂'],
+            'H₂CO₃': ['H₂O', 'CO₂'],
+            'NH₄Cl': ['NH₃', 'HCl'],
+            
+            // Metal oxides with reducing agents
+            'Fe₂O₃': ['Fe', 'CO₂'], // with CO
+            'CuO': ['Cu', 'H₂O'], // with H₂
+            'ZnO': ['Zn', 'CO'], // with C
+            'PbO': ['Pb', 'CO₂'], // with CO
+            'MnO₂': ['Mn', 'CO₂'], // with C
+            
+            // Steam reactions (high temperature metal + water)
+            'Fe': ['Fe₃O₄', 'H₂'], // with H₂O at high temp
+            'Zn': ['ZnO', 'H₂'], // with H₂O at high temp
+            'Al': ['Al₂O₃', 'H₂'], // with H₂O at high temp
+            'Cr': ['Cr₂O₃', 'H₂'], // with H₂O at high temp
+            'Ni': ['NiO', 'H₂'], // with H₂O at high temp
+            
+            // Complex compounds
+            'KMnO₄': ['KCl', 'MnCl₂', 'Cl₂', 'H₂O'], // with HCl
+            'AgNO₃': ['AgCl', 'NaNO₃'], // with NaCl
+            'Pb(NO₃)₂': ['PbI₂', 'KNO₃'], // with KI
+            'FeCl₃': ['FeCl₂', 'KCl', 'I₂'], // with KI
+            
+            // Biological reactions
+            'C₆H₁₂O₆': ['CO₂', 'H₂O'], // respiration with O₂
+            'CO₂': ['C₆H₁₂O₆', 'O₂'], // photosynthesis with H₂O
+            
+            // Organic reactions
+            'C₂H₄': ['C₂H₆'], // hydrogenation with H₂
+            'C₂H₂': ['C₂H₄'], // hydrogenation with H₂
+            'C₂H₅OH': ['C₂H₄', 'H₂O'], // dehydration
+            'CH₃OH': ['HCHO', 'H₂O'], // oxidation
+            
+            // Electrolysis
+            'NaCl': ['Na', 'Cl₂'], // electrolysis
+            'CuSO₄': ['Cu', 'O₂', 'H₂SO₄'], // electrolysis
+            'Al₂O₃': ['Al', 'O₂'], // electrolysis
+        };
+
+        return singleReactantMap[reactant] || [];
+    }
+
+    // Check for synthesis reactions (A + B → AB)
+    isSynthesisReaction(reactants) {
+        if (reactants.length !== 2) return false;
+        
+        const synthesisPairs = [
+            ['H₂', 'O₂'], ['H₂', 'Cl₂'], ['H₂', 'Br₂'], ['H₂', 'I₂'],
+            ['Na', 'Cl₂'], ['K', 'Cl₂'], ['Ca', 'Cl₂'], ['Mg', 'Cl₂'],
+            ['N₂', 'H₂'], ['N₂', 'O₂'], ['S', 'O₂'], ['P', 'O₂'],
+            ['C', 'O₂'], ['Fe', 'S'], ['Cu', 'S'], ['Zn', 'S']
+        ];
+        
+        return synthesisPairs.some(pair => 
+            (reactants.includes(pair[0]) && reactants.includes(pair[1]))
+        );
+    }
+
+    getSynthesisProducts(reactants) {
+        const synthesisMap = {
+            'H₂+O₂': ['H₂O'],
+            'H₂+Cl₂': ['HCl'],
+            'H₂+Br₂': ['HBr'],
+            'H₂+I₂': ['HI'],
+            'Na+Cl₂': ['NaCl'],
+            'K+Cl₂': ['KCl'],
+            'Ca+Cl₂': ['CaCl₂'],
+            'Mg+Cl₂': ['MgCl₂'],
+            'N₂+H₂': ['NH₃'],
+            'N₂+O₂': ['NO'],
+            'S+O₂': ['SO₂'],
+            'P+O₂': ['P₂O₅'],
+            'C+O₂': ['CO₂'],
+            'Fe+S': ['FeS'],
+            'Cu+S': ['CuS'],
+            'Zn+S': ['ZnS']
+        };
+        
+        const key = reactants.sort().join('+');
+        return synthesisMap[key] || [];
+    }
+
+    // Check for decomposition reactions
+    isDecompositionReaction(reactants) {
+        if (reactants.length !== 1) return false;
+        
+        const decomposableCompounds = [
+            'H₂O₂', 'KClO₃', 'NaClO₃', 'CaCO₃', 'MgCO₃', 'Na₂CO₃',
+            'H₂CO₃', 'NH₄Cl', 'NH₄NO₃', 'CuCO₃', 'ZnCO₃', 'PbCO₃',
+            'Ag₂O', 'HgO', 'Cu(OH)₂', 'Fe(OH)₃', 'Al(OH)₃'
+        ];
+        
+        return decomposableCompounds.includes(reactants[0]);
+    }
+
+    getDecompositionProducts(reactants) {
+        const decompositionMap = {
+            'H₂O₂': ['H₂O', 'O₂'],
+            'KClO₃': ['KCl', 'O₂'],
+            'NaClO₃': ['NaCl', 'O₂'],
+            'CaCO₃': ['CaO', 'CO₂'],
+            'MgCO₃': ['MgO', 'CO₂'],
+            'Na₂CO₃': ['Na₂O', 'CO₂'],
+            'H₂CO₃': ['H₂O', 'CO₂'],
+            'NH₄Cl': ['NH₃', 'HCl'],
+            'NH₄NO₃': ['N₂O', 'H₂O'],
+            'CuCO₃': ['CuO', 'CO₂'],
+            'ZnCO₃': ['ZnO', 'CO₂'],
+            'PbCO₃': ['PbO', 'CO₂'],
+            'Ag₂O': ['Ag', 'O₂'],
+            'HgO': ['Hg', 'O₂'],
+            'Cu(OH)₂': ['CuO', 'H₂O'],
+            'Fe(OH)₃': ['Fe₂O₃', 'H₂O'],
+            'Al(OH)₃': ['Al₂O₃', 'H₂O']
+        };
+        
+        return decompositionMap[reactants[0]] || [];
+    }
+
+    // Check for single displacement reactions
+    isSingleDisplacement(reactants) {
+        if (reactants.length !== 2) return false;
+        
+        const metals = ['Fe', 'Cu', 'Zn', 'Al', 'Mg', 'Ca', 'Na', 'K', 'Li', 'Ag', 'Pb'];
+        const metalSalts = ['CuSO₄', 'ZnSO₄', 'FeSO₄', 'AgNO₃', 'Pb(NO₃)₂', 'CuCl₂', 'FeCl₃', 'AlCl₃'];
+        
+        const hasMetal = reactants.some(r => metals.includes(r));
+        const hasMetalSalt = reactants.some(r => metalSalts.includes(r));
+        
+        // Single displacement requires a free metal + a metal salt (not water, acids, etc.)
+        return hasMetal && hasMetalSalt;
+    }
+
+    getSingleDisplacementProducts(reactants) {
+        // This would need more complex logic based on activity series
+        // For now, return common displacement products
+        if (reactants.includes('Zn') && reactants.includes('CuSO₄')) {
+            return ['ZnSO₄', 'Cu'];
+        }
+        if (reactants.includes('Fe') && reactants.includes('CuSO₄')) {
+            return ['FeSO₄', 'Cu'];
+        }
+        if (reactants.includes('Al') && reactants.includes('Fe₂O₃')) {
+            return ['Al₂O₃', 'Fe'];
+        }
+        return [];
+    }
+
+    // Metal + Acid reactions
+    isMetalAcidReaction(reactants) {
+        const metals = ['Fe', 'Cu', 'Zn', 'Al', 'Mg', 'Ca', 'Na', 'K'];
+        const acids = ['HCl', 'H₂SO₄', 'HNO₃'];
+        
+        return reactants.some(r => metals.includes(r)) && 
+               reactants.some(r => acids.includes(r));
+    }
+
+    getMetalAcidProducts(reactants) {
+        // Metal + Acid → Salt + H₂
+        if (reactants.includes('Zn') && reactants.includes('HCl')) {
+            return ['ZnCl₂', 'H₂'];
+        }
+        if (reactants.includes('Mg') && reactants.includes('HCl')) {
+            return ['MgCl₂', 'H₂'];
+        }
+        if (reactants.includes('Fe') && reactants.includes('HCl')) {
+            return ['FeCl₂', 'H₂'];
+        }
+        if (reactants.includes('Al') && reactants.includes('HCl')) {
+            return ['AlCl₃', 'H₂'];
+        }
+        return ['H₂']; // Generic hydrogen gas production
+    }
+
+    // Metal + Water reactions (expanded to include steam reactions)
+    isMetalWaterReaction(reactants) {
+        if (reactants.length !== 2) return false;
+        
+        const metals = ['Na', 'K', 'Li', 'Ca', 'Mg', 'Fe', 'Zn', 'Al', 'Cr', 'Ni', 'Co', 'Mn', 'Sn', 'Pb'];
+        const hasWater = reactants.includes('H₂O');
+        const hasMetal = reactants.some(r => metals.includes(r));
+        
+        return hasWater && hasMetal;
+    }
+
+    getMetalWaterProducts(reactants) {
+        // Active metals at room temperature
+        if (reactants.includes('Na')) return ['NaOH', 'H₂'];
+        if (reactants.includes('K')) return ['KOH', 'H₂'];
+        if (reactants.includes('Li')) return ['LiOH', 'H₂'];
+        if (reactants.includes('Ca')) return ['Ca(OH)₂', 'H₂'];
+        if (reactants.includes('Mg')) return ['Mg(OH)₂', 'H₂'];
+        
+        // Steam reactions (high temperature)
+        if (reactants.includes('Fe')) return ['Fe₃O₄', 'H₂'];
+        if (reactants.includes('Zn')) return ['ZnO', 'H₂'];
+        if (reactants.includes('Al')) return ['Al₂O₃', 'H₂'];
+        if (reactants.includes('Cr')) return ['Cr₂O₃', 'H₂'];
+        if (reactants.includes('Ni')) return ['NiO', 'H₂'];
+        if (reactants.includes('Co')) return ['CoO', 'H₂'];
+        if (reactants.includes('Mn')) return ['MnO', 'H₂'];
+        if (reactants.includes('Sn')) return ['SnO₂', 'H₂'];
+        if (reactants.includes('Pb')) return ['PbO', 'H₂'];
+        
+        return ['H₂'];
+    }
+
+    // Oxide + Water reactions
+    isOxideWaterReaction(reactants) {
+        const oxides = ['CaO', 'MgO', 'Na₂O', 'K₂O', 'SO₃', 'CO₂', 'P₂O₅'];
+        return reactants.includes('H₂O') && 
+               reactants.some(r => oxides.includes(r));
+    }
+
+    getOxideWaterProducts(reactants) {
+        if (reactants.includes('CaO')) return ['Ca(OH)₂'];
+        if (reactants.includes('MgO')) return ['Mg(OH)₂'];
+        if (reactants.includes('Na₂O')) return ['NaOH'];
+        if (reactants.includes('K₂O')) return ['KOH'];
+        if (reactants.includes('SO₃')) return ['H₂SO₄'];
+        if (reactants.includes('CO₂')) return ['H₂CO₃'];
+        if (reactants.includes('P₂O₅')) return ['H₃PO₄'];
+        return [];
+    }
+
+    // Carbonate + Acid reactions
+    isCarbonatAcidReaction(reactants) {
+        const carbonates = ['CaCO₃', 'MgCO₃', 'Na₂CO₃', 'K₂CO₃', 'ZnCO₃', 'CuCO₃'];
+        const acids = ['HCl', 'H₂SO₄', 'HNO₃', 'CH₃COOH'];
+        
+        return reactants.some(r => carbonates.includes(r)) && 
+               reactants.some(r => acids.includes(r));
+    }
+
+    getCarbonateAcidProducts(reactants) {
+        // Carbonate + Acid → Salt + CO₂ + H₂O
+        if (reactants.includes('CaCO₃') && reactants.includes('HCl')) {
+            return ['CaCl₂', 'CO₂', 'H₂O'];
+        }
+        if (reactants.includes('Na₂CO₃') && reactants.includes('HCl')) {
+            return ['NaCl', 'CO₂', 'H₂O'];
+        }
+        return ['CO₂', 'H₂O']; // Generic carbonate reaction
+    }
+
+    // Reduction reactions (Metal oxide + reducing agent)
+    isReductionReaction(reactants) {
+        const metalOxides = ['Fe₂O₃', 'CuO', 'ZnO', 'Al₂O₃', 'MgO', 'CaO', 'PbO', 'SnO₂', 'Cr₂O₃', 'MnO₂'];
+        const reducingAgents = ['CO', 'H₂', 'C', 'Al', 'Mg', 'Zn', 'Fe'];
+        
+        return reactants.some(r => metalOxides.includes(r)) && 
+               reactants.some(r => reducingAgents.includes(r));
+    }
+
+    getReductionProducts(reactants) {
+        // Fe₂O₃ + CO → Fe + CO₂
+        if (reactants.includes('Fe₂O₃') && reactants.includes('CO')) {
+            return ['Fe', 'CO₂'];
+        }
+        if (reactants.includes('CuO') && reactants.includes('H₂')) {
+            return ['Cu', 'H₂O'];
+        }
+        if (reactants.includes('ZnO') && reactants.includes('C')) {
+            return ['Zn', 'CO'];
+        }
+        if (reactants.includes('Al₂O₃') && reactants.includes('C')) {
+            return ['Al', 'CO'];
+        }
+        if (reactants.includes('PbO') && reactants.includes('CO')) {
+            return ['Pb', 'CO₂'];
+        }
+        if (reactants.includes('CuO') && reactants.includes('CO')) {
+            return ['Cu', 'CO₂'];
+        }
+        if (reactants.includes('Fe₂O₃') && reactants.includes('H₂')) {
+            return ['Fe', 'H₂O'];
+        }
+        if (reactants.includes('Fe₂O₃') && reactants.includes('C')) {
+            return ['Fe', 'CO'];
+        }
+        if (reactants.includes('MnO₂') && reactants.includes('C')) {
+            return ['Mn', 'CO₂'];
+        }
+        if (reactants.includes('Cr₂O₃') && reactants.includes('Al')) {
+            return ['Cr', 'Al₂O₃'];
+        }
+        return [];
+    }
+
+    // Redox reactions (more complex electron transfer)
+    isRedoxReaction(reactants) {
+        const redoxPairs = [
+            ['KMnO₄', 'HCl'], ['K₂Cr₂O₇', 'HCl'], ['H₂O₂', 'KI'],
+            ['Br₂', 'KI'], ['Cl₂', 'KBr'], ['I₂', 'Na₂S₂O₃'],
+            ['FeCl₃', 'KI'], ['CuSO₄', 'KI'], ['AgNO₃', 'Cu']
+        ];
+        
+        return redoxPairs.some(pair => 
+            reactants.includes(pair[0]) && reactants.includes(pair[1])
+        );
+    }
+
+    getRedoxProducts(reactants) {
+        if (reactants.includes('KMnO₄') && reactants.includes('HCl')) {
+            return ['KCl', 'MnCl₂', 'Cl₂', 'H₂O'];
+        }
+        if (reactants.includes('K₂Cr₂O₇') && reactants.includes('HCl')) {
+            return ['KCl', 'CrCl₃', 'Cl₂', 'H₂O'];
+        }
+        if (reactants.includes('H₂O₂') && reactants.includes('KI')) {
+            return ['KOH', 'I₂', 'H₂O'];
+        }
+        if (reactants.includes('Br₂') && reactants.includes('KI')) {
+            return ['KBr', 'I₂'];
+        }
+        if (reactants.includes('Cl₂') && reactants.includes('KBr')) {
+            return ['KCl', 'Br₂'];
+        }
+        if (reactants.includes('I₂') && reactants.includes('Na₂S₂O₃')) {
+            return ['NaI', 'Na₂S₄O₆'];
+        }
+        if (reactants.includes('FeCl₃') && reactants.includes('KI')) {
+            return ['FeCl₂', 'KCl', 'I₂'];
+        }
+        if (reactants.includes('CuSO₄') && reactants.includes('KI')) {
+            return ['CuI', 'K₂SO₄', 'I₂'];
+        }
+        if (reactants.includes('AgNO₃') && reactants.includes('Cu')) {
+            return ['Ag', 'Cu(NO₃)₂'];
+        }
+        return [];
+    }
+
+    // Halogen displacement reactions
+    isHalogenDisplacement(reactants) {
+        const halogens = ['F₂', 'Cl₂', 'Br₂', 'I₂'];
+        const halides = ['NaF', 'NaCl', 'NaBr', 'NaI', 'KF', 'KCl', 'KBr', 'KI'];
+        
+        return reactants.some(r => halogens.includes(r)) && 
+               reactants.some(r => halides.includes(r));
+    }
+
+    getHalogenDisplacementProducts(reactants) {
+        if (reactants.includes('Cl₂') && reactants.includes('NaBr')) {
+            return ['NaCl', 'Br₂'];
+        }
+        if (reactants.includes('Cl₂') && reactants.includes('NaI')) {
+            return ['NaCl', 'I₂'];
+        }
+        if (reactants.includes('Br₂') && reactants.includes('NaI')) {
+            return ['NaBr', 'I₂'];
+        }
+        if (reactants.includes('F₂') && reactants.includes('NaCl')) {
+            return ['NaF', 'Cl₂'];
+        }
+        return [];
+    }
+
+    // Ammonia-related reactions
+    isAmmoniaReaction(reactants) {
+        return reactants.includes('NH₃') || reactants.includes('NH₄Cl') || 
+               reactants.includes('(NH₄)₂SO₄') || reactants.includes('NH₄NO₃');
+    }
+
+    getAmmoniaProducts(reactants) {
+        if (reactants.includes('NH₃') && reactants.includes('HCl')) {
+            return ['NH₄Cl'];
+        }
+        if (reactants.includes('NH₃') && reactants.includes('H₂SO₄')) {
+            return ['(NH₄)₂SO₄'];
+        }
+        if (reactants.includes('NH₃') && reactants.includes('HNO₃')) {
+            return ['NH₄NO₃'];
+        }
+        if (reactants.includes('NH₄Cl') && reactants.includes('NaOH')) {
+            return ['NaCl', 'NH₃', 'H₂O'];
+        }
+        if (reactants.includes('(NH₄)₂SO₄') && reactants.includes('Ca(OH)₂')) {
+            return ['CaSO₄', 'NH₃', 'H₂O'];
+        }
+        return [];
+    }
+
+    // Peroxide reactions
+    isPeroxideReaction(reactants) {
+        const peroxides = ['H₂O₂', 'Na₂O₂', 'BaO₂'];
+        return reactants.some(r => peroxides.includes(r));
+    }
+
+    getPeroxideProducts(reactants) {
+        if (reactants.includes('H₂O₂') && reactants.includes('MnO₂')) {
+            return ['H₂O', 'O₂', 'MnO₂']; // MnO₂ is catalyst
+        }
+        if (reactants.includes('Na₂O₂') && reactants.includes('H₂O')) {
+            return ['NaOH', 'O₂'];
+        }
+        if (reactants.includes('BaO₂') && reactants.includes('H₂SO₄')) {
+            return ['BaSO₄', 'H₂O₂'];
+        }
+        return [];
+    }
+
+    // Nitrate reactions
+    isNitrateReaction(reactants) {
+        const nitrates = ['AgNO₃', 'Pb(NO₃)₂', 'Cu(NO₃)₂', 'Fe(NO₃)₃', 'KNO₃', 'NaNO₃'];
+        return reactants.some(r => nitrates.includes(r));
+    }
+
+    getNitrateProducts(reactants) {
+        if (reactants.includes('AgNO₃') && reactants.includes('NaCl')) {
+            return ['AgCl', 'NaNO₃'];
+        }
+        if (reactants.includes('Pb(NO₃)₂') && reactants.includes('KI')) {
+            return ['PbI₂', 'KNO₃'];
+        }
+        if (reactants.includes('AgNO₃') && reactants.includes('KBr')) {
+            return ['AgBr', 'KNO₃'];
+        }
+        if (reactants.includes('Cu(NO₃)₂') && reactants.includes('NaOH')) {
+            return ['Cu(OH)₂', 'NaNO₃'];
+        }
+        if (reactants.includes('Fe(NO₃)₃') && reactants.includes('KOH')) {
+            return ['Fe(OH)₃', 'KNO₃'];
+        }
+        return [];
+    }
+
+    // Sulfide reactions
+    isSulfideReaction(reactants) {
+        const sulfides = ['H₂S', 'Na₂S', 'FeS', 'CuS', 'ZnS', 'PbS'];
+        return reactants.some(r => sulfides.includes(r));
+    }
+
+    getSulfideProducts(reactants) {
+        if (reactants.includes('H₂S') && reactants.includes('SO₂')) {
+            return ['S', 'H₂O'];
+        }
+        if (reactants.includes('Na₂S') && reactants.includes('HCl')) {
+            return ['NaCl', 'H₂S'];
+        }
+        if (reactants.includes('FeS') && reactants.includes('HCl')) {
+            return ['FeCl₂', 'H₂S'];
+        }
+        if (reactants.includes('CuS') && reactants.includes('HNO₃')) {
+            return ['Cu(NO₃)₂', 'S', 'NO', 'H₂O'];
+        }
+        return [];
+    }
+
+    // Phosphate reactions
+    isPhosphateReaction(reactants) {
+        const phosphates = ['H₃PO₄', 'Na₃PO₄', 'Ca₃(PO₄)₂', 'K₃PO₄'];
+        return reactants.some(r => phosphates.includes(r));
+    }
+
+    getPhosphateProducts(reactants) {
+        if (reactants.includes('H₃PO₄') && reactants.includes('NaOH')) {
+            return ['Na₃PO₄', 'H₂O'];
+        }
+        if (reactants.includes('Ca₃(PO₄)₂') && reactants.includes('H₂SO₄')) {
+            return ['CaSO₄', 'H₃PO₄'];
+        }
+        if (reactants.includes('Na₃PO₄') && reactants.includes('AgNO₃')) {
+            return ['Ag₃PO₄', 'NaNO₃'];
+        }
+        return [];
+    }
+
+    // Complex oxide formation reactions
+    isComplexOxideReaction(reactants) {
+        const metals = ['Fe', 'Cr', 'Mn', 'Co', 'Ni', 'Cu', 'Pb', 'Sn'];
+        const oxidizers = ['O₂', 'H₂O', 'CO₂', 'NO₂', 'SO₂'];
+        
+        return reactants.some(r => metals.includes(r)) && 
+               reactants.some(r => oxidizers.includes(r));
+    }
+
+    getComplexOxideProducts(reactants) {
+        // Mixed oxidation states
+        if (reactants.includes('Fe') && reactants.includes('O₂')) {
+            return ['Fe₃O₄']; // Magnetite (mixed Fe²⁺/Fe³⁺)
+        }
+        if (reactants.includes('Pb') && reactants.includes('O₂')) {
+            return ['Pb₃O₄']; // Red lead
+        }
+        if (reactants.includes('Mn') && reactants.includes('O₂')) {
+            return ['Mn₃O₄']; // Hausmannite
+        }
+        if (reactants.includes('Co') && reactants.includes('O₂')) {
+            return ['Co₃O₄']; // Cobalt oxide
+        }
+        return [];
+    }
+
+    // Organic reactions
+    isOrganicReaction(reactants) {
+        const organics = ['C₂H₄', 'C₂H₂', 'CH₃OH', 'C₂H₅OH', 'CH₃COOH', 'C₆H₆', 'C₆H₁₂O₆'];
+        const reagents = ['H₂', 'Br₂', 'Cl₂', 'H₂O', 'O₂', 'KMnO₄'];
+        
+        return reactants.some(r => organics.includes(r)) && 
+               reactants.some(r => reagents.includes(r));
+    }
+
+    getOrganicProducts(reactants) {
+        // Addition reactions
+        if (reactants.includes('C₂H₄') && reactants.includes('H₂')) {
+            return ['C₂H₆'];
+        }
+        if (reactants.includes('C₂H₄') && reactants.includes('Br₂')) {
+            return ['C₂H₄Br₂'];
+        }
+        if (reactants.includes('C₂H₄') && reactants.includes('H₂O')) {
+            return ['C₂H₅OH'];
+        }
+        if (reactants.includes('C₂H₂') && reactants.includes('H₂')) {
+            return ['C₂H₄'];
+        }
+        
+        // Oxidation reactions
+        if (reactants.includes('C₂H₅OH') && reactants.includes('O₂')) {
+            return ['CH₃COOH', 'H₂O'];
+        }
+        if (reactants.includes('CH₃OH') && reactants.includes('O₂')) {
+            return ['HCHO', 'H₂O'];
+        }
+        
+        return [];
+    }
+
+    // Electrolysis reactions
+    isElectrolysisReaction(reactants) {
+        const electrolytes = ['H₂O', 'NaCl', 'CuSO₄', 'Al₂O₃', 'KBr', 'AgNO₃'];
+        return reactants.length === 1 && electrolytes.includes(reactants[0]);
+    }
+
+    getElectrolysisProducts(reactants) {
+        if (reactants.includes('H₂O')) {
+            return ['H₂', 'O₂'];
+        }
+        if (reactants.includes('NaCl')) {
+            return ['Na', 'Cl₂'];
+        }
+        if (reactants.includes('CuSO₄')) {
+            return ['Cu', 'O₂', 'H₂SO₄'];
+        }
+        if (reactants.includes('Al₂O₃')) {
+            return ['Al', 'O₂'];
+        }
+        if (reactants.includes('KBr')) {
+            return ['K', 'Br₂'];
+        }
+        return [];
+    }
+
+    // Photosynthesis reaction
+    isPhotosynthesisReaction(reactants) {
+        return reactants.includes('CO₂') && reactants.includes('H₂O');
+    }
+
+    getPhotosynthesisProducts(reactants) {
+        if (reactants.includes('CO₂') && reactants.includes('H₂O')) {
+            return ['C₆H₁₂O₆', 'O₂'];
+        }
+        return [];
+    }
+
+    // Cellular respiration
+    isRespirationReaction(reactants) {
+        return reactants.includes('C₆H₁₂O₆') && reactants.includes('O₂');
+    }
+
+    getRespirationProducts(reactants) {
+        if (reactants.includes('C₆H₁₂O₆') && reactants.includes('O₂')) {
+            return ['CO₂', 'H₂O'];
+        }
+        return [];
+    }
+
+    // Fermentation reactions
+    isFermentationReaction(reactants) {
+        return reactants.includes('C₆H₁₂O₆') && !reactants.includes('O₂');
+    }
+
+    getFermentationProducts(reactants) {
+        if (reactants.includes('C₆H₁₂O₆')) {
+            return ['C₂H₅OH', 'CO₂']; // Alcoholic fermentation
+        }
+        return [];
+    }
+
+    // Polymerization reactions
+    isPolymerizationReaction(reactants) {
+        const monomers = ['C₂H₄', 'C₃H₆', 'C₄H₆', 'C₈H₈'];
+        return reactants.some(r => monomers.includes(r));
+    }
+
+    getPolymerizationProducts(reactants) {
+        if (reactants.includes('C₂H₄')) {
+            return ['(C₂H₄)ₙ']; // Polyethylene
+        }
+        if (reactants.includes('C₃H₆')) {
+            return ['(C₃H₆)ₙ']; // Polypropylene
+        }
+        if (reactants.includes('C₈H₈')) {
+            return ['(C₈H₈)ₙ']; // Polystyrene
+        }
+        return [];
+    }
+
+    // Hydrogenation reactions
+    isHydrogenationReaction(reactants) {
+        const unsaturated = ['C₂H₄', 'C₂H₂', 'C₃H₆', 'C₄H₆'];
+        return reactants.includes('H₂') && 
+               reactants.some(r => unsaturated.includes(r));
+    }
+
+    getHydrogenationProducts(reactants) {
+        if (reactants.includes('C₂H₄') && reactants.includes('H₂')) {
+            return ['C₂H₆'];
+        }
+        if (reactants.includes('C₂H₂') && reactants.includes('H₂')) {
+            return ['C₂H₄'];
+        }
+        if (reactants.includes('C₃H₆') && reactants.includes('H₂')) {
+            return ['C₃H₈'];
+        }
+        return [];
+    }
+
+    // Dehydration reactions
+    isDehydrationReaction(reactants) {
+        const alcohols = ['C₂H₅OH', 'CH₃OH', 'C₃H₇OH'];
+        const dehydrators = ['H₂SO₄', 'Al₂O₃'];
+        
+        return reactants.some(r => alcohols.includes(r)) && 
+               reactants.some(r => dehydrators.includes(r));
+    }
+
+    getDehydrationProducts(reactants) {
+        if (reactants.includes('C₂H₅OH') && reactants.includes('H₂SO₄')) {
+            return ['C₂H₄', 'H₂O'];
+        }
+        if (reactants.includes('CH₃OH') && reactants.includes('Al₂O₃')) {
+            return ['CH₂O', 'H₂O'];
+        }
+        return [];
+    }
+
+    // Helper functions for single reactant predictions
+    isHydrocarbon(compound) {
+        const hydrocarbons = ['CH₄', 'C₂H₆', 'C₃H₈', 'C₄H₁₀', 'C₂H₄', 'C₂H₂', 'C₆H₆', 'C₂H₅OH', 'CH₃OH'];
+        return hydrocarbons.includes(compound);
+    }
+
+    isAcid(compound) {
+        const acids = ['HCl', 'H₂SO₄', 'HNO₃', 'CH₃COOH', 'H₃PO₄', 'HF', 'HBr', 'HI'];
+        return acids.includes(compound);
+    }
+
+    isBase(compound) {
+        const bases = ['NaOH', 'KOH', 'Ca(OH)₂', 'Mg(OH)₂', 'Ba(OH)₂', 'Al(OH)₃', 'Fe(OH)₂', 'Fe(OH)₃'];
+        return bases.includes(compound);
+    }
+
+    isMetal(compound) {
+        const metals = ['Fe', 'Cu', 'Zn', 'Al', 'Mg', 'Ca', 'Na', 'K', 'Li', 'Ag', 'Pb', 'Sn', 'Ni', 'Co', 'Mn', 'Cr'];
+        return metals.includes(compound);
+    }
+
+    getMetalOxide(metal) {
+        const oxides = {
+            'Fe': 'Fe₂O₃',
+            'Cu': 'CuO',
+            'Zn': 'ZnO',
+            'Al': 'Al₂O₃',
+            'Mg': 'MgO',
+            'Ca': 'CaO',
+            'Na': 'Na₂O',
+            'K': 'K₂O',
+            'Li': 'Li₂O',
+            'Ag': 'Ag₂O',
+            'Pb': 'PbO',
+            'Sn': 'SnO₂',
+            'Ni': 'NiO',
+            'Co': 'CoO',
+            'Mn': 'MnO',
+            'Cr': 'Cr₂O₃'
+        };
+        return oxides[metal] || metal + 'O';
+    }
+
+    // Show smart suggestions based on content in the other field
+    showSmartSuggestionsBasedOnOtherField(targetType, otherFieldValue) {
+        console.log('showSmartSuggestionsBasedOnOtherField called:', targetType, otherFieldValue);
+        
+        const compounds = otherFieldValue.split('+').map(c => c.trim()).filter(c => c);
+        console.log('Parsed compounds:', compounds);
+        
+        let suggestions = [];
+
+        if (targetType === 'products') {
+            // Show products based on reactants
+            console.log('Getting products for reactants:', compounds);
+            suggestions = this.predictProducts(compounds);
+            console.log('Product suggestions:', suggestions);
+        } else {
+            // Show reactants based on products
+            console.log('Getting reactants for products:', compounds);
+            suggestions = this.predictReactants(compounds);
+            console.log('Reactant suggestions:', suggestions);
         }
 
-        return products;
+        if (suggestions.length === 0) {
+            console.log('No suggestions found, showing regular dropdown');
+            // Fallback to regular dropdown
+            this.showDropdown(targetType);
+            this.filterDropdown(targetType, '');
+            return;
+        }
+
+        console.log('Found suggestions, creating dropdown with:', suggestions);
+
+        const listElement = document.getElementById(`${targetType}-list`);
+        if (!listElement) return;
+
+        console.log('Showing smart suggestions based on other field:', suggestions);
+        listElement.innerHTML = '';
+
+        // Add header for smart suggestions
+        const header = document.createElement('div');
+        header.className = 'px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide suggestion-header';
+        header.textContent = '💡 Recommended for this equation';
+        listElement.appendChild(header);
+
+        // Create complete equation option instead of individual compounds
+        if (suggestions.length > 0) {
+            const completeEquation = suggestions.join(' + ');
+            const option = this.createCompleteEquationOption(completeEquation, targetType, suggestions);
+            option.classList.add('smart-suggestion');
+            listElement.appendChild(option);
+        }
+
+        // Add separator
+        const separator = document.createElement('div');
+        separator.className = 'border-t border-gray-200 my-2';
+        listElement.appendChild(separator);
+
+        // Add "All Compounds" header
+        const allHeader = document.createElement('div');
+        allHeader.className = 'px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide bg-gray-50';
+        allHeader.textContent = 'All Compounds';
+        listElement.appendChild(allHeader);
+
+        // Group remaining compounds by category
+        const categories = {};
+        this.compounds.forEach(compound => {
+            if (!categories[compound.category]) {
+                categories[compound.category] = [];
+            }
+            categories[compound.category].push(compound);
+        });
+
+        // Add all compounds organized by category (excluding already suggested ones)
+        Object.keys(categories).sort().forEach(category => {
+            // Add category header
+            const categoryHeader = document.createElement('div');
+            categoryHeader.className = 'px-3 py-1 text-xs font-medium text-gray-600 bg-gray-50';
+            categoryHeader.textContent = category;
+            listElement.appendChild(categoryHeader);
+
+            // Add compounds in this category (skip if already in suggestions)
+            categories[category].forEach(compound => {
+                if (suggestions.includes(compound.formula)) return;
+                
+                const option = this.createCompoundOption(compound, targetType);
+                listElement.appendChild(option);
+            });
+        });
+
+        this.showDropdown(targetType);
     }
 
     // Check if it's an acid-base reaction
     isAcidBaseReaction(reactants) {
-        const acids = ['HCl', 'H₂SO₄', 'HNO₃', 'CH₃COOH', 'H₃PO₄'];
-        const bases = ['NaOH', 'KOH', 'Ca(OH)₂', 'Mg(OH)₂', 'Ba(OH)₂'];
+        if (reactants.length !== 2) return false;
+        
+        const acids = ['HCl', 'H₂SO₄', 'HNO₃', 'CH₃COOH', 'H₃PO₄', 'HF', 'HBr', 'HI'];
+        const bases = ['NaOH', 'KOH', 'Ca(OH)₂', 'Mg(OH)₂', 'Ba(OH)₂', 'Al(OH)₃', 'LiOH'];
         
         const hasAcid = reactants.some(r => acids.includes(r));
         const hasBase = reactants.some(r => bases.includes(r));
         
+        // Must be exactly one acid + one base
         return hasAcid && hasBase;
     }
 
@@ -1178,11 +2153,12 @@ class EquationBalancerUI {
 
     // Check if it's a combustion reaction
     isCombustionReaction(reactants) {
-        const hydrocarbons = ['CH₄', 'C₂H₆', 'C₃H₈', 'C₂H₄', 'C₂H₂', 'C₆H₆'];
+        const hydrocarbons = ['CH₄', 'C₂H₆', 'C₃H₈', 'C₄H₁₀', 'C₂H₄', 'C₂H₂', 'C₆H₆', 'C₂H₅OH', 'CH₃OH'];
         const hasHydrocarbon = reactants.some(r => hydrocarbons.includes(r));
         const hasOxygen = reactants.includes('O₂');
         
-        return hasHydrocarbon && hasOxygen;
+        // Must have exactly a hydrocarbon + oxygen (not other compounds)
+        return reactants.length === 2 && hasHydrocarbon && hasOxygen;
     }
 
     // Check if it's metal oxidation
@@ -1219,10 +2195,13 @@ class EquationBalancerUI {
 
     // Check if it's double displacement
     isDoubleDisplacement(reactants) {
-        // Simplified check for two ionic compounds
-        return reactants.length === 2 && 
-               reactants.some(r => r.includes('Cl')) && 
-               reactants.some(r => r.includes('NO₃'));
+        if (reactants.length !== 2) return false;
+        
+        // Must be two ionic compounds (salts), not metals or simple compounds
+        const ionicCompounds = ['AgNO₃', 'NaCl', 'KCl', 'CaCl₂', 'MgCl₂', 'Pb(NO₃)₂', 'KI', 'NaBr', 'KBr', 'BaCl₂'];
+        const matchingCompounds = reactants.filter(r => ionicCompounds.includes(r));
+        
+        return matchingCompounds.length === 2;
     }
 
     // Get double displacement products
@@ -1352,6 +2331,60 @@ class EquationBalancerUI {
         });
         
         return option;
+    }
+
+    // Create a complete equation option element
+    createCompleteEquationOption(completeEquation, type, compounds) {
+        const option = document.createElement('div');
+        option.className = 'compound-option px-3 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0';
+        option.dataset.formula = completeEquation;
+        option.dataset.isComplete = 'true';
+        
+        // Create a more prominent display for complete equations
+        option.innerHTML = `
+            <div class="flex flex-col">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="font-mono text-lg font-semibold text-blue-700">${completeEquation}</span>
+                    <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Complete</span>
+                </div>
+                <div class="text-sm text-gray-600">
+                    Click to add all products: ${compounds.map(c => this.getCompoundName(c)).join(', ')}
+                </div>
+            </div>
+        `;
+        
+        // Add click handler for complete equation
+        option.addEventListener('click', () => {
+            this.selectCompleteEquation(type, completeEquation);
+        });
+        
+        return option;
+    }
+
+    // Get compound name from formula
+    getCompoundName(formula) {
+        const compound = this.compounds.find(c => c.formula === formula);
+        return compound ? compound.name : formula;
+    }
+
+    // Handle selection of complete equation
+    selectCompleteEquation(type, completeEquation) {
+        const input = document.getElementById(`${type}-input`);
+        if (input) {
+            input.value = completeEquation;
+            input.style.color = ''; // Remove any gray styling
+            input.classList.remove('has-suggestion');
+            
+            // Close dropdown
+            this.closeDropdown(type);
+            
+            // Update the other field's placeholder
+            if (type === 'products') {
+                this.updateReactantPlaceholder();
+            } else {
+                this.updateProductPlaceholder();
+            }
+        }
     }
 
     populateDropdown(type) {
@@ -1559,12 +2592,13 @@ class EquationBalancerUI {
     }
 
     addExamplePlaceholders() {
+        // Set initial random examples
         const examples = [
-            { reactants: 'H2 + O2', products: 'H2O' },
-            { reactants: 'CH4 + O2', products: 'CO2 + H2O' },
-            { reactants: 'C2H6 + O2', products: 'CO2 + H2O' },
-            { reactants: 'Fe + O2', products: 'Fe2O3' },
-            { reactants: 'NH3 + O2', products: 'NO + H2O' }
+            { reactants: 'CH₄ + O₂', products: 'CO₂ + H₂O' },
+            { reactants: 'H₂ + O₂', products: 'H₂O' },
+            { reactants: 'Fe + O₂', products: 'Fe₂O₃' },
+            { reactants: 'HCl + NaOH', products: 'NaCl + H₂O' },
+            { reactants: 'C₂H₆ + O₂', products: 'CO₂ + H₂O' }
         ];
 
         const reactantsInput = document.getElementById('reactants-input');
@@ -1573,18 +2607,205 @@ class EquationBalancerUI {
         if (reactantsInput && productsInput) {
             const currentExample = examples[Math.floor(Math.random() * examples.length)];
 
-            reactantsInput.addEventListener('focus', function () {
-                if (!this.value) {
-                    this.placeholder = currentExample.reactants;
-                }
-            });
+            // Set initial placeholders
+            reactantsInput.placeholder = currentExample.reactants;
+            productsInput.placeholder = currentExample.products;
 
-            productsInput.addEventListener('focus', function () {
-                if (!this.value) {
-                    this.placeholder = currentExample.products;
-                }
-            });
+            // Update placeholders dynamically based on input
+            this.setupDynamicPlaceholders();
         }
+    }
+
+    setupDynamicPlaceholders() {
+        const reactantsInput = document.getElementById('reactants-input');
+        const productsInput = document.getElementById('products-input');
+
+        if (!reactantsInput || !productsInput) return;
+
+        // Placeholder updates are now handled in the main input event listeners
+
+        // Clear placeholders when focused and empty
+        reactantsInput.addEventListener('focus', () => {
+            if (!reactantsInput.value.trim()) {
+                reactantsInput.placeholder = '';
+            }
+        });
+
+        productsInput.addEventListener('focus', () => {
+            if (!productsInput.value.trim()) {
+                productsInput.placeholder = '';
+            }
+        });
+
+        // Restore default placeholders when fields are empty and blurred
+        reactantsInput.addEventListener('blur', () => {
+            if (!reactantsInput.value.trim()) {
+                reactantsInput.placeholder = 'CH₄ + O₂';
+            }
+        });
+
+        productsInput.addEventListener('blur', () => {
+            if (!productsInput.value.trim()) {
+                productsInput.placeholder = 'CO₂ + H₂O';
+            }
+        });
+    }
+
+    // Predict reactants based on products (reverse prediction)
+    predictReactants(products) {
+        if (products.length === 0) return [];
+
+        // Handle single products
+        if (products.length === 1) {
+            return this.getSingleProductReactants(products[0]);
+        }
+
+        // Handle multiple products with comprehensive reverse patterns
+        const reactants = [];
+
+        // Combustion products → Hydrocarbon + O₂
+        if (products.includes('CO₂') && products.includes('H₂O')) {
+            reactants.push('CH₄', 'O₂');
+        }
+        // Salt + Water → Acid + Base
+        else if (products.includes('H₂O')) {
+            if (products.includes('NaCl')) reactants.push('HCl', 'NaOH');
+            else if (products.includes('KCl')) reactants.push('HCl', 'KOH');
+            else if (products.includes('CaCl₂')) reactants.push('HCl', 'Ca(OH)₂');
+            else if (products.includes('MgCl₂')) reactants.push('HCl', 'Mg(OH)₂');
+            else if (products.includes('Na₂SO₄')) reactants.push('H₂SO₄', 'NaOH');
+            else if (products.includes('K₂SO₄')) reactants.push('H₂SO₄', 'KOH');
+            else if (products.includes('CaSO₄')) reactants.push('H₂SO₄', 'Ca(OH)₂');
+        }
+        // Metal oxide → Metal + O₂
+        else if (products.includes('Fe₂O₃')) reactants.push('Fe', 'O₂');
+        else if (products.includes('CuO')) reactants.push('Cu', 'O₂');
+        else if (products.includes('ZnO')) reactants.push('Zn', 'O₂');
+        else if (products.includes('Al₂O₃')) reactants.push('Al', 'O₂');
+        else if (products.includes('MgO')) reactants.push('Mg', 'O₂');
+        else if (products.includes('CaO')) reactants.push('Ca', 'O₂');
+        
+        // Gas + Water → Oxide + Water
+        else if (products.includes('CO₂')) {
+            if (products.includes('CaO')) reactants.push('CaCO₃');
+            else if (products.includes('MgO')) reactants.push('MgCO₃');
+            else reactants.push('C', 'O₂');
+        }
+        
+        // Hydrogen gas production
+        else if (products.includes('H₂')) {
+            if (products.includes('ZnCl₂')) reactants.push('Zn', 'HCl');
+            else if (products.includes('MgCl₂')) reactants.push('Mg', 'HCl');
+            else if (products.includes('FeCl₂')) reactants.push('Fe', 'HCl');
+            else if (products.includes('NaOH')) reactants.push('Na', 'H₂O');
+            else if (products.includes('KOH')) reactants.push('K', 'H₂O');
+            else if (products.includes('Ca(OH)₂')) reactants.push('Ca', 'H₂O');
+            else reactants.push('H₂', 'O₂');
+        }
+        
+        // Oxygen gas production
+        else if (products.includes('O₂')) {
+            if (products.includes('KCl')) reactants.push('KClO₃');
+            else if (products.includes('NaCl')) reactants.push('NaClO₃');
+            else if (products.includes('H₂O')) reactants.push('H₂O₂');
+            else if (products.includes('Ag')) reactants.push('Ag₂O');
+            else if (products.includes('Hg')) reactants.push('HgO');
+        }
+        
+        // Reduction reactions (Metal + CO₂ → Metal oxide + CO)
+        else if (products.includes('CO₂')) {
+            if (products.includes('Fe')) reactants.push('Fe₂O₃', 'CO');
+            else if (products.includes('Cu')) reactants.push('CuO', 'CO');
+            else if (products.includes('Pb')) reactants.push('PbO', 'CO');
+            else if (products.includes('Mn')) reactants.push('MnO₂', 'C');
+        }
+        
+        // Halogen displacement
+        else if (products.includes('Br₂')) {
+            if (products.includes('NaCl')) reactants.push('Cl₂', 'NaBr');
+            else if (products.includes('KCl')) reactants.push('Cl₂', 'KBr');
+        }
+        else if (products.includes('I₂')) {
+            if (products.includes('NaCl')) reactants.push('Cl₂', 'NaI');
+            else if (products.includes('NaBr')) reactants.push('Br₂', 'NaI');
+            else if (products.includes('KCl')) reactants.push('FeCl₃', 'KI');
+        }
+        else if (products.includes('Cl₂')) {
+            if (products.includes('NaF')) reactants.push('F₂', 'NaCl');
+            else if (products.includes('KCl')) reactants.push('KMnO₄', 'HCl');
+        }
+        
+        // Precipitation reactions
+        else if (products.includes('AgCl')) {
+            if (products.includes('NaNO₃')) reactants.push('AgNO₃', 'NaCl');
+        }
+        else if (products.includes('PbI₂')) {
+            if (products.includes('KNO₃')) reactants.push('Pb(NO₃)₂', 'KI');
+        }
+        else if (products.includes('AgBr')) {
+            if (products.includes('KNO₃')) reactants.push('AgNO₃', 'KBr');
+        }
+        
+        // Ammonia reactions
+        else if (products.includes('NH₄Cl')) {
+            reactants.push('NH₃', 'HCl');
+        }
+        else if (products.includes('(NH₄)₂SO₄')) {
+            reactants.push('NH₃', 'H₂SO₄');
+        }
+        else if (products.includes('NH₃')) {
+            if (products.includes('NaCl')) reactants.push('NH₄Cl', 'NaOH');
+            else if (products.includes('H₂O')) reactants.push('N₂', 'H₂');
+        }
+
+        return reactants;
+    }
+
+    // Get reactants for single products
+    getSingleProductReactants(product) {
+        const singleProductMap = {
+            // Simple compounds
+            'H₂O': ['H₂', 'O₂'],
+            'HCl': ['H₂', 'Cl₂'],
+            'HBr': ['H₂', 'Br₂'],
+            'HI': ['H₂', 'I₂'],
+            'NH₃': ['N₂', 'H₂'],
+            'NO': ['N₂', 'O₂'],
+            'SO₂': ['S', 'O₂'],
+            'CO₂': ['C', 'O₂'],
+            
+            // Salts
+            'NaCl': ['Na', 'Cl₂'],
+            'KCl': ['K', 'Cl₂'],
+            'CaCl₂': ['Ca', 'Cl₂'],
+            'MgCl₂': ['Mg', 'Cl₂'],
+            'FeS': ['Fe', 'S'],
+            'CuS': ['Cu', 'S'],
+            'ZnS': ['Zn', 'S'],
+            
+            // Metal oxides
+            'Fe₂O₃': ['Fe', 'O₂'],
+            'CuO': ['Cu', 'O₂'],
+            'ZnO': ['Zn', 'O₂'],
+            'Al₂O₃': ['Al', 'O₂'],
+            'MgO': ['Mg', 'O₂'],
+            'CaO': ['Ca', 'O₂'],
+            'Na₂O': ['Na', 'O₂'],
+            'K₂O': ['K', 'O₂'],
+            
+            // Hydroxides
+            'NaOH': ['Na', 'H₂O'],
+            'KOH': ['K', 'H₂O'],
+            'Ca(OH)₂': ['Ca', 'H₂O'],
+            'Mg(OH)₂': ['Mg', 'H₂O'],
+            
+            // Acids from oxides
+            'H₂SO₄': ['SO₃', 'H₂O'],
+            'H₂CO₃': ['CO₂', 'H₂O'],
+            'H₃PO₄': ['P₂O₅', 'H₂O'],
+        };
+
+        return singleProductMap[product] || [];
     }
 
     balanceEquation() {
