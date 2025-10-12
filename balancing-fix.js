@@ -1,5 +1,5 @@
 // Fixed simulateBalancingProcess function
-simulateBalancingProcess(result, balancingOrder) {
+function simulateBalancingProcess(result, balancingOrder) {
     const steps = [];
 
     // Start with all coefficients as 1 (unbalanced)
