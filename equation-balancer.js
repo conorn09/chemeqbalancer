@@ -2246,7 +2246,7 @@ class EquationBalancerUI {
 
         // Add "All Compounds" header
         const allHeader = document.createElement('div');
-        allHeader.className = 'px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide bg-gray-50';
+        allHeader.className = 'px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide bg-gray-50 dark:bg-gray-800';
         allHeader.textContent = 'All Compounds';
         listElement.appendChild(allHeader);
 
@@ -2263,7 +2263,7 @@ class EquationBalancerUI {
         Object.keys(categories).sort().forEach(category => {
             // Add category header
             const categoryHeader = document.createElement('div');
-            categoryHeader.className = 'px-3 py-1 text-xs font-medium text-gray-600 bg-gray-50';
+            categoryHeader.className = 'px-3 py-1 text-xs font-medium text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800';
             categoryHeader.textContent = category;
             listElement.appendChild(categoryHeader);
 
@@ -2507,7 +2507,7 @@ class EquationBalancerUI {
         Object.keys(categories).sort().forEach(category => {
             // Add category header
             const categoryHeader = document.createElement('div');
-            categoryHeader.className = 'px-3 py-1 text-xs font-medium text-gray-600 bg-gray-50';
+            categoryHeader.className = 'px-3 py-1 text-xs font-medium text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800';
             categoryHeader.textContent = category;
             listElement.appendChild(categoryHeader);
 
@@ -2541,7 +2541,7 @@ class EquationBalancerUI {
     // Create a compound option element
     createCompoundOption(compound, type) {
         const option = document.createElement('div');
-        option.className = 'compound-option px-3 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0';
+        option.className = 'compound-option px-3 py-2 hover:bg-blue-50 dark:hover:bg-blue-900 cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-b-0';
         option.dataset.formula = compound.formula;
         option.dataset.name = compound.name;
 
@@ -2563,7 +2563,7 @@ class EquationBalancerUI {
     // Create a complete equation option element
     createCompleteEquationOption(completeEquation, type, compounds) {
         const option = document.createElement('div');
-        option.className = 'compound-option px-3 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0';
+        option.className = 'compound-option px-3 py-3 hover:bg-blue-50 dark:hover:bg-blue-900 cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-b-0';
         option.dataset.formula = completeEquation;
         option.dataset.isComplete = 'true';
 
@@ -2572,7 +2572,7 @@ class EquationBalancerUI {
             <div class="flex flex-col">
                 <div class="flex items-center justify-between mb-1">
                     <span class="font-mono text-lg font-semibold text-blue-700">${completeEquation}</span>
-                    <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Complete</span>
+                    <span class="text-xs bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100 px-2 py-1 rounded-full">Complete</span>
                 </div>
                 <div class="text-sm text-gray-600">
                     Click to add all products: ${compounds.map(c => this.getCompoundName(c)).join(', ')}
@@ -2629,14 +2629,14 @@ class EquationBalancerUI {
 
         let html = '';
         Object.keys(categories).sort().forEach(category => {
-            html += `<div class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide bg-gray-50">${category}</div>`;
+            html += `<div class="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide bg-gray-50 dark:bg-gray-800">${category}</div>`;
             categories[category].forEach(compound => {
                 html += `
-                    <div class="compound-option px-3 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0" 
+                    <div class="compound-option px-3 py-2 hover:bg-blue-50 dark:hover:bg-blue-900 cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-b-0" 
                          data-formula="${compound.formula}" data-name="${compound.name}">
                         <div class="flex justify-between items-center">
                             <span class="font-mono text-lg">${compound.formula}</span>
-                            <span class="text-sm text-gray-500">${compound.name}</span>
+                            <span class="text-sm text-gray-500 dark:text-gray-400">${compound.name}</span>
                         </div>
                     </div>
                 `;
@@ -2716,20 +2716,20 @@ class EquationBalancerUI {
         // Display filtered results
         let html = '';
         if (matches.length > 0) {
-            html += '<div class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide bg-gray-50">Matching Compounds</div>';
+            html += '<div class="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide bg-gray-50 dark:bg-gray-800">Matching Compounds</div>';
             matches.slice(0, 10).forEach(compound => { // Show top 10 matches
                 html += `
-                    <div class="compound-option px-3 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0" 
+                    <div class="compound-option px-3 py-2 hover:bg-blue-50 dark:hover:bg-blue-900 cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-b-0" 
                          data-formula="${compound.formula}" data-name="${compound.name}">
                         <div class="flex justify-between items-center">
                             <span class="font-mono text-lg">${compound.formula}</span>
-                            <span class="text-sm text-gray-500">${compound.name}</span>
+                            <span class="text-sm text-gray-500 dark:text-gray-400">${compound.name}</span>
                         </div>
                     </div>
                 `;
             });
         } else {
-            html = '<div class="px-3 py-2 text-sm text-gray-500">No compounds found</div>';
+            html = '<div class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">No compounds found</div>';
         }
 
         listElement.innerHTML = html;
@@ -3124,8 +3124,8 @@ class EquationBalancerUI {
                 <p class="text-green-700 mb-3">
                     This equation is already balanced as written. All elements have the same number of atoms on both sides.
                 </p>
-                <div class="bg-white p-3 rounded border">
-                    <h4 class="font-medium text-gray-800 mb-2">Element Verification:</h4>
+                <div class="bg-white dark:bg-gray-700 p-3 rounded border dark:border-gray-600">
+                    <h4 class="font-medium text-gray-800 dark:text-white mb-2">Element Verification:</h4>
                     ${this.generateElementVerification(result)}
                 </div>
             </div>
@@ -3315,8 +3315,8 @@ class EquationBalancerUI {
                         </h4>
                         <div class="space-y-2">
                             ${reactants.map(c => `
-                                <div class="bg-white p-2 rounded border flex items-center">
-                                    <span class="font-mono text-lg font-bold text-red-600">${c.formula}</span>
+                                <div class="bg-white dark:bg-gray-700 p-2 rounded border dark:border-gray-600 flex items-center">
+                                    <span class="font-mono text-lg font-bold text-red-600 dark:text-red-400">${c.formula}</span>
                                 </div>
                             `).join('')}
                         </div>
@@ -3328,8 +3328,8 @@ class EquationBalancerUI {
                         </h4>
                         <div class="space-y-2">
                             ${products.map(c => `
-                                <div class="bg-white p-2 rounded border flex items-center">
-                                    <span class="font-mono text-lg font-bold text-green-600">${c.formula}</span>
+                                <div class="bg-white dark:bg-gray-700 p-2 rounded border dark:border-gray-600 flex items-center">
+                                    <span class="font-mono text-lg font-bold text-green-600 dark:text-green-400">${c.formula}</span>
                                 </div>
                             `).join('')}
                         </div>
@@ -3355,21 +3355,21 @@ class EquationBalancerUI {
 
     generateElementsStep(result) {
         const elementColors = {
-            'H': 'bg-red-100 text-red-800 border-red-300',
-            'O': 'bg-blue-100 text-blue-800 border-blue-300',
-            'C': 'bg-gray-100 text-gray-800 border-gray-300',
-            'N': 'bg-green-100 text-green-800 border-green-300',
-            'S': 'bg-yellow-100 text-yellow-800 border-yellow-300',
-            'Cl': 'bg-purple-100 text-purple-800 border-purple-300',
-            'Na': 'bg-orange-100 text-orange-800 border-orange-300',
-            'Ca': 'bg-pink-100 text-pink-800 border-pink-300',
-            'Fe': 'bg-indigo-100 text-indigo-800 border-indigo-300'
+            'H': 'bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-100 border-red-300 dark:border-red-600',
+            'O': 'bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100 border-blue-300 dark:border-blue-600',
+            'C': 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 border-gray-300 dark:border-gray-600',
+            'N': 'bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100 border-green-300 dark:border-green-600',
+            'S': 'bg-yellow-100 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-100 border-yellow-300 dark:border-yellow-600',
+            'Cl': 'bg-purple-100 dark:bg-purple-800 text-purple-800 dark:text-purple-100 border-purple-300 dark:border-purple-600',
+            'Na': 'bg-orange-100 dark:bg-orange-800 text-orange-800 dark:text-orange-100 border-orange-300 dark:border-orange-600',
+            'Ca': 'bg-pink-100 dark:bg-pink-800 text-pink-800 dark:text-pink-100 border-pink-300 dark:border-pink-600',
+            'Fe': 'bg-indigo-100 dark:bg-indigo-800 text-indigo-800 dark:text-indigo-100 border-indigo-300 dark:border-indigo-600'
         };
 
         return `
             <div class="space-y-4">
-                <div class="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg border-l-4 border-purple-500">
-                    <h4 class="font-bold text-purple-800 mb-3 flex items-center">
+                <div class="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-800 dark:to-purple-700 p-4 rounded-lg border-l-4 border-purple-500 dark:border-purple-400">
+                    <h4 class="font-bold text-purple-800 dark:text-purple-100 mb-3 flex items-center">
                         <i class="fas fa-atom mr-2"></i>Elements Discovered
                     </h4>
                     <div class="flex flex-wrap gap-2">
@@ -3384,8 +3384,8 @@ class EquationBalancerUI {
                     </div>
                 </div>
                 
-                <div class="bg-white border-2 border-purple-200 rounded-lg p-4">
-                    <h4 class="font-bold text-purple-800 mb-4 flex items-center">
+                <div class="bg-white dark:bg-gray-700 border-2 border-purple-200 dark:border-purple-600 rounded-lg p-4">
+                    <h4 class="font-bold text-purple-800 dark:text-purple-200 mb-4 flex items-center">
                         <i class="fas fa-microscope mr-2"></i>Element Analysis by Compound
                     </h4>
                     <div class="grid gap-3">
@@ -3406,7 +3406,7 @@ class EquationBalancerUI {
                                         ${Object.entries(compound.elements).map(([element, count]) => {
                 const colorClass = elementColors[element] || 'bg-gray-100 text-gray-800 border-gray-300';
                 return `
-                                                <div class="flex items-center bg-white rounded border px-2 py-1">
+                                                <div class="flex items-center bg-white dark:bg-gray-600 rounded border dark:border-gray-500 px-2 py-1">
                                                     <span class="w-6 h-6 rounded-full border-2 ${colorClass} flex items-center justify-center text-xs font-bold mr-2">
                                                         ${element}
                                                     </span>
@@ -3439,15 +3439,15 @@ class EquationBalancerUI {
 
     generateAnalyzeStep(originalEquation, result) {
         const elementColors = {
-            'H': 'bg-red-100 text-red-800 border-red-300',
-            'O': 'bg-blue-100 text-blue-800 border-blue-300',
-            'C': 'bg-gray-100 text-gray-800 border-gray-300',
-            'N': 'bg-green-100 text-green-800 border-green-300',
-            'S': 'bg-yellow-100 text-yellow-800 border-yellow-300',
-            'Cl': 'bg-purple-100 text-purple-800 border-purple-300',
-            'Na': 'bg-orange-100 text-orange-800 border-orange-300',
-            'Ca': 'bg-pink-100 text-pink-800 border-pink-300',
-            'Fe': 'bg-indigo-100 text-indigo-800 border-indigo-300'
+            'H': 'bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-100 border-red-300 dark:border-red-600',
+            'O': 'bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100 border-blue-300 dark:border-blue-600',
+            'C': 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 border-gray-300 dark:border-gray-600',
+            'N': 'bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100 border-green-300 dark:border-green-600',
+            'S': 'bg-yellow-100 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-100 border-yellow-300 dark:border-yellow-600',
+            'Cl': 'bg-purple-100 dark:bg-purple-800 text-purple-800 dark:text-purple-100 border-purple-300 dark:border-purple-600',
+            'Na': 'bg-orange-100 dark:bg-orange-800 text-orange-800 dark:text-orange-100 border-orange-300 dark:border-orange-600',
+            'Ca': 'bg-pink-100 dark:bg-pink-800 text-pink-800 dark:text-pink-100 border-pink-300 dark:border-pink-600',
+            'Fe': 'bg-indigo-100 dark:bg-indigo-800 text-indigo-800 dark:text-indigo-100 border-indigo-300 dark:border-indigo-600'
         };
 
         const reactants = result.compounds.filter(c => c.isReactant);
@@ -3493,8 +3493,8 @@ class EquationBalancerUI {
                         </h4>
                         <div class="space-y-2">
                             ${reactants.map(c => `
-                                <div class="bg-white p-2 rounded border">
-                                    <span class="font-mono text-lg font-bold text-red-600">${c.formula}</span>
+                                <div class="bg-white dark:bg-gray-700 p-2 rounded border dark:border-gray-600">
+                                    <span class="font-mono text-lg font-bold text-red-600 dark:text-red-400">${c.formula}</span>
                                     <div class="text-xs text-red-600 mt-1">
                                         ${Object.entries(c.elements).map(([el, count]) => `${el}: ${count}`).join(', ')}
                                     </div>
@@ -3509,8 +3509,8 @@ class EquationBalancerUI {
                         </h4>
                         <div class="space-y-2">
                             ${products.map(c => `
-                                <div class="bg-white p-2 rounded border">
-                                    <span class="font-mono text-lg font-bold text-green-600">${c.formula}</span>
+                                <div class="bg-white dark:bg-gray-700 p-2 rounded border dark:border-gray-600">
+                                    <span class="font-mono text-lg font-bold text-green-600 dark:text-green-400">${c.formula}</span>
                                     <div class="text-xs text-green-600 mt-1">
                                         ${Object.entries(c.elements).map(([el, count]) => `${el}: ${count}`).join(', ')}
                                     </div>
@@ -3520,7 +3520,7 @@ class EquationBalancerUI {
                     </div>
                 </div>
 
-                <div class="bg-white border-2 border-blue-200 rounded-lg overflow-hidden">
+                <div class="bg-white dark:bg-gray-700 border-2 border-blue-200 dark:border-blue-600 rounded-lg overflow-hidden">
                     <div class="bg-blue-100 dark:bg-blue-800 p-3 border-b border-blue-200 dark:border-blue-600">
                         <h4 class="font-bold text-blue-800 dark:text-blue-100 flex items-center">
                             <i class="fas fa-table mr-2"></i>Atom Count T-Table
@@ -3529,9 +3529,9 @@ class EquationBalancerUI {
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full">
-                            <thead class="bg-gray-50">
+                            <thead class="bg-gray-50 dark:bg-gray-800">
                                 <tr>
-                                    <th class="text-left p-4 font-bold text-gray-700 border-r">Element</th>
+                                    <th class="text-left p-4 font-bold text-gray-700 dark:text-gray-200 border-r dark:border-gray-600">Element</th>
                                     <th class="text-center p-4 font-bold text-blue-700 bg-blue-50 border-r">Left Side<br><span class="text-xs font-normal">(Reactants)</span></th>
                                     <th class="text-center p-4 font-bold text-purple-700 bg-purple-50 border-r">Right Side<br><span class="text-xs font-normal">(Products)</span></th>
                                     <th class="text-center p-4 font-bold text-gray-700">Balanced?</th>
@@ -3593,15 +3593,15 @@ class EquationBalancerUI {
 
     generateCountStep(result) {
         const elementColors = {
-            'H': 'bg-red-100 text-red-800 border-red-300',
-            'O': 'bg-blue-100 text-blue-800 border-blue-300',
-            'C': 'bg-gray-100 text-gray-800 border-gray-300',
-            'N': 'bg-green-100 text-green-800 border-green-300',
-            'S': 'bg-yellow-100 text-yellow-800 border-yellow-300',
-            'Cl': 'bg-purple-100 text-purple-800 border-purple-300',
-            'Na': 'bg-orange-100 text-orange-800 border-orange-300',
-            'Ca': 'bg-pink-100 text-pink-800 border-pink-300',
-            'Fe': 'bg-indigo-100 text-indigo-800 border-indigo-300'
+            'H': 'bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-100 border-red-300 dark:border-red-600',
+            'O': 'bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100 border-blue-300 dark:border-blue-600',
+            'C': 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 border-gray-300 dark:border-gray-600',
+            'N': 'bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100 border-green-300 dark:border-green-600',
+            'S': 'bg-yellow-100 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-100 border-yellow-300 dark:border-yellow-600',
+            'Cl': 'bg-purple-100 dark:bg-purple-800 text-purple-800 dark:text-purple-100 border-purple-300 dark:border-purple-600',
+            'Na': 'bg-orange-100 dark:bg-orange-800 text-orange-800 dark:text-orange-100 border-orange-300 dark:border-orange-600',
+            'Ca': 'bg-pink-100 dark:bg-pink-800 text-pink-800 dark:text-pink-100 border-pink-300 dark:border-pink-600',
+            'Fe': 'bg-indigo-100 dark:bg-indigo-800 text-indigo-800 dark:text-indigo-100 border-indigo-300 dark:border-indigo-600'
         };
 
         // Count atoms before balancing (assuming coefficient of 1 for all)
@@ -3624,8 +3624,8 @@ class EquationBalancerUI {
 
         return `
             <div class="space-y-4">
-                <div class="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg border-l-4 border-purple-500">
-                    <h4 class="font-bold text-purple-800 mb-2 flex items-center">
+                <div class="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-800 dark:to-purple-700 p-4 rounded-lg border-l-4 border-purple-500 dark:border-purple-400">
+                    <h4 class="font-bold text-purple-800 dark:text-purple-100 mb-2 flex items-center">
                         <i class="fas fa-calculator mr-2"></i>Let's Count the Atoms
                     </h4>
                     <p class="text-purple-700 text-sm">
@@ -3748,15 +3748,15 @@ class EquationBalancerUI {
                     <div class="space-y-4">
                         ${balancingOrder.map((element, index) => {
             const elementColors = {
-                'H': 'bg-pink-100 text-pink-800 border-pink-300',
-                'O': 'bg-blue-100 text-blue-800 border-blue-300',
-                'C': 'bg-gray-100 text-gray-800 border-gray-300',
-                'N': 'bg-teal-100 text-teal-800 border-teal-300',
-                'S': 'bg-yellow-100 text-yellow-800 border-yellow-300',
-                'Cl': 'bg-purple-100 text-purple-800 border-purple-300',
-                'Na': 'bg-orange-100 text-orange-800 border-orange-300',
-                'Ca': 'bg-lime-100 text-lime-800 border-lime-300',
-                'Fe': 'bg-amber-100 text-amber-800 border-amber-300'
+                'H': 'bg-pink-100 dark:bg-pink-800 text-pink-800 dark:text-pink-100 border-pink-300 dark:border-pink-600',
+                'O': 'bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100 border-blue-300 dark:border-blue-600',
+                'C': 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 border-gray-300 dark:border-gray-600',
+                'N': 'bg-teal-100 dark:bg-teal-800 text-teal-800 dark:text-teal-100 border-teal-300 dark:border-teal-600',
+                'S': 'bg-yellow-100 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-100 border-yellow-300 dark:border-yellow-600',
+                'Cl': 'bg-purple-100 dark:bg-purple-800 text-purple-800 dark:text-purple-100 border-purple-300 dark:border-purple-600',
+                'Na': 'bg-orange-100 dark:bg-orange-800 text-orange-800 dark:text-orange-100 border-orange-300 dark:border-orange-600',
+                'Ca': 'bg-lime-100 dark:bg-lime-800 text-lime-800 dark:text-lime-100 border-lime-300 dark:border-lime-600',
+                'Fe': 'bg-amber-100 dark:bg-amber-800 text-amber-800 dark:text-amber-100 border-amber-300 dark:border-amber-600'
             };
             const colorClass = elementColors[element] || 'bg-slate-100 text-slate-800 border-slate-300';
 
@@ -3812,7 +3812,7 @@ class EquationBalancerUI {
                                     <div class="bg-gray-50 p-3 rounded-lg">
                                         <div class="grid grid-cols-3 gap-4 items-center">
                                             <div class="text-center">
-                                                <div class="bg-blue-100 text-blue-800 px-3 py-2 rounded-lg font-bold text-lg">
+                                                <div class="bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100 px-3 py-2 rounded-lg font-bold text-lg">
                                                     ${leftSideCount}
                                                 </div>
                                                 <div class="text-xs text-blue-600 mt-1">Left Side</div>
@@ -3829,7 +3829,7 @@ class EquationBalancerUI {
                                             </div>
                                             
                                             <div class="text-center">
-                                                <div class="bg-purple-100 text-purple-800 px-3 py-2 rounded-lg font-bold text-lg">
+                                                <div class="bg-purple-100 dark:bg-purple-800 text-purple-800 dark:text-purple-100 px-3 py-2 rounded-lg font-bold text-lg">
                                                     ${rightSideCount}
                                                 </div>
                                                 <div class="text-xs text-purple-600 mt-1">Right Side</div>
@@ -3988,8 +3988,8 @@ class EquationBalancerUI {
                                             </div>
                                         `).join('')}
                                     </div>
-                                    <div class="mt-3 p-2 bg-blue-100 rounded">
-                                        <div class="text-sm font-semibold text-blue-800">
+                                    <div class="mt-3 p-2 bg-blue-100 dark:bg-blue-800 rounded">
+                                        <div class="text-sm font-semibold text-blue-800 dark:text-blue-100">
                                             ${step.element}: ${step.leftCount} atoms total
                                         </div>
                                         ${step.leftSideReasoning ? `
@@ -4016,8 +4016,8 @@ class EquationBalancerUI {
                                             </div>
                                         `).join('')}
                                     </div>
-                                    <div class="mt-3 p-2 bg-purple-100 rounded">
-                                        <div class="text-sm font-semibold text-purple-800">
+                                    <div class="mt-3 p-2 bg-purple-100 dark:bg-purple-800 rounded">
+                                        <div class="text-sm font-semibold text-purple-800 dark:text-purple-100">
                                             ${step.element}: ${step.rightCount} atoms total
                                         </div>
                                         ${step.rightSideReasoning ? `
@@ -4042,13 +4042,13 @@ class EquationBalancerUI {
                                                     ${step.progressiveEquation}
                                                 </div>
                                                 ${step.isLastStep ? `
-                                                    <div class="mt-4 bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg border-l-4 border-green-500" style="position: relative; z-index: 1;">
+                                                    <div class="mt-4 bg-gradient-to-r from-green-50 to-green-100 dark:from-green-800 dark:to-green-700 p-4 rounded-lg border-l-4 border-green-500 dark:border-green-400" style="position: relative; z-index: 1;">
                                                         <div class="text-center">
                                                             <div class="w-12 h-12 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto mb-2">
                                                                 <i class="fas fa-trophy text-lg"></i>
                                                             </div>
-                                                            <h4 class="text-lg font-bold text-green-800 mb-1">🎉 All Elements Balanced!</h4>
-                                                            <p class="text-green-700 text-sm">
+                                                            <h4 class="text-lg font-bold text-green-800 dark:text-green-100 mb-1">🎉 All Elements Balanced!</h4>
+                                                            <p class="text-green-700 dark:text-green-200 text-sm">
                                                                 Every element now has equal atoms on both sides of the equation!
                                                             </p>
                                                         </div>
@@ -4314,8 +4314,8 @@ class EquationBalancerUI {
     generateApplyStep(result) {
         return `
             <div class="space-y-4">
-                <div class="bg-gradient-to-r from-orange-50 to-orange-100 p-4 rounded-lg border-l-4 border-orange-500">
-                    <h4 class="font-bold text-orange-800 mb-2 flex items-center">
+                <div class="bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-800 dark:to-orange-700 p-4 rounded-lg border-l-4 border-orange-500 dark:border-orange-400">
+                    <h4 class="font-bold text-orange-800 dark:text-orange-100 mb-2 flex items-center">
                         <i class="fas fa-calculator mr-2"></i>Applying Our Coefficients
                     </h4>
                     <p class="text-orange-700 text-sm">
@@ -4471,8 +4471,8 @@ class EquationBalancerUI {
     generateSolutionStep(result) {
         return `
             <div class="space-y-4">
-                <div class="bg-gradient-to-r from-orange-50 to-orange-100 p-4 rounded-lg border-l-4 border-orange-500">
-                    <h4 class="font-bold text-orange-800 mb-2 flex items-center">
+                <div class="bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-800 dark:to-orange-700 p-4 rounded-lg border-l-4 border-orange-500 dark:border-orange-400">
+                    <h4 class="font-bold text-orange-800 dark:text-orange-100 mb-2 flex items-center">
                         <i class="fas fa-calculator mr-2"></i>Mathematical Solution
                     </h4>
                     <p class="text-orange-700 text-sm">
@@ -4552,21 +4552,21 @@ class EquationBalancerUI {
 
     generateVerificationStep(result) {
         const elementColors = {
-            'H': 'bg-red-100 text-red-800 border-red-300',
-            'O': 'bg-blue-100 text-blue-800 border-blue-300',
-            'C': 'bg-gray-100 text-gray-800 border-gray-300',
-            'N': 'bg-green-100 text-green-800 border-green-300',
-            'S': 'bg-yellow-100 text-yellow-800 border-yellow-300',
-            'Cl': 'bg-purple-100 text-purple-800 border-purple-300',
-            'Na': 'bg-orange-100 text-orange-800 border-orange-300',
-            'Ca': 'bg-pink-100 text-pink-800 border-pink-300',
-            'Fe': 'bg-indigo-100 text-indigo-800 border-indigo-300'
+            'H': 'bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-100 border-red-300 dark:border-red-600',
+            'O': 'bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100 border-blue-300 dark:border-blue-600',
+            'C': 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 border-gray-300 dark:border-gray-600',
+            'N': 'bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100 border-green-300 dark:border-green-600',
+            'S': 'bg-yellow-100 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-100 border-yellow-300 dark:border-yellow-600',
+            'Cl': 'bg-purple-100 dark:bg-purple-800 text-purple-800 dark:text-purple-100 border-purple-300 dark:border-purple-600',
+            'Na': 'bg-orange-100 dark:bg-orange-800 text-orange-800 dark:text-orange-100 border-orange-300 dark:border-orange-600',
+            'Ca': 'bg-pink-100 dark:bg-pink-800 text-pink-800 dark:text-pink-100 border-pink-300 dark:border-pink-600',
+            'Fe': 'bg-indigo-100 dark:bg-indigo-800 text-indigo-800 dark:text-indigo-100 border-indigo-300 dark:border-indigo-600'
         };
 
         return `
             <div class="space-y-4">
-                <div class="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg border-l-4 border-green-500">
-                    <h4 class="font-bold text-green-800 mb-2 flex items-center">
+                <div class="bg-gradient-to-r from-green-50 to-green-100 dark:from-green-800 dark:to-green-700 p-4 rounded-lg border-l-4 border-green-500 dark:border-green-400">
+                    <h4 class="font-bold text-green-800 dark:text-green-100 mb-2 flex items-center">
                         <i class="fas fa-balance-scale mr-2"></i>Final Verification
                     </h4>
                     <p class="text-green-700 text-sm">
@@ -4629,18 +4629,18 @@ class EquationBalancerUI {
                     </div>
                 </div>
                 
-                <div class="bg-gradient-to-r from-green-100 to-green-200 border-2 border-green-300 rounded-lg p-6">
+                <div class="bg-gradient-to-r from-green-100 to-green-200 dark:from-green-800 dark:to-green-700 border-2 border-green-300 dark:border-green-600 rounded-lg p-6">
                     <div class="text-center">
                         <div class="w-16 h-16 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto mb-4">
                             <i class="fas fa-trophy text-2xl"></i>
                         </div>
-                        <h3 class="text-2xl font-bold text-green-800 mb-2">🎉 Equation Successfully Balanced!</h3>
-                        <div class="bg-white p-4 rounded-lg border-2 border-green-300 mb-4">
-                            <div class="text-3xl font-mono font-bold text-gray-800">
+                        <h3 class="text-2xl font-bold text-green-800 dark:text-green-200 mb-2">🎉 Equation Successfully Balanced!</h3>
+                        <div class="bg-white dark:bg-gray-700 p-4 rounded-lg border-2 border-green-300 dark:border-green-600 mb-4">
+                            <div class="text-3xl font-mono font-bold text-gray-800 dark:text-white">
                                 ${result.balancedEquation}
                             </div>
                         </div>
-                        <p class="text-green-700 font-medium">
+                        <p class="text-green-700 dark:text-green-200 font-medium">
                             All elements are now balanced according to the Law of Conservation of Mass!
                         </p>
                     </div>
@@ -4715,10 +4715,17 @@ const toggleButton = document.getElementById('theme-toggle');
 const themeIcon = document.getElementById('theme-icon');
 const body = document.body;
 
-// Load saved theme
-if (localStorage.getItem('theme') === 'dark') {
+// Load saved theme or default to dark mode
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'light') {
+    // Only use light mode if explicitly saved as light
+    body.classList.remove('dark-mode');
+    if (themeIcon) themeIcon.className = 'fas fa-moon';
+} else {
+    // Default to dark mode (including first visit)
     body.classList.add('dark-mode');
     if (themeIcon) themeIcon.className = 'fas fa-sun';
+    if (!savedTheme) localStorage.setItem('theme', 'dark'); // Save default preference
 }
 
 // When button is clicked, toggle theme
