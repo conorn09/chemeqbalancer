@@ -32,7 +32,10 @@ class ChemicalEquationPractice {
 
     initializeEventListeners() {
         document.getElementById('new-equation-btn').addEventListener('click', () => this.generateNewEquation());
-        document.getElementById('check-btn').addEventListener('click', () => this.checkAnswer());
+        document.getElementById('check-btn').addEventListener('click', (event) => {
+            this.lastClickEvent = event;
+            this.checkAnswer();
+        });
         document.getElementById('hint-btn').addEventListener('click', () => this.showHint());
         document.getElementById('show-solution-btn').addEventListener('click', () => this.showSolution());
         
@@ -159,7 +162,8 @@ class ChemicalEquationPractice {
         if (isCorrect) {
             this.correctCount++;
             this.showFeedback(true, 'Correct! Well done!');
-            this.triggerConfetti();
+            // Store the click event for confetti explosion
+            this.triggerConfetti(this.lastClickEvent);
         } else {
             this.incorrectCount++;
             this.showFeedback(false, 'Incorrect. Try again or use the hint button for help.');
@@ -315,47 +319,203 @@ class ChemicalEquationPractice {
         document.getElementById('accuracy').textContent = `${accuracy}%`;
     }
 
-    triggerConfetti() {
-        // Create confetti container
-        const confettiContainer = document.createElement('div');
-        confettiContainer.style.position = 'fixed';
-        confettiContainer.style.top = '0';
-        confettiContainer.style.left = '0';
-        confettiContainer.style.width = '100%';
-        confettiContainer.style.height = '100%';
-        confettiContainer.style.pointerEvents = 'none';
-        confettiContainer.style.zIndex = '1000';
+    triggerConfetti(clickEvent) {
+        let explosionX, explosionY;
         
-        // Create multiple confetti pieces
-        for (let i = 0; i < 50; i++) {
-            const confetti = document.createElement('div');
-            confetti.className = 'confetti';
-            
-            // Random properties for each confetti piece
-            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3', '#ff6348', '#2ed573', '#ffa502', '#3742fa', '#70a1ff', '#7bed9f', '#ff7675', '#fd79a8', '#fdcb6e', '#6c5ce7', '#a29bfe'];
-            const randomColor = colors[Math.floor(Math.random() * colors.length)];
-            
-            confetti.style.backgroundColor = randomColor;
-            confetti.style.left = Math.random() * 100 + '%';
-            confetti.style.animationDelay = Math.random() * 2 + 's';
-            confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
-            
-            // Random shapes
-            if (Math.random() > 0.5) {
-                confetti.style.borderRadius = '50%';
-            } else {
-                confetti.style.transform = 'rotate(45deg)';
-            }
-            
-            confettiContainer.appendChild(confetti);
+        if (clickEvent && clickEvent.clientX && clickEvent.clientY) {
+            // Use exact click position
+            explosionX = clickEvent.clientX;
+            explosionY = clickEvent.clientY;
+        } else {
+            // Fallback to button center
+            const checkButton = document.getElementById('check-btn');
+            const buttonRect = checkButton.getBoundingClientRect();
+            explosionX = buttonRect.left + buttonRect.width / 2;
+            explosionY = buttonRect.top + buttonRect.height / 2;
         }
         
-        document.body.appendChild(confettiContainer);
+        const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3', '#ff6348', '#2ed573', '#ffa502', '#3742fa', '#70a1ff', '#7bed9f', '#ff7675', '#fd79a8', '#fdcb6e', '#6c5ce7', '#a29bfe'];
         
-        // Remove confetti after animation completes
+        // Create initial explosion (thinner)
+        for (let wave = 0; wave < 3; wave++) {
+            setTimeout(() => {
+                for (let i = 0; i < 30; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    
+                    // Random color
+                    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.backgroundColor = randomColor;
+                    
+                    // Random shape and size
+                    if (Math.random() > 0.5) {
+                        confetti.style.borderRadius = '50%';
+                    }
+                    
+                    // Vary size more dramatically for better visibility
+                    const size = 8 + Math.random() * 8; // Larger pieces (8-16px)
+                    confetti.style.width = size + 'px';
+                    confetti.style.height = size + 'px';
+                    
+                    // Start at explosion position with slight random offset
+                    const offsetX = (Math.random() - 0.5) * 30;
+                    const offsetY = (Math.random() - 0.5) * 30;
+                    confetti.style.left = (explosionX + offsetX) + 'px';
+                    confetti.style.top = (explosionY + offsetY) + 'px';
+                    
+                    // Random explosion direction and speed - make it MASSIVE
+                    const angle = Math.random() * Math.PI * 2; // Full 360 degree spread
+                    const velocity = 25 + Math.random() * 35; // Extremely high initial velocity (25-60) for maximum coverage
+                    const velocityX = Math.cos(angle) * velocity;
+                    const velocityY = Math.sin(angle) * velocity;
+                    
+                    document.body.appendChild(confetti);
+                    
+                    // Animate the confetti piece
+                    this.animateConfettiPiece(confetti, velocityX, velocityY, explosionX + offsetX, explosionY + offsetY);
+                }
+            }, wave * 50); // Stagger waves by 50ms
+        }
+        
+        // Create dense falling confetti shower from the top
+        this.createFallingConfettiShower(colors);
+    }
+
+    animateConfettiPiece(confetti, velocityX, velocityY, startX, startY) {
+        let x = startX;
+        let y = startY;
+        let vx = velocityX;
+        let vy = velocityY;
+        let rotation = 0;
+        let opacity = 1;
+        
+        const gravity = 0.25; // Much slower falling
+        const friction = 0.995; // Less air resistance for longer flight
+        const rotationSpeed = (Math.random() - 0.5) * 20;
+        
+        const animate = () => {
+            // Apply physics
+            vy += gravity; // Gravity
+            vx *= friction; // Air resistance
+            vy *= friction;
+            
+            // Update position
+            x += vx;
+            y += vy;
+            rotation += rotationSpeed;
+            
+            // Fade out over time (very slow fade for maximum visibility)
+            opacity -= 0.002;
+            
+            // Update confetti position and rotation
+            confetti.style.left = x + 'px';
+            confetti.style.top = y + 'px';
+            confetti.style.transform = `rotate(${rotation}deg)`;
+            confetti.style.opacity = opacity;
+            
+            // Continue animation if confetti is still visible and on screen
+            if (opacity > 0 && y < window.innerHeight + 50) {
+                requestAnimationFrame(animate);
+            } else {
+                // Remove confetti when it's done
+                if (confetti.parentNode) {
+                    confetti.parentNode.removeChild(confetti);
+                }
+            }
+        };
+        
+        requestAnimationFrame(animate);
+    }
+
+    createFallingConfettiShower(colors) {
+        // Create dense falling confetti from the top of the screen
+        const screenWidth = window.innerWidth;
+        
+        // Generate confetti continuously for 3 seconds
+        let confettiInterval = setInterval(() => {
+            // Create a burst of confetti across the top of the screen
+            for (let i = 0; i < 15; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                
+                // Random color
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.backgroundColor = randomColor;
+                
+                // Random shape and size
+                if (Math.random() > 0.5) {
+                    confetti.style.borderRadius = '50%';
+                }
+                
+                const size = 6 + Math.random() * 8;
+                confetti.style.width = size + 'px';
+                confetti.style.height = size + 'px';
+                
+                // Start from random position across the top of the screen
+                const startX = Math.random() * screenWidth;
+                const startY = -20; // Start above the screen
+                
+                confetti.style.left = startX + 'px';
+                confetti.style.top = startY + 'px';
+                
+                // Falling motion with slight horizontal drift
+                const velocityX = (Math.random() - 0.5) * 4; // Slight horizontal drift
+                const velocityY = 2 + Math.random() * 3; // Downward velocity
+                
+                document.body.appendChild(confetti);
+                
+                // Animate the falling confetti
+                this.animateFallingConfetti(confetti, velocityX, velocityY, startX, startY);
+            }
+        }, 100); // Create new confetti every 100ms
+        
+        // Stop creating new confetti after 3 seconds
         setTimeout(() => {
-            document.body.removeChild(confettiContainer);
-        }, 4000);
+            clearInterval(confettiInterval);
+        }, 3000);
+    }
+
+    animateFallingConfetti(confetti, velocityX, velocityY, startX, startY) {
+        let x = startX;
+        let y = startY;
+        let vx = velocityX;
+        let vy = velocityY;
+        let rotation = 0;
+        let opacity = 1;
+        
+        const gravity = 0.1; // Light gravity for gentle falling
+        const rotationSpeed = (Math.random() - 0.5) * 10;
+        
+        const animate = () => {
+            // Apply gentle physics
+            vy += gravity;
+            
+            // Update position
+            x += vx;
+            y += vy;
+            rotation += rotationSpeed;
+            
+            // Fade out slowly
+            opacity -= 0.002;
+            
+            // Update confetti position and rotation
+            confetti.style.left = x + 'px';
+            confetti.style.top = y + 'px';
+            confetti.style.transform = `rotate(${rotation}deg)`;
+            confetti.style.opacity = opacity;
+            
+            // Continue animation if confetti is still visible and on screen
+            if (opacity > 0 && y < window.innerHeight + 100) {
+                requestAnimationFrame(animate);
+            } else {
+                // Remove confetti when it's done
+                if (confetti.parentNode) {
+                    confetti.parentNode.removeChild(confetti);
+                }
+            }
+        };
+        
+        requestAnimationFrame(animate);
     }
 }
 
