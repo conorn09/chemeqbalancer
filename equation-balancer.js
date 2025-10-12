@@ -1250,7 +1250,7 @@ class EquationBalancerUI {
 
     // Predict likely products based on reactants
     predictProducts(reactants) {
-        console.log('predictProducts called with:', reactants);
+        // console.log('predictProducts called with:', reactants);
         if (reactants.length === 0) return [];
 
         const products = [];
@@ -1362,10 +1362,10 @@ class EquationBalancerUI {
         } else if (this.isOxideWaterReaction(reactants)) {
             products.push(...this.getOxideWaterProducts(reactants));
         } else if (this.isCombustionReaction(reactants)) {
-            console.log('Detected: combustion reaction for:', reactants);
+            // console.log('Detected: combustion reaction for:', reactants);
             products.push('CO₂', 'H₂O');
         }
-        console.log('predictProducts returning:', products);
+        // console.log('predictProducts returning:', products);
         return products;
     }
 
