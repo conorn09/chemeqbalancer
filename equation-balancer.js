@@ -779,7 +779,6 @@ class EquationBalancerUI {
         this.showingSmartSuggestions = false;
         this.initializeEventListeners();
         this.setupDropdowns();
-        this.initializeReactionTester();
     }
 
     initializeEventListeners() {
@@ -1327,11 +1326,11 @@ class EquationBalancerUI {
             products.push(...this.getHydrogenationProducts(reactants));
         } else if (this.isDehydrationReaction(reactants)) {
             products.push(...this.getDehydrationProducts(reactants));
-        } else if (this.isCarbideHydrolysis(reactants)) {
-            products.push(...this.getCarbideHydrolysisProducts(reactants));
-        } else if (this.isNitrideHydrolysis(reactants)) {
-            products.push(...this.getNitrideHydrolysisProducts(reactants));
-        } else if (this.isPolymerizationReaction(reactants)) {
+            // } else if (this.isCarbideHydrolysis(reactants)) {
+            //     products.push(...this.getCarbideHydrolysisProducts(reactants));
+            // } else if (this.isNitrideHydrolysis(reactants)) {
+            //     products.push(...this.getNitrideHydrolysisProducts(reactants));
+            // } else if (this.isPolymerizationReaction(reactants)) {
             products.push(...this.getPolymerizationProducts(reactants));
         } else if (this.isOrganicReaction(reactants)) {
             products.push(...this.getOrganicProducts(reactants));
@@ -1363,6 +1362,7 @@ class EquationBalancerUI {
         } else if (this.isOxideWaterReaction(reactants)) {
             products.push(...this.getOxideWaterProducts(reactants));
         } else if (this.isCombustionReaction(reactants)) {
+            console.log('Detected: combustion reaction for:', reactants);
             products.push('CO₂', 'H₂O');
         }
         console.log('predictProducts returning:', products);
@@ -2297,6 +2297,35 @@ class EquationBalancerUI {
 
     // Get acid-base reaction products
     getAcidBaseProducts(reactants) {
+        // Common acid-base reactions
+        if (reactants.includes('HCl') && reactants.includes('NaOH')) {
+            return ['NaCl', 'H₂O'];
+        }
+        if (reactants.includes('HCl') && reactants.includes('KOH')) {
+            return ['KCl', 'H₂O'];
+        }
+        if (reactants.includes('HCl') && reactants.includes('Ca(OH)₂')) {
+            return ['CaCl₂', 'H₂O'];
+        }
+        if (reactants.includes('H₂SO₄') && reactants.includes('NaOH')) {
+            return ['Na₂SO₄', 'H₂O'];
+        }
+        if (reactants.includes('H₂SO₄') && reactants.includes('KOH')) {
+            return ['K₂SO₄', 'H₂O'];
+        }
+        if (reactants.includes('H₂SO₄') && reactants.includes('Ca(OH)₂')) {
+            return ['CaSO₄', 'H₂O'];
+        }
+        if (reactants.includes('HNO₃') && reactants.includes('NaOH')) {
+            return ['NaNO₃', 'H₂O'];
+        }
+        if (reactants.includes('HNO₃') && reactants.includes('KOH')) {
+            return ['KNO₃', 'H₂O'];
+        }
+        if (reactants.includes('CH₃COOH') && reactants.includes('NaOH')) {
+            return ['CH₃COONa', 'H₂O'];
+        }
+
         // Specific acid-base reactions
         if (reactants.includes('SO₂') && reactants.includes('NaOH')) {
             return ['Na₂SO₃', 'H₂O'];
@@ -4678,346 +4707,6 @@ class EquationBalancerUI {
         this.closeAllDropdowns();
         this.hideError();
         this.hideResults();
-    }
-
-    // Initialize reaction tester
-    initializeReactionTester() {
-        const toggleBtn = document.getElementById('toggle-tester');
-        const testerContent = document.getElementById('tester-content');
-        const testReactantsInput = document.getElementById('test-reactants');
-        const testProductsInput = document.getElementById('test-products');
-        const testBtn = document.getElementById('test-reaction');
-        const batchTestBtn = document.getElementById('batch-test');
-        const comprehensiveTestBtn = document.getElementById('comprehensive-test');
-        const clearBtn = document.getElementById('clear-results');
-
-        if (!toggleBtn || !testerContent) return;
-
-        // Toggle tester visibility
-        toggleBtn.addEventListener('click', () => {
-            const isHidden = testerContent.classList.contains('hidden');
-            if (isHidden) {
-                testerContent.classList.remove('hidden');
-                toggleBtn.innerHTML = '<i class="fas fa-eye-slash mr-1"></i> Hide Tester';
-            } else {
-                testerContent.classList.add('hidden');
-                toggleBtn.innerHTML = '<i class="fas fa-flask mr-1"></i> Show Tester';
-            }
-        });
-
-        // Test single reaction
-        testBtn?.addEventListener('click', () => {
-            const reactantsText = testReactantsInput.value.trim();
-            if (!reactantsText) return;
-
-            this.testSingleReaction(reactantsText);
-        });
-
-        // Test reactants as user types
-        testReactantsInput?.addEventListener('input', () => {
-            const reactantsText = testReactantsInput.value.trim();
-            if (reactantsText) {
-                const reactants = reactantsText.split('+').map(r => r.trim()).filter(r => r);
-                const products = this.predictProducts(reactants);
-                testProductsInput.value = products.length > 0 ? products.join(' + ') : 'No prediction';
-            } else {
-                testProductsInput.value = '';
-            }
-        });
-
-        // Batch test common reactions
-        batchTestBtn?.addEventListener('click', () => {
-            this.runBatchTest();
-        });
-
-        // Comprehensive test (includes recent improvements)
-        comprehensiveTestBtn?.addEventListener('click', () => {
-            this.runComprehensiveTest();
-        });
-
-        // Clear results
-        clearBtn?.addEventListener('click', () => {
-            const resultsDiv = document.getElementById('test-results');
-            if (resultsDiv) resultsDiv.innerHTML = '';
-        });
-    }
-
-    // Test a single reaction
-    testSingleReaction(reactantsText) {
-        const reactants = reactantsText.split('+').map(r => r.trim()).filter(r => r);
-        const products = this.predictProducts(reactants);
-
-        const resultsDiv = document.getElementById('test-results');
-        if (!resultsDiv) return;
-
-        const resultDiv = document.createElement('div');
-        resultDiv.className = `p-3 rounded-lg border-l-4 ${products.length > 0 ? 'bg-green-50 border-green-500' : 'bg-red-50 border-red-500'}`;
-
-        resultDiv.innerHTML = `
-            <div class="flex items-center justify-between">
-                <div>
-                    <span class="font-mono font-medium">${reactantsText}</span>
-                    <span class="mx-2">→</span>
-                    <span class="font-mono ${products.length > 0 ? 'text-green-700' : 'text-red-700'}">
-                        ${products.length > 0 ? products.join(' + ') : 'NO PREDICTION'}
-                    </span>
-                </div>
-                <span class="text-xs ${products.length > 0 ? 'text-green-600' : 'text-red-600'}">
-                    ${products.length > 0 ? '✓ Found' : '✗ Missing'}
-                </span>
-            </div>
-        `;
-
-        resultsDiv.insertBefore(resultDiv, resultsDiv.firstChild);
-    }
-
-    // Run comprehensive test including recent improvements
-    runComprehensiveTest() {
-        const comprehensiveTestReactions = [
-            // RECENT FIXES - Single Displacement (Priority Fix)
-            'Cu + AgNO₃', 'Al + Fe₂O₃', 'Zn + CuSO₄', 'Fe + CuSO₄',
-
-            // RECENT FIXES - Halogen Displacement (Missing Compounds Fix)
-            'Br₂ + KI', 'Cl₂ + KBr', 'Cl₂ + KI', 'F₂ + KCl', 'F₂ + KBr',
-            'Br₂ + NaI', 'Cl₂ + NaBr', 'Cl₂ + NaI',
-
-            // NEW SMART SUGGESTIONS - Important Gases
-            'H₂O₂ + KI', 'H₂O₂ + MnO₂', 'SO₂ + O₂', 'SO₂ + NaOH',
-            'NO₂ + H₂O', 'CO + O₂', 'H₂S + O₂', 'N₂ + H₂', 'P₄ + O₂',
-
-            // NEW SMART SUGGESTIONS - Important Salts
-            'BaCl₂ + H₂SO₄', 'BaCl₂ + Na₂SO₄', 'MgSO₄ + NaOH',
-            'ZnSO₄ + NaOH', 'FeSO₄ + NaOH', 'AlCl₃ + NaOH',
-            'CaCl₂ + Na₂CO₃', 'MgCl₂ + AgNO₃',
-
-            // ENHANCED ORGANIC - Oxidation Reactions
-            'C₂H₅OH + K₂Cr₂O₇', 'CH₃OH + KMnO₄', 'C₆H₁₂O₆ + O₂',
-
-            // COMPREHENSIVE COVERAGE - All Reaction Types
-            'HCl + NaOH', 'H₂SO₄ + Ca(OH)₂', 'HNO₃ + Mg(OH)₂',
-            'Na + H₂O', 'K + H₂O', 'Ca + H₂O', 'Mg + HCl', 'Zn + H₂SO₄',
-            'CH₄ + O₂', 'C₂H₆ + O₂', 'C₃H₈ + O₂', 'C₂H₄ + Br₂',
-            'KClO₃', 'CaCO₃', 'NH₄Cl', 'H₂O₂',
-            'AgNO₃ + NaCl', 'Pb(NO₃)₂ + KI', 'BaCl₂ + Na₂SO₄',
-            'CaCO₃ + HCl', 'Na₂CO₃ + H₂SO₄', 'MgCO₃ + HNO₃',
-            'CaO + H₂O', 'SO₃ + H₂O', 'P₂O₅ + H₂O',
-            'KMnO₄ + HCl', 'K₂Cr₂O₇ + HCl', 'FeCl₃ + KI',
-
-            // EDGE CASES & COMPLEX REACTIONS
-            'NH₃ + O₂', 'NH₃ + HCl', 'C₆H₆ + Br₂', 'Fe + S', 'Cu + S',
-            'Al + CuO', 'Mg + CO₂', 'C + Fe₂O₃', 'H₂ + CuO',
-
-            // BIOLOGICAL & INDUSTRIAL
-            'C₆H₁₂O₆', 'CO₂ + H₂O', 'NaCl', 'Al₂O₃', 'CuSO₄'
-        ];
-
-        console.log('Running comprehensive test with', comprehensiveTestReactions.length, 'reactions...');
-
-        let successCount = 0;
-        let failCount = 0;
-        const failures = [];
-
-        comprehensiveTestReactions.forEach(reaction => {
-            const reactants = reaction.split('+').map(r => r.trim()).filter(r => r);
-            const products = this.predictProducts(reactants);
-
-            if (products.length > 0) {
-                successCount++;
-                console.log(`✓ ${reaction} → ${products.join(' + ')}`);
-            } else {
-                failCount++;
-                failures.push(reaction);
-                console.log(`✗ ${reaction} → NO PREDICTION`);
-            }
-        });
-
-        const resultsDiv = document.getElementById('test-results');
-        resultsDiv.innerHTML = `
-            <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <h3 class="font-bold text-lg mb-2">Comprehensive Test Results</h3>
-                <p><strong>Total Reactions:</strong> ${comprehensiveTestReactions.length}</p>
-                <p class="text-green-600"><strong>✓ Working:</strong> ${successCount}</p>
-                <p class="text-red-600"><strong>✗ Missing:</strong> ${failCount}</p>
-                <p><strong>Success Rate:</strong> ${((successCount / comprehensiveTestReactions.length) * 100).toFixed(1)}%</p>
-                ${failures.length > 0 ? `<p class="mt-2"><strong>Missing Reactions:</strong> ${failures.join(', ')}</p>` : ''}
-            </div>
-        `;
-    }
-
-    // Run batch test of common reactions
-    runBatchTest() {
-        const testReactions = [
-            // Basic reactions
-            'H₂ + O₂', 'Na + Cl₂', 'Ca + O₂', 'Mg + O₂',
-
-            // Acid-base
-            'HCl + NaOH', 'H₂SO₄ + KOH', 'HNO₃ + Ca(OH)₂',
-
-            // Metal + water
-            'Na + H₂O', 'K + H₂O', 'Ca + H₂O', 'Fe + H₂O', 'Zn + H₂O', 'Al + H₂O',
-
-            // Metal + acid
-            'Zn + HCl', 'Mg + HCl', 'Fe + HCl', 'Al + H₂SO₄',
-
-            // Combustion
-            'CH₄ + O₂', 'C₂H₆ + O₂', 'C₃H₈ + O₂', 'C₂H₅OH + O₂',
-
-            // Displacement
-            'Zn + CuSO₄', 'Fe + CuSO₄', 'Al + Fe₂O₃', 'Cu + AgNO₃',
-
-            // Reduction
-            'Fe₂O₃ + CO', 'CuO + H₂', 'ZnO + C', 'PbO + CO',
-
-            // Precipitation
-            'AgNO₃ + NaCl', 'Pb(NO₃)₂ + KI', 'BaCl₂ + Na₂SO₄',
-
-            // Decomposition
-            'H₂O₂', 'KClO₃', 'CaCO₃', 'NH₄Cl',
-
-            // Organic
-            'C₂H₄ + H₂', 'C₂H₄ + Br₂', 'C₂H₅OH + H₂SO₄',
-
-            // Complex
-            'KMnO₄ + HCl', 'Cl₂ + NaBr', 'NH₃ + HCl',
-
-            // Biological
-            'CO₂ + H₂O', 'C₆H₁₂O₆ + O₂', 'C₆H₁₂O₆',
-
-            // Electrolysis
-            'NaCl', 'H₂O', 'CuSO₄', 'Al₂O₃',
-
-            // Carbonate + acid
-            'CaCO₃ + HCl', 'Na₂CO₃ + HCl', 'MgCO₃ + H₂SO₄',
-
-            // Oxide + water
-            'CaO + H₂O', 'SO₃ + H₂O', 'CO₂ + H₂O',
-
-            // Halogen displacement
-            'Cl₂ + KBr', 'Br₂ + KI', 'F₂ + NaCl',
-
-            // Less common but important
-            'P + O₂', 'S + O₂', 'N₂ + H₂', 'H₂S + SO₂',
-            'Fe + S', 'Cu + S', 'Pb + S',
-
-            // Industrial processes
-            'CaC₂ + H₂O', 'Al₄C₃ + H₂O', 'Mg₃N₂ + H₂O',
-
-            // Advanced organic
-            'C₂H₂ + H₂O', 'C₆H₆ + Br₂', 'CH₃OH + O₂'
-        ];
-
-        const resultsDiv = document.getElementById('test-results');
-        if (!resultsDiv) return;
-
-        // Clear previous results
-        resultsDiv.innerHTML = '';
-
-        // Add header
-        const header = document.createElement('div');
-        header.className = 'text-lg font-bold text-gray-800 mb-4 pb-2 border-b';
-        header.textContent = `Batch Test Results (${testReactions.length} reactions)`;
-        resultsDiv.appendChild(header);
-
-        let foundCount = 0;
-        let missingCount = 0;
-
-        // Test each reaction
-        testReactions.forEach(reaction => {
-            const reactants = reaction.split('+').map(r => r.trim()).filter(r => r);
-            const products = this.predictProducts(reactants);
-
-            if (products.length > 0) {
-                foundCount++;
-            } else {
-                missingCount++;
-                // Only show missing reactions to identify gaps
-                this.testSingleReaction(reaction);
-            }
-        });
-
-        // Add summary
-        const summary = document.createElement('div');
-        summary.className = 'mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg';
-        summary.innerHTML = `
-            <h3 class="font-bold text-blue-800 mb-2">Test Summary</h3>
-            <div class="grid grid-cols-2 gap-4 text-sm">
-                <div class="text-green-700">
-                    <i class="fas fa-check-circle mr-1"></i>
-                    Found: ${foundCount} reactions (${Math.round(foundCount / testReactions.length * 100)}%)
-                </div>
-                <div class="text-red-700">
-                    <i class="fas fa-times-circle mr-1"></i>
-                    Missing: ${missingCount} reactions (${Math.round(missingCount / testReactions.length * 100)}%)
-                </div>
-            </div>
-            <div class="mt-2 text-xs text-blue-600">
-                Only missing reactions are shown above to help identify database gaps.
-            </div>
-        `;
-        resultsDiv.insertBefore(summary, resultsDiv.firstChild);
-    }
-
-    copyResult() {
-        const balancedEquation = document.getElementById('balanced-equation').textContent;
-        navigator.clipboard.writeText(balancedEquation).then(() => {
-            const copyBtn = document.getElementById('copy-btn');
-            const originalText = copyBtn.innerHTML;
-            copyBtn.innerHTML = '<i class="fas fa-check mr-1"></i> Copied!';
-            copyBtn.classList.remove('bg-gray-600', 'hover:bg-gray-700');
-            copyBtn.classList.add('bg-green-600');
-
-            setTimeout(() => {
-                copyBtn.innerHTML = originalText;
-                copyBtn.classList.remove('bg-green-600');
-                copyBtn.classList.add('bg-gray-600', 'hover:bg-gray-700');
-            }, 2000);
-        });
-    }
-
-    // Carbide hydrolysis reactions
-    isCarbideHydrolysis(reactants) {
-        const carbides = ['CaC₂', 'Al₄C₃', 'Be₂C', 'Mg₂C₃'];
-        return reactants.includes('H₂O') &&
-            reactants.some(r => carbides.includes(r));
-    }
-
-    getCarbideHydrolysisProducts(reactants) {
-        if (reactants.includes('CaC₂')) {
-            return ['C₂H₂', 'Ca(OH)₂'];
-        }
-        if (reactants.includes('Al₄C₃')) {
-            return ['CH₄', 'Al(OH)₃'];
-        }
-        if (reactants.includes('Be₂C')) {
-            return ['CH₄', 'Be(OH)₂'];
-        }
-        if (reactants.includes('Mg₂C₃')) {
-            return ['C₃H₄', 'Mg(OH)₂'];
-        }
-        return [];
-    }
-
-    // Nitride hydrolysis reactions
-    isNitrideHydrolysis(reactants) {
-        const nitrides = ['Mg₃N₂', 'Ca₃N₂', 'AlN', 'Li₃N'];
-        return reactants.includes('H₂O') &&
-            reactants.some(r => nitrides.includes(r));
-    }
-
-    getNitrideHydrolysisProducts(reactants) {
-        if (reactants.includes('Mg₃N₂')) {
-            return ['NH₃', 'Mg(OH)₂'];
-        }
-        if (reactants.includes('Ca₃N₂')) {
-            return ['NH₃', 'Ca(OH)₂'];
-        }
-        if (reactants.includes('AlN')) {
-            return ['NH₃', 'Al(OH)₃'];
-        }
-        if (reactants.includes('Li₃N')) {
-            return ['NH₃', 'LiOH'];
-        }
-        return [];
     }
 }
 
