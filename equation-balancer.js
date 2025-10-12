@@ -570,6 +570,21 @@ const COMPOUND_DATABASE = [
     { formula: "BaCl₂", name: "Barium chloride", category: "Salt" },
     { formula: "NH₄Cl", name: "Ammonium chloride", category: "Salt" },
 
+    // Bromides
+    { formula: "NaBr", name: "Sodium bromide", category: "Salt" },
+    { formula: "KBr", name: "Potassium bromide", category: "Salt" },
+    { formula: "CaBr₂", name: "Calcium bromide", category: "Salt" },
+    { formula: "MgBr₂", name: "Magnesium bromide", category: "Salt" },
+    { formula: "AgBr", name: "Silver bromide", category: "Salt" },
+
+    // Iodides
+    { formula: "NaI", name: "Sodium iodide", category: "Salt" },
+    { formula: "KI", name: "Potassium iodide", category: "Salt" },
+    { formula: "CaI₂", name: "Calcium iodide", category: "Salt" },
+    { formula: "MgI₂", name: "Magnesium iodide", category: "Salt" },
+    { formula: "AgI", name: "Silver iodide", category: "Salt" },
+    { formula: "PbI₂", name: "Lead(II) iodide", category: "Salt" },
+
     // Carbonates and Bicarbonates
     { formula: "Na₂CO₃", name: "Sodium carbonate", category: "Salt" },
     { formula: "K₂CO₃", name: "Potassium carbonate", category: "Salt" },
@@ -1127,6 +1142,9 @@ class EquationBalancerUI {
             // Gases
             'H₂': ['O₂', 'Cl₂', 'Br₂', 'CuO', 'Fe₂O₃'],
             'Cl₂': ['H₂', 'Na', 'K', 'Fe', 'NaBr', 'KI'],
+            'Br₂': ['H₂', 'KI', 'NaI', 'C₂H₄', 'C₆H₆'],
+            'I₂': ['H₂', 'Na₂S₂O₃'],
+            'F₂': ['H₂', 'NaCl', 'KCl', 'KBr', 'KI'],
             'CO₂': ['NaOH', 'KOH', 'Ca(OH)₂', 'Mg', 'C'],
             'NH₃': ['HCl', 'H₂SO₄', 'HNO₃', 'O₂'],
             
@@ -1728,6 +1746,7 @@ class EquationBalancerUI {
     }
 
     getHalogenDisplacementProducts(reactants) {
+        // Sodium halide reactions
         if (reactants.includes('Cl₂') && reactants.includes('NaBr')) {
             return ['NaCl', 'Br₂'];
         }
@@ -1740,6 +1759,27 @@ class EquationBalancerUI {
         if (reactants.includes('F₂') && reactants.includes('NaCl')) {
             return ['NaF', 'Cl₂'];
         }
+        
+        // Potassium halide reactions
+        if (reactants.includes('Cl₂') && reactants.includes('KBr')) {
+            return ['KCl', 'Br₂'];
+        }
+        if (reactants.includes('Cl₂') && reactants.includes('KI')) {
+            return ['KCl', 'I₂'];
+        }
+        if (reactants.includes('Br₂') && reactants.includes('KI')) {
+            return ['KBr', 'I₂'];
+        }
+        if (reactants.includes('F₂') && reactants.includes('KCl')) {
+            return ['KF', 'Cl₂'];
+        }
+        if (reactants.includes('F₂') && reactants.includes('KBr')) {
+            return ['KF', 'Br₂'];
+        }
+        if (reactants.includes('F₂') && reactants.includes('KI')) {
+            return ['KF', 'I₂'];
+        }
+        
         return [];
     }
 
