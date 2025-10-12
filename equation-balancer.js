@@ -862,7 +862,7 @@ class EquationBalancerUI {
 
             reactantsInput.addEventListener('focus', () => {
                 console.log('Reactants input focused, value:', reactantsInput.value);
-                
+
                 // If the input ends with " + ", show smart suggestions
                 if (reactantsInput.value.endsWith(' + ')) {
                     const compounds = reactantsInput.value.replace(' + ', '').split('+').map(c => c.trim()).filter(c => c);
@@ -872,7 +872,7 @@ class EquationBalancerUI {
                         return;
                     }
                 }
-                
+
                 // Check if products field has content - show smart reactant suggestions
                 const productsValue = productsInput.value.trim();
                 if (productsValue && !reactantsInput.value.trim()) {
@@ -880,7 +880,7 @@ class EquationBalancerUI {
                     this.showSmartSuggestionsBasedOnOtherField('reactants', productsValue);
                     return;
                 }
-                
+
                 this.showDropdown('reactants');
                 // Filter based on current input
                 const query = this.getCurrentCompound(reactantsInput.value);
@@ -893,19 +893,19 @@ class EquationBalancerUI {
                     console.log('Space bar pressed, current value:', e.target.value);
                     e.preventDefault(); // Prevent the space from being added normally
                     e.stopPropagation(); // Prevent other handlers from interfering
-                    
+
                     const currentValue = e.target.value.trim();
                     console.log('Adding + and showing suggestions for:', currentValue);
-                    
+
                     // Add " + " to the input
                     e.target.value = currentValue + ' + ';
                     e.target.setSelectionRange(e.target.value.length, e.target.value.length);
-                    
+
                     // Show smart suggestions with a small delay to ensure it's not immediately closed
                     setTimeout(() => {
                         console.log('Calling showSmartSuggestions...');
                         this.showSmartSuggestions('reactants', currentValue);
-                        
+
                         // Update product suggestions
                         this.updateProductSuggestions();
                     }, 10);
@@ -914,7 +914,7 @@ class EquationBalancerUI {
 
             reactantsInput.addEventListener('input', (e) => {
                 console.log('Input event fired, value:', e.target.value, 'inputType:', e.inputType, 'showingSmartSuggestions:', this.showingSmartSuggestions);
-                
+
                 // Don't process if we're showing smart suggestions or value ends with " + "
                 if (this.showingSmartSuggestions || e.target.value.endsWith(' + ')) {
                     console.log('Skipping input event - smart suggestions active or value ends with " + "');
@@ -923,13 +923,13 @@ class EquationBalancerUI {
 
                 const query = this.getCurrentCompound(e.target.value);
                 console.log('Processing input event normally, query:', query);
-                
+
                 this.showDropdown('reactants');
                 this.filterDropdown('reactants', query);
-                
+
                 // Update product suggestions when reactants change
                 this.updateProductSuggestions();
-                
+
                 // Update product placeholder in real-time
                 this.updateProductPlaceholder();
             });
@@ -953,7 +953,7 @@ class EquationBalancerUI {
                     productsInput.classList.remove('has-suggestion');
                     productsInput.style.color = '';
                 }
-                
+
                 // Check if reactants field has content - show smart product suggestions
                 const reactantsValue = reactantsInput.value.trim();
                 if (reactantsValue && !productsInput.value.trim()) {
@@ -961,7 +961,7 @@ class EquationBalancerUI {
                     this.showSmartSuggestionsBasedOnOtherField('products', reactantsValue);
                     return;
                 }
-                
+
                 this.showDropdown('products');
                 const query = this.getCurrentCompound(productsInput.value);
                 this.filterDropdown('products', query);
@@ -975,12 +975,12 @@ class EquationBalancerUI {
                     productsInput.style.color = '';
                 } else if (e.key === ' ' && e.target.value.trim() && !e.target.value.endsWith(' ') && !e.target.value.endsWith('+')) {
                     e.preventDefault(); // Prevent the space from being added normally
-                    
+
                     const currentValue = e.target.value.trim();
                     // Add " + " to the input
                     e.target.value = currentValue + ' + ';
                     e.target.setSelectionRange(e.target.value.length, e.target.value.length);
-                    
+
                     // Show smart suggestions based on what was typed
                     this.showSmartSuggestions('products', currentValue);
                 }
@@ -1002,7 +1002,7 @@ class EquationBalancerUI {
 
                 this.showDropdown('products');
                 this.filterDropdown('products', query);
-                
+
                 // Update reactant placeholder in real-time
                 this.updateReactantPlaceholder();
             });
@@ -1018,17 +1018,17 @@ class EquationBalancerUI {
     updateProductPlaceholder() {
         const reactantsInput = document.getElementById('reactants-input');
         const productsInput = document.getElementById('products-input');
-        
+
         if (!reactantsInput || !productsInput) return;
         if (productsInput.value.trim()) return; // Don't override if user has typed something
 
         const reactants = reactantsInput.value.split('+').map(r => r.trim()).filter(r => r);
         console.log('updateProductPlaceholder - reactants:', reactants);
-        
+
         if (reactants.length > 0) {
             const suggestedProducts = this.predictProducts(reactants);
             console.log('updateProductPlaceholder - suggestedProducts:', suggestedProducts);
-            
+
             if (suggestedProducts.length > 0) {
                 productsInput.placeholder = suggestedProducts.join(' + ');
                 console.log('Set placeholder to:', suggestedProducts.join(' + '));
@@ -1045,7 +1045,7 @@ class EquationBalancerUI {
     updateReactantPlaceholder() {
         const reactantsInput = document.getElementById('reactants-input');
         const productsInput = document.getElementById('products-input');
-        
+
         if (!reactantsInput || !productsInput) return;
         if (reactantsInput.value.trim()) return; // Don't override if user has typed something
 
@@ -1067,7 +1067,7 @@ class EquationBalancerUI {
         console.log('getSmartSuggestions called with:', type, currentCompounds);
         const existing = currentCompounds.split('+').map(c => c.trim()).filter(c => c);
         console.log('Existing compounds:', existing);
-        
+
         if (type === 'reactants') {
             const suggestions = this.getReactantSuggestions(existing);
             console.log('Reactant suggestions:', suggestions);
@@ -1080,7 +1080,7 @@ class EquationBalancerUI {
     // Get smart reactant suggestions based on what's already entered
     getReactantSuggestions(existingReactants) {
         const suggestions = [];
-        
+
         // Common reaction patterns - much more comprehensive
         const patterns = {
             // Acids - suggest bases and metals
@@ -1089,13 +1089,13 @@ class EquationBalancerUI {
             'HNO₃': ['NaOH', 'KOH', 'Ca(OH)₂', 'Mg(OH)₂', 'Cu', 'Ag', 'Zn', 'Fe', 'Al'],
             'CH₃COOH': ['NaOH', 'KOH', 'Ca(OH)₂', 'Mg(OH)₂', 'Na₂CO₃', 'CaCO₃'],
             'H₃PO₄': ['NaOH', 'KOH', 'Ca(OH)₂', 'Mg(OH)₂'],
-            
+
             // Bases - suggest acids
             'NaOH': ['HCl', 'H₂SO₄', 'HNO₃', 'CH₃COOH', 'H₃PO₄', 'CO₂'],
             'KOH': ['HCl', 'H₂SO₄', 'HNO₃', 'CH₃COOH', 'H₃PO₄', 'CO₂'],
             'Ca(OH)₂': ['HCl', 'H₂SO₄', 'HNO₃', 'CH₃COOH', 'CO₂'],
             'Mg(OH)₂': ['HCl', 'H₂SO₄', 'HNO₃', 'CH₃COOH'],
-            
+
             // Metals - suggest oxygen, acids, water, or salts
             'Fe': ['O₂', 'HCl', 'H₂SO₄', 'CuSO₄', 'AgNO₃', 'H₂O', 'S'],
             'Cu': ['O₂', 'HNO₃', 'H₂SO₄', 'AgNO₃', 'S'],
@@ -1105,7 +1105,7 @@ class EquationBalancerUI {
             'Ca': ['O₂', 'HCl', 'H₂SO₄', 'H₂O'],
             'Na': ['O₂', 'H₂O', 'Cl₂'],
             'K': ['O₂', 'H₂O', 'Cl₂'],
-            
+
             // Hydrocarbons - suggest oxygen for combustion
             'CH₄': ['O₂'],
             'C₂H₆': ['O₂'],
@@ -1114,31 +1114,41 @@ class EquationBalancerUI {
             'C₂H₄': ['O₂', 'Br₂', 'H₂O'],
             'C₂H₂': ['O₂', 'H₂O'],
             'C₆H₆': ['O₂', 'Br₂'],
-            'C₂H₅OH': ['O₂'],
-            'CH₃OH': ['O₂'],
-            
+            'C₂H₅OH': ['O₂', 'K₂Cr₂O₇', 'KMnO₄'],
+            'CH₃OH': ['O₂', 'K₂Cr₂O₇', 'KMnO₄'],
+            'C₆H₁₂O₆': ['O₂', 'C₂H₅OH'],
+
             // Oxygen - suggest fuels and metals
             'O₂': ['CH₄', 'C₂H₆', 'C₃H₈', 'C₂H₄', 'C₂H₂', 'Fe', 'Cu', 'Zn', 'Al', 'Mg', 'Ca', 'Na', 'K', 'S', 'P'],
-            
+
             // Salts for double displacement
             'NaCl': ['AgNO₃', 'Pb(NO₃)₂', 'Ca(NO₃)₂', 'H₂SO₄'],
             'AgNO₃': ['NaCl', 'KCl', 'CaCl₂', 'HCl'],
             'Pb(NO₃)₂': ['NaCl', 'KCl', 'CaCl₂', 'H₂SO₄'],
             'CuSO₄': ['NaOH', 'KOH', 'BaCl₂', 'Zn', 'Fe', 'Al'],
             'FeCl₃': ['NaOH', 'KOH', 'AgNO₃'],
-            
+
+            // More salts
+            'BaCl₂': ['H₂SO₄', 'Na₂SO₄', 'K₂SO₄', 'AgNO₃'],
+            'MgSO₄': ['NaOH', 'KOH', 'BaCl₂'],
+            'ZnSO₄': ['NaOH', 'KOH', 'BaCl₂', 'Fe', 'Al'],
+            'FeSO₄': ['NaOH', 'KOH', 'BaCl₂'],
+            'AlCl₃': ['NaOH', 'KOH', 'AgNO₃'],
+            'CaCl₂': ['H₂SO₄', 'Na₂SO₄', 'AgNO₃', 'Na₂CO₃'],
+            'MgCl₂': ['H₂SO₄', 'Na₂SO₄', 'AgNO₃', 'NaOH'],
+
             // Carbonates - suggest acids
             'CaCO₃': ['HCl', 'H₂SO₄', 'HNO₃', 'CH₃COOH'],
             'Na₂CO₃': ['HCl', 'H₂SO₄', 'HNO₃', 'CH₃COOH'],
             'MgCO₃': ['HCl', 'H₂SO₄', 'HNO₃'],
-            
+
             // Oxides - suggest acids or water
             'CaO': ['H₂O', 'HCl', 'H₂SO₄', 'CO₂'],
             'MgO': ['H₂O', 'HCl', 'H₂SO₄'],
             'Fe₂O₃': ['HCl', 'H₂SO₄', 'Al', 'CO'],
             'CuO': ['HCl', 'H₂SO₄', 'H₂'],
             'Al₂O₃': ['HCl', 'H₂SO₄'],
-            
+
             // Gases
             'H₂': ['O₂', 'Cl₂', 'Br₂', 'CuO', 'Fe₂O₃'],
             'Cl₂': ['H₂', 'Na', 'K', 'Fe', 'NaBr', 'KI'],
@@ -1147,7 +1157,17 @@ class EquationBalancerUI {
             'F₂': ['H₂', 'NaCl', 'KCl', 'KBr', 'KI'],
             'CO₂': ['NaOH', 'KOH', 'Ca(OH)₂', 'Mg', 'C'],
             'NH₃': ['HCl', 'H₂SO₄', 'HNO₃', 'O₂'],
-            
+
+            // Important gases and compounds
+            'H₂O₂': ['KI', 'MnO₂', 'FeCl₃'],
+            'SO₂': ['O₂', 'NaOH', 'KOH', 'Ca(OH)₂'],
+            'NO₂': ['H₂O', 'NaOH', 'KOH'],
+            'CO': ['O₂', 'Fe₂O₃', 'CuO'],
+            'H₂S': ['O₂', 'SO₂', 'FeCl₃', 'CuSO₄'],
+            'N₂': ['H₂', 'O₂'],
+            'P₄': ['O₂', 'Cl₂'],
+            'S': ['O₂', 'Fe', 'Cu', 'Zn', 'H₂'],
+
             // Water
             'H₂O': ['Na', 'K', 'Ca', 'CaO', 'MgO', 'SO₃', 'P₂O₅'],
         };
@@ -1171,20 +1191,20 @@ class EquationBalancerUI {
     // Get smart product suggestions based on what's already entered
     getProductSuggestions(existingProducts) {
         const suggestions = [];
-        
+
         // Common product patterns
         const patterns = {
             // If we have water, suggest salts or gases
             'H₂O': ['NaCl', 'CO₂', 'CaCl₂', 'MgCl₂'],
-            
+
             // If we have CO₂, suggest water (combustion products)
             'CO₂': ['H₂O'],
-            
+
             // If we have a salt, suggest water
             'NaCl': ['H₂O', 'AgCl'],
             'CaCl₂': ['H₂O', 'CO₂'],
             'MgCl₂': ['H₂O'],
-            
+
             // If we have an oxide, suggest water or CO₂
             'CaO': ['H₂O', 'CO₂'],
             'MgO': ['H₂O'],
@@ -1213,14 +1233,14 @@ class EquationBalancerUI {
     updateProductSuggestions() {
         const reactantsInput = document.getElementById('reactants-input');
         const productsInput = document.getElementById('products-input');
-        
+
         if (!reactantsInput || !productsInput || !reactantsInput.value.trim()) {
             return;
         }
 
         const reactants = reactantsInput.value.split('+').map(r => r.trim()).filter(r => r);
         const suggestedProducts = this.predictProducts(reactants);
-        
+
         if (suggestedProducts.length > 0 && !productsInput.value.trim()) {
             const suggestion = suggestedProducts.join(' + ');
             productsInput.value = suggestion;
@@ -1235,16 +1255,27 @@ class EquationBalancerUI {
         if (reactants.length === 0) return [];
 
         const products = [];
-        
+
+        // Debug specific problematic reactions
+        if (reactants.includes('H₂S') && reactants.includes('O₂')) {
+            console.log('DEBUG: H₂S + O₂ detected, checking synthesis...');
+        }
+        if (reactants.includes('NH₃') && reactants.includes('O₂')) {
+            console.log('DEBUG: NH₃ + O₂ detected, checking synthesis...');
+        }
+        if (reactants.includes('Mg') && reactants.includes('CO₂')) {
+            console.log('DEBUG: Mg + CO₂ detected, checking reduction...');
+        }
+
         // Handle single reactants - suggest what they commonly react with
         if (reactants.length === 1) {
             return this.getSingleReactantProducts(reactants[0]);
         }
-        
+
         // Handle multiple reactants - ORDERED BY SPECIFICITY (most specific first)
-        
+
         // Handle multiple reactants - ORDERED BY SPECIFICITY (most specific first)
-        
+
         // 1. VERY SPECIFIC REACTIONS (exact compound matches)
         if (this.isPhotosynthesisReaction(reactants)) {
             products.push(...this.getPhotosynthesisProducts(reactants));
@@ -1257,21 +1288,31 @@ class EquationBalancerUI {
         } else if (this.isDecompositionReaction(reactants)) {
             products.push(...this.getDecompositionProducts(reactants));
         }
-        
+
         // 2. DISPLACEMENT REACTIONS (check before general compound types)
-        else if (this.isSingleDisplacement(reactants)) {
+        else if (this.isDoubleDisplacement(reactants)) {
+            console.log('Detected: double displacement for:', reactants);
+            products.push(...this.getDoubleDisplacementProducts(reactants));
+        } else if (this.isReductionReaction(reactants)) {
+            console.log('Detected: reduction');
+            products.push(...this.getReductionProducts(reactants));
+        } else if (this.isSingleDisplacement(reactants)) {
             console.log('Single displacement detected, getting products...');
             products.push(...this.getSingleDisplacementProducts(reactants));
         } else if (this.isHalogenDisplacement(reactants)) {
             products.push(...this.getHalogenDisplacementProducts(reactants));
+        } else if (this.isSynthesisReaction(reactants)) {
+            console.log('Detected: synthesis reaction for:', reactants);
+            products.push(...this.getSynthesisProducts(reactants));
         }
-        
+
         // 2.5. SPECIFIC COMPOUND TYPE REACTIONS
         else if (this.isCarbonatAcidReaction(reactants)) {
             products.push(...this.getCarbonateAcidProducts(reactants));
         } else if (this.isAmmoniaReaction(reactants)) {
             products.push(...this.getAmmoniaProducts(reactants));
         } else if (this.isPeroxideReaction(reactants)) {
+            console.log('Detected: peroxide reaction');
             products.push(...this.getPeroxideProducts(reactants));
         } else if (this.isNitrateReaction(reactants)) {
             products.push(...this.getNitrateProducts(reactants));
@@ -1280,7 +1321,7 @@ class EquationBalancerUI {
         } else if (this.isPhosphateReaction(reactants)) {
             products.push(...this.getPhosphateProducts(reactants));
         }
-        
+
         // 3. ORGANIC REACTIONS (specific organic patterns)
         else if (this.isHydrogenationReaction(reactants)) {
             products.push(...this.getHydrogenationProducts(reactants));
@@ -1295,17 +1336,15 @@ class EquationBalancerUI {
         } else if (this.isOrganicReaction(reactants)) {
             products.push(...this.getOrganicProducts(reactants));
         }
-        
 
-        
+
+
         // 4. REDOX REACTIONS (specific patterns)
-        else if (this.isReductionReaction(reactants)) {
-            console.log('Detected: reduction');
-            products.push(...this.getReductionProducts(reactants));
-        } else if (this.isRedoxReaction(reactants)) {
+        else if (this.isRedoxReaction(reactants)) {
+            console.log('Detected: redox reaction');
             products.push(...this.getRedoxProducts(reactants));
         }
-        
+
         // 5. METAL REACTIONS (specific metal + other compound)
         else if (this.isMetalWaterReaction(reactants)) {
             products.push(...this.getMetalWaterProducts(reactants));
@@ -1316,18 +1355,15 @@ class EquationBalancerUI {
         } else if (this.isComplexOxideReaction(reactants)) {
             products.push(...this.getComplexOxideProducts(reactants));
         }
-        
+
         // 6. GENERAL REACTION TYPES (broader patterns)
         else if (this.isAcidBaseReaction(reactants)) {
+            console.log('Detected: acid-base reaction for:', reactants);
             products.push(...this.getAcidBaseProducts(reactants));
-        } else if (this.isDoubleDisplacement(reactants)) {
-            products.push(...this.getDoubleDisplacementProducts(reactants));
         } else if (this.isOxideWaterReaction(reactants)) {
             products.push(...this.getOxideWaterProducts(reactants));
         } else if (this.isCombustionReaction(reactants)) {
             products.push('CO₂', 'H₂O');
-        } else if (this.isSynthesisReaction(reactants)) {
-            products.push(...this.getSynthesisProducts(reactants));
         }
         console.log('predictProducts returning:', products);
         return products;
@@ -1346,21 +1382,21 @@ class EquationBalancerUI {
             'C₆H₆': ['CO₂', 'H₂O'],
             'C₂H₅OH': ['CO₂', 'H₂O'],
             'CH₃OH': ['CO₂', 'H₂O'],
-            
+
             // Acids
             'HCl': ['NaCl', 'H₂O'],
             'H₂SO₄': ['Na₂SO₄', 'H₂O'],
             'HNO₃': ['NaNO₃', 'H₂O'],
             'CH₃COOH': ['CH₃COONa', 'H₂O'],
             'H₃PO₄': ['Na₃PO₄', 'H₂O'],
-            
+
             // Bases
             'NaOH': ['NaCl', 'H₂O'],
             'KOH': ['KCl', 'H₂O'],
             'Ca(OH)₂': ['CaCl₂', 'H₂O'],
             'Mg(OH)₂': ['MgCl₂', 'H₂O'],
             'Ba(OH)₂': ['BaCl₂', 'H₂O'],
-            
+
             // Metals
             'Fe': ['Fe₂O₃'],
             'Cu': ['CuO'],
@@ -1370,50 +1406,50 @@ class EquationBalancerUI {
             'Ca': ['CaO'],
             'Na': ['Na₂O'],
             'K': ['K₂O'],
-            
+
             // Elements
             'H₂': ['H₂O'],
             'O₂': ['H₂O'],
             'N₂': ['NH₃'],
             'Cl₂': ['NaCl'],
-            
+
             // Compounds that decompose
             'H₂O₂': ['H₂O', 'O₂'],
             'KClO₃': ['KCl', 'O₂'],
             'CaCO₃': ['CaO', 'CO₂'],
             'H₂CO₃': ['H₂O', 'CO₂'],
             'NH₄Cl': ['NH₃', 'HCl'],
-            
+
             // Metal oxides with reducing agents
             'Fe₂O₃': ['Fe', 'CO₂'], // with CO
             'CuO': ['Cu', 'H₂O'], // with H₂
             'ZnO': ['Zn', 'CO'], // with C
             'PbO': ['Pb', 'CO₂'], // with CO
             'MnO₂': ['Mn', 'CO₂'], // with C
-            
+
             // Steam reactions (high temperature metal + water)
             'Fe': ['Fe₃O₄', 'H₂'], // with H₂O at high temp
             'Zn': ['ZnO', 'H₂'], // with H₂O at high temp
             'Al': ['Al₂O₃', 'H₂'], // with H₂O at high temp
             'Cr': ['Cr₂O₃', 'H₂'], // with H₂O at high temp
             'Ni': ['NiO', 'H₂'], // with H₂O at high temp
-            
+
             // Complex compounds
             'KMnO₄': ['KCl', 'MnCl₂', 'Cl₂', 'H₂O'], // with HCl
             'AgNO₃': ['AgCl', 'NaNO₃'], // with NaCl
             'Pb(NO₃)₂': ['PbI₂', 'KNO₃'], // with KI
             'FeCl₃': ['FeCl₂', 'KCl', 'I₂'], // with KI
-            
+
             // Biological reactions
             'C₆H₁₂O₆': ['CO₂', 'H₂O'], // respiration with O₂
             'CO₂': ['C₆H₁₂O₆', 'O₂'], // photosynthesis with H₂O
-            
+
             // Organic reactions
             'C₂H₄': ['C₂H₆'], // hydrogenation with H₂
             'C₂H₂': ['C₂H₄'], // hydrogenation with H₂
             'C₂H₅OH': ['C₂H₄', 'H₂O'], // dehydration
             'CH₃OH': ['HCHO', 'H₂O'], // oxidation
-            
+
             // Electrolysis
             'H₂O': ['H₂', 'O₂'], // electrolysis
             'NaCl': ['Na', 'Cl₂'], // electrolysis
@@ -1427,15 +1463,16 @@ class EquationBalancerUI {
     // Check for synthesis reactions (A + B → AB)
     isSynthesisReaction(reactants) {
         if (reactants.length !== 2) return false;
-        
+
         const synthesisPairs = [
             ['H₂', 'O₂'], ['H₂', 'Cl₂'], ['H₂', 'Br₂'], ['H₂', 'I₂'],
             ['Na', 'Cl₂'], ['K', 'Cl₂'], ['Ca', 'Cl₂'], ['Mg', 'Cl₂'],
-            ['N₂', 'H₂'], ['N₂', 'O₂'], ['S', 'O₂'], ['P', 'O₂'],
-            ['C', 'O₂'], ['Fe', 'S'], ['Cu', 'S'], ['Zn', 'S'], ['Pb', 'S']
+            ['N₂', 'H₂'], ['N₂', 'O₂'], ['S', 'O₂'], ['P', 'O₂'], ['P₄', 'O₂'],
+            ['C', 'O₂'], ['CO', 'O₂'], ['H₂S', 'O₂'], ['NH₃', 'O₂'], ['SO₂', 'O₂'],
+            ['Fe', 'S'], ['Cu', 'S'], ['Zn', 'S'], ['Pb', 'S']
         ];
-        
-        return synthesisPairs.some(pair => 
+
+        return synthesisPairs.some(pair =>
             (reactants.includes(pair[0]) && reactants.includes(pair[1])) ||
             (reactants.includes(pair[1]) && reactants.includes(pair[0]))
         );
@@ -1455,27 +1492,33 @@ class EquationBalancerUI {
             'N₂+O₂': ['NO'],
             'O₂+S': ['SO₂'],
             'O₂+P': ['P₂O₅'],
+            'O₂+P₄': ['P₂O₅'],
             'C+O₂': ['CO₂'],
+            'CO+O₂': ['CO₂'],
+            'H₂S+O₂': ['SO₂', 'H₂O'],
+            'NH₃+O₂': ['NO', 'H₂O'],
+            'O₂+SO₂': ['SO₃'],
             'Fe+S': ['FeS'],
             'Cu+S': ['CuS'],
             'Pb+S': ['PbS'],
             'S+Zn': ['ZnS']
         };
-        
+
         const key = reactants.sort().join('+');
+        console.log('Synthesis key generated:', key, 'Found in map:', synthesisMap[key]);
         return synthesisMap[key] || [];
     }
 
     // Check for decomposition reactions
     isDecompositionReaction(reactants) {
         if (reactants.length !== 1) return false;
-        
+
         const decomposableCompounds = [
             'H₂O₂', 'KClO₃', 'NaClO₃', 'CaCO₃', 'MgCO₃', 'Na₂CO₃',
             'H₂CO₃', 'NH₄Cl', 'NH₄NO₃', 'CuCO₃', 'ZnCO₃', 'PbCO₃',
             'Ag₂O', 'HgO', 'Cu(OH)₂', 'Fe(OH)₃', 'Al(OH)₃'
         ];
-        
+
         return decomposableCompounds.includes(reactants[0]);
     }
 
@@ -1499,22 +1542,22 @@ class EquationBalancerUI {
             'Fe(OH)₃': ['Fe₂O₃', 'H₂O'],
             'Al(OH)₃': ['Al₂O₃', 'H₂O']
         };
-        
+
         return decompositionMap[reactants[0]] || [];
     }
 
     // Check for single displacement reactions
     isSingleDisplacement(reactants) {
         if (reactants.length !== 2) return false;
-        
+
         const metals = ['Fe', 'Cu', 'Zn', 'Al', 'Mg', 'Ca', 'Na', 'K', 'Li', 'Ag', 'Pb'];
         const metalSalts = ['CuSO₄', 'ZnSO₄', 'FeSO₄', 'AgNO₃', 'Pb(NO₃)₂', 'CuCl₂', 'FeCl₃', 'AlCl₃', 'Fe₂O₃'];
-        
+
         const hasMetal = reactants.some(r => metals.includes(r));
         const hasMetalSalt = reactants.some(r => metalSalts.includes(r));
-        
+
         console.log('isSingleDisplacement check:', reactants, 'hasMetal:', hasMetal, 'hasMetalSalt:', hasMetalSalt);
-        
+
         // Single displacement requires a free metal + a metal salt/oxide (not water, acids, etc.)
         return hasMetal && hasMetalSalt;
     }
@@ -1554,9 +1597,9 @@ class EquationBalancerUI {
     isMetalAcidReaction(reactants) {
         const metals = ['Fe', 'Cu', 'Zn', 'Al', 'Mg', 'Ca', 'Na', 'K'];
         const acids = ['HCl', 'H₂SO₄', 'HNO₃'];
-        
-        return reactants.some(r => metals.includes(r)) && 
-               reactants.some(r => acids.includes(r));
+
+        return reactants.some(r => metals.includes(r)) &&
+            reactants.some(r => acids.includes(r));
     }
 
     getMetalAcidProducts(reactants) {
@@ -1579,11 +1622,11 @@ class EquationBalancerUI {
     // Metal + Water reactions (expanded to include steam reactions)
     isMetalWaterReaction(reactants) {
         if (reactants.length !== 2) return false;
-        
+
         const metals = ['Na', 'K', 'Li', 'Ca', 'Mg', 'Fe', 'Zn', 'Al', 'Cr', 'Ni', 'Co', 'Mn', 'Sn', 'Pb'];
         const hasWater = reactants.includes('H₂O');
         const hasMetal = reactants.some(r => metals.includes(r));
-        
+
         return hasWater && hasMetal;
     }
 
@@ -1594,7 +1637,7 @@ class EquationBalancerUI {
         if (reactants.includes('Li')) return ['LiOH', 'H₂'];
         if (reactants.includes('Ca')) return ['Ca(OH)₂', 'H₂'];
         if (reactants.includes('Mg')) return ['Mg(OH)₂', 'H₂'];
-        
+
         // Steam reactions (high temperature)
         if (reactants.includes('Fe')) return ['Fe₃O₄', 'H₂'];
         if (reactants.includes('Zn')) return ['ZnO', 'H₂'];
@@ -1605,15 +1648,15 @@ class EquationBalancerUI {
         if (reactants.includes('Mn')) return ['MnO', 'H₂'];
         if (reactants.includes('Sn')) return ['SnO₂', 'H₂'];
         if (reactants.includes('Pb')) return ['PbO', 'H₂'];
-        
+
         return ['H₂'];
     }
 
     // Oxide + Water reactions
     isOxideWaterReaction(reactants) {
         const oxides = ['CaO', 'MgO', 'Na₂O', 'K₂O', 'SO₃', 'CO₂', 'P₂O₅'];
-        return reactants.includes('H₂O') && 
-               reactants.some(r => oxides.includes(r));
+        return reactants.includes('H₂O') &&
+            reactants.some(r => oxides.includes(r));
     }
 
     getOxideWaterProducts(reactants) {
@@ -1631,9 +1674,9 @@ class EquationBalancerUI {
     isCarbonatAcidReaction(reactants) {
         const carbonates = ['CaCO₃', 'MgCO₃', 'Na₂CO₃', 'K₂CO₃', 'ZnCO₃', 'CuCO₃'];
         const acids = ['HCl', 'H₂SO₄', 'HNO₃', 'CH₃COOH'];
-        
-        return reactants.some(r => carbonates.includes(r)) && 
-               reactants.some(r => acids.includes(r));
+
+        return reactants.some(r => carbonates.includes(r)) &&
+            reactants.some(r => acids.includes(r));
     }
 
     getCarbonateAcidProducts(reactants) {
@@ -1649,11 +1692,11 @@ class EquationBalancerUI {
 
     // Reduction reactions (Metal oxide + reducing agent)
     isReductionReaction(reactants) {
-        const metalOxides = ['Fe₂O₃', 'CuO', 'ZnO', 'Al₂O₃', 'MgO', 'CaO', 'PbO', 'SnO₂', 'Cr₂O₃', 'MnO₂'];
+        const metalOxides = ['Fe₂O₃', 'CuO', 'ZnO', 'Al₂O₃', 'MgO', 'CaO', 'PbO', 'SnO₂', 'Cr₂O₃', 'MnO₂', 'CO₂'];
         const reducingAgents = ['CO', 'H₂', 'C', 'Al', 'Mg', 'Zn', 'Fe'];
-        
-        return reactants.some(r => metalOxides.includes(r)) && 
-               reactants.some(r => reducingAgents.includes(r));
+
+        return reactants.some(r => metalOxides.includes(r)) &&
+            reactants.some(r => reducingAgents.includes(r));
     }
 
     getReductionProducts(reactants) {
@@ -1672,6 +1715,12 @@ class EquationBalancerUI {
         }
         if (reactants.includes('PbO') && reactants.includes('CO')) {
             return ['Pb', 'CO₂'];
+        }
+        if (reactants.includes('CuO') && reactants.includes('Al')) {
+            return ['Cu', 'Al₂O₃'];
+        }
+        if (reactants.includes('CO₂') && reactants.includes('Mg')) {
+            return ['MgO', 'CO'];
         }
         if (reactants.includes('CuO') && reactants.includes('CO')) {
             return ['Cu', 'CO₂'];
@@ -1698,8 +1747,8 @@ class EquationBalancerUI {
             ['Br₂', 'KI'], ['Cl₂', 'KBr'], ['I₂', 'Na₂S₂O₃'],
             ['FeCl₃', 'KI'], ['CuSO₄', 'KI'], ['AgNO₃', 'Cu']
         ];
-        
-        return redoxPairs.some(pair => 
+
+        return redoxPairs.some(pair =>
             (reactants.includes(pair[0]) && reactants.includes(pair[1])) ||
             (reactants.includes(pair[1]) && reactants.includes(pair[0]))
         );
@@ -1740,9 +1789,9 @@ class EquationBalancerUI {
     isHalogenDisplacement(reactants) {
         const halogens = ['F₂', 'Cl₂', 'Br₂', 'I₂'];
         const halides = ['NaF', 'NaCl', 'NaBr', 'NaI', 'KF', 'KCl', 'KBr', 'KI'];
-        
-        return reactants.some(r => halogens.includes(r)) && 
-               reactants.some(r => halides.includes(r));
+
+        return reactants.some(r => halogens.includes(r)) &&
+            reactants.some(r => halides.includes(r));
     }
 
     getHalogenDisplacementProducts(reactants) {
@@ -1759,7 +1808,7 @@ class EquationBalancerUI {
         if (reactants.includes('F₂') && reactants.includes('NaCl')) {
             return ['NaF', 'Cl₂'];
         }
-        
+
         // Potassium halide reactions
         if (reactants.includes('Cl₂') && reactants.includes('KBr')) {
             return ['KCl', 'Br₂'];
@@ -1779,14 +1828,14 @@ class EquationBalancerUI {
         if (reactants.includes('F₂') && reactants.includes('KI')) {
             return ['KF', 'I₂'];
         }
-        
+
         return [];
     }
 
     // Ammonia-related reactions
     isAmmoniaReaction(reactants) {
-        return reactants.includes('NH₃') || reactants.includes('NH₄Cl') || 
-               reactants.includes('(NH₄)₂SO₄') || reactants.includes('NH₄NO₃');
+        return reactants.includes('NH₃') || reactants.includes('NH₄Cl') ||
+            reactants.includes('(NH₄)₂SO₄') || reactants.includes('NH₄NO₃');
     }
 
     getAmmoniaProducts(reactants) {
@@ -1815,8 +1864,14 @@ class EquationBalancerUI {
     }
 
     getPeroxideProducts(reactants) {
+        if (reactants.includes('H₂O₂') && reactants.includes('KI')) {
+            return ['KOH', 'I₂'];
+        }
         if (reactants.includes('H₂O₂') && reactants.includes('MnO₂')) {
             return ['H₂O', 'O₂', 'MnO₂']; // MnO₂ is catalyst
+        }
+        if (reactants.includes('H₂O₂') && reactants.includes('FeCl₃')) {
+            return ['FeCl₂', 'HCl', 'H₂O', 'O₂'];
         }
         if (reactants.includes('Na₂O₂') && reactants.includes('H₂O')) {
             return ['NaOH', 'O₂'];
@@ -1897,9 +1952,9 @@ class EquationBalancerUI {
     isComplexOxideReaction(reactants) {
         const metals = ['Fe', 'Cr', 'Mn', 'Co', 'Ni', 'Cu', 'Pb', 'Sn'];
         const oxidizers = ['O₂', 'H₂O', 'CO₂', 'NO₂', 'SO₂'];
-        
-        return reactants.some(r => metals.includes(r)) && 
-               reactants.some(r => oxidizers.includes(r));
+
+        return reactants.some(r => metals.includes(r)) &&
+            reactants.some(r => oxidizers.includes(r));
     }
 
     getComplexOxideProducts(reactants) {
@@ -1922,10 +1977,10 @@ class EquationBalancerUI {
     // Organic reactions
     isOrganicReaction(reactants) {
         const organics = ['C₂H₄', 'C₂H₂', 'CH₃OH', 'C₂H₅OH', 'CH₃COOH', 'C₆H₆', 'C₆H₁₂O₆'];
-        const reagents = ['H₂', 'Br₂', 'Cl₂', 'H₂O', 'O₂', 'KMnO₄'];
-        
-        return reactants.some(r => organics.includes(r)) && 
-               reactants.some(r => reagents.includes(r));
+        const reagents = ['H₂', 'Br₂', 'Cl₂', 'H₂O', 'O₂', 'KMnO₄', 'K₂Cr₂O₇'];
+
+        return reactants.some(r => organics.includes(r)) &&
+            reactants.some(r => reagents.includes(r));
     }
 
     getOrganicProducts(reactants) {
@@ -1945,7 +2000,7 @@ class EquationBalancerUI {
         if (reactants.includes('C₂H₂') && reactants.includes('H₂O')) {
             return ['CH₃CHO'];
         }
-        
+
         // Substitution reactions
         if (reactants.includes('C₆H₆') && reactants.includes('Br₂')) {
             return ['C₆H₅Br', 'HBr'];
@@ -1953,15 +2008,21 @@ class EquationBalancerUI {
         if (reactants.includes('C₆H₆') && reactants.includes('Cl₂')) {
             return ['C₆H₅Cl', 'HCl'];
         }
-        
+
         // Oxidation reactions
         if (reactants.includes('C₂H₅OH') && reactants.includes('O₂')) {
             return ['CH₃COOH', 'H₂O'];
         }
+        if (reactants.includes('C₂H₅OH') && reactants.includes('K₂Cr₂O₇')) {
+            return ['CH₃COOH', 'Cr₂O₃', 'K₂O', 'H₂O'];
+        }
+        if (reactants.includes('CH₃OH') && reactants.includes('KMnO₄')) {
+            return ['HCHO', 'MnO₂', 'KOH', 'H₂O'];
+        }
         if (reactants.includes('CH₃OH') && reactants.includes('O₂')) {
             return ['HCHO', 'H₂O'];
         }
-        
+
         return [];
     }
 
@@ -2048,8 +2109,8 @@ class EquationBalancerUI {
     // Hydrogenation reactions
     isHydrogenationReaction(reactants) {
         const unsaturated = ['C₂H₄', 'C₂H₂', 'C₃H₆', 'C₄H₆'];
-        return reactants.includes('H₂') && 
-               reactants.some(r => unsaturated.includes(r));
+        return reactants.includes('H₂') &&
+            reactants.some(r => unsaturated.includes(r));
     }
 
     getHydrogenationProducts(reactants) {
@@ -2069,9 +2130,9 @@ class EquationBalancerUI {
     isDehydrationReaction(reactants) {
         const alcohols = ['C₂H₅OH', 'CH₃OH', 'C₃H₇OH'];
         const dehydrators = ['H₂SO₄', 'Al₂O₃'];
-        
-        return reactants.some(r => alcohols.includes(r)) && 
-               reactants.some(r => dehydrators.includes(r));
+
+        return reactants.some(r => alcohols.includes(r)) &&
+            reactants.some(r => dehydrators.includes(r));
     }
 
     getDehydrationProducts(reactants) {
@@ -2130,10 +2191,10 @@ class EquationBalancerUI {
     // Show smart suggestions based on content in the other field
     showSmartSuggestionsBasedOnOtherField(targetType, otherFieldValue) {
         console.log('showSmartSuggestionsBasedOnOtherField called:', targetType, otherFieldValue);
-        
+
         const compounds = otherFieldValue.split('+').map(c => c.trim()).filter(c => c);
         console.log('Parsed compounds:', compounds);
-        
+
         let suggestions = [];
 
         if (targetType === 'products') {
@@ -2209,7 +2270,7 @@ class EquationBalancerUI {
             // Add compounds in this category (skip if already in suggestions)
             categories[category].forEach(compound => {
                 if (suggestions.includes(compound.formula)) return;
-                
+
                 const option = this.createCompoundOption(compound, targetType);
                 listElement.appendChild(option);
             });
@@ -2221,20 +2282,48 @@ class EquationBalancerUI {
     // Check if it's an acid-base reaction
     isAcidBaseReaction(reactants) {
         if (reactants.length !== 2) return false;
-        
-        const acids = ['HCl', 'H₂SO₄', 'HNO₃', 'CH₃COOH', 'H₃PO₄', 'HF', 'HBr', 'HI'];
-        const bases = ['NaOH', 'KOH', 'Ca(OH)₂', 'Mg(OH)₂', 'Ba(OH)₂', 'Al(OH)₃', 'LiOH'];
-        
+
+        const acids = ['HCl', 'H₂SO₄', 'HNO₃', 'CH₃COOH', 'H₃PO₄', 'HF', 'HBr', 'HI', 'SO₂', 'NO₂'];
+        const bases = ['NaOH', 'KOH', 'Ca(OH)₂', 'Mg(OH)₂', 'Ba(OH)₂', 'Al(OH)₃', 'LiOH', 'H₂O'];
+        const salts = ['MgSO₄', 'ZnSO₄', 'FeSO₄', 'AlCl₃', 'MgCl₂', 'BaCl₂'];
+
         const hasAcid = reactants.some(r => acids.includes(r));
         const hasBase = reactants.some(r => bases.includes(r));
-        
-        // Must be exactly one acid + one base
-        return hasAcid && hasBase;
+        const hasSalt = reactants.some(r => salts.includes(r));
+
+        // Can be acid + base, salt + base, or acid + salt
+        return (hasAcid && hasBase) || (hasSalt && hasBase) || (hasAcid && hasSalt);
     }
 
     // Get acid-base reaction products
     getAcidBaseProducts(reactants) {
-        // Simplified - always produces salt + water
+        // Specific acid-base reactions
+        if (reactants.includes('SO₂') && reactants.includes('NaOH')) {
+            return ['Na₂SO₃', 'H₂O'];
+        }
+        if (reactants.includes('NO₂') && reactants.includes('H₂O')) {
+            return ['HNO₃', 'NO'];
+        }
+        if (reactants.includes('MgSO₄') && reactants.includes('NaOH')) {
+            return ['Mg(OH)₂', 'Na₂SO₄'];
+        }
+        if (reactants.includes('ZnSO₄') && reactants.includes('NaOH')) {
+            return ['Zn(OH)₂', 'Na₂SO₄'];
+        }
+        if (reactants.includes('FeSO₄') && reactants.includes('NaOH')) {
+            return ['Fe(OH)₂', 'Na₂SO₄'];
+        }
+        if (reactants.includes('AlCl₃') && reactants.includes('NaOH')) {
+            return ['Al(OH)₃', 'NaCl'];
+        }
+        if (reactants.includes('BaCl₂') && reactants.includes('H₂SO₄')) {
+            return ['BaSO₄', 'HCl'];
+        }
+        if (reactants.includes('MgCl₂') && reactants.includes('AgNO₃')) {
+            return ['AgCl', 'Mg(NO₃)₂'];
+        }
+
+        // Simplified fallback - always produces salt + water
         return ['H₂O']; // Salt would depend on specific acid/base
     }
 
@@ -2243,7 +2332,7 @@ class EquationBalancerUI {
         const hydrocarbons = ['CH₄', 'C₂H₆', 'C₃H₈', 'C₄H₁₀', 'C₂H₄', 'C₂H₂', 'C₆H₆', 'C₂H₅OH', 'CH₃OH'];
         const hasHydrocarbon = reactants.some(r => hydrocarbons.includes(r));
         const hasOxygen = reactants.includes('O₂');
-        
+
         // Must have exactly a hydrocarbon + oxygen (not other compounds)
         return reactants.length === 2 && hasHydrocarbon && hasOxygen;
     }
@@ -2253,7 +2342,7 @@ class EquationBalancerUI {
         const metals = ['Fe', 'Cu', 'Zn', 'Al', 'Mg', 'Ca', 'Na', 'K'];
         const hasOxygen = reactants.includes('O₂');
         const hasMetal = reactants.some(r => metals.includes(r));
-        
+
         return hasMetal && hasOxygen;
     }
 
@@ -2283,11 +2372,12 @@ class EquationBalancerUI {
     // Check if it's double displacement
     isDoubleDisplacement(reactants) {
         if (reactants.length !== 2) return false;
-        
+
         // Must be two ionic compounds (salts), not metals or simple compounds
         const ionicCompounds = ['AgNO₃', 'NaCl', 'KCl', 'CaCl₂', 'MgCl₂', 'Pb(NO₃)₂', 'KI', 'NaBr', 'KBr', 'BaCl₂', 'Na₂SO₄', 'K₂SO₄', 'Na₂CO₃'];
         const matchingCompounds = reactants.filter(r => ionicCompounds.includes(r));
-        
+        console.log('Double displacement check:', reactants, 'matching:', matchingCompounds, 'length:', matchingCompounds.length);
+
         return matchingCompounds.length === 2;
     }
 
@@ -2312,6 +2402,9 @@ class EquationBalancerUI {
         if (reactants.includes('BaCl₂') && reactants.includes('Na₂SO₄')) {
             return ['BaSO₄', 'NaCl'];
         }
+        if (reactants.includes('MgCl₂') && reactants.includes('AgNO₃')) {
+            return ['AgCl', 'Mg(NO₃)₂'];
+        }
         return [];
     }
 
@@ -2319,11 +2412,11 @@ class EquationBalancerUI {
     showSmartSuggestions(type, currentValue) {
         console.log('showSmartSuggestions called with:', type, currentValue);
         this.showingSmartSuggestions = true;
-        
+
         const compounds = currentValue.split('+').map(c => c.trim()).filter(c => c);
         const suggestions = this.getSmartSuggestions(type, currentValue);
         console.log('Got suggestions:', suggestions);
-        
+
         const listElement = document.getElementById(`${type}-list`);
         console.log('List element found:', !!listElement);
         if (!listElement) return;
@@ -2393,7 +2486,7 @@ class EquationBalancerUI {
             categories[category].forEach(compound => {
                 // Skip if this compound is already in smart suggestions
                 if (suggestions.includes(compound.formula)) return;
-                
+
                 const option = this.createCompoundOption(compound, type);
                 listElement.appendChild(option);
             });
@@ -2402,14 +2495,14 @@ class EquationBalancerUI {
         console.log('About to call showDropdown from showSmartSuggestions');
         this.showDropdown(type);
         console.log('showDropdown called, dropdown should be visible now');
-        
+
         // Double-check the dropdown visibility
         const dropdown = document.getElementById(`${type}-dropdown`);
         if (dropdown) {
             console.log('Dropdown classes after showDropdown:', dropdown.className);
             console.log('Dropdown hidden?', dropdown.classList.contains('hidden'));
         }
-        
+
         // Reset flag after a short delay
         setTimeout(() => {
             this.showingSmartSuggestions = false;
@@ -2422,19 +2515,19 @@ class EquationBalancerUI {
         option.className = 'compound-option px-3 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0';
         option.dataset.formula = compound.formula;
         option.dataset.name = compound.name;
-        
+
         option.innerHTML = `
             <div class="flex justify-between items-center">
                 <span class="font-mono text-lg">${compound.formula}</span>
                 <span class="text-sm text-gray-500">${compound.name}</span>
             </div>
         `;
-        
+
         // Add click handler
         option.addEventListener('click', () => {
             this.selectCompound(type, compound.formula);
         });
-        
+
         return option;
     }
 
@@ -2444,7 +2537,7 @@ class EquationBalancerUI {
         option.className = 'compound-option px-3 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0';
         option.dataset.formula = completeEquation;
         option.dataset.isComplete = 'true';
-        
+
         // Create a more prominent display for complete equations
         option.innerHTML = `
             <div class="flex flex-col">
@@ -2457,12 +2550,12 @@ class EquationBalancerUI {
                 </div>
             </div>
         `;
-        
+
         // Add click handler for complete equation
         option.addEventListener('click', () => {
             this.selectCompleteEquation(type, completeEquation);
         });
-        
+
         return option;
     }
 
@@ -2479,10 +2572,10 @@ class EquationBalancerUI {
             input.value = completeEquation;
             input.style.color = ''; // Remove any gray styling
             input.classList.remove('has-suggestion');
-            
+
             // Close dropdown
             this.closeDropdown(type);
-            
+
             // Update the other field's placeholder
             if (type === 'products') {
                 this.updateReactantPlaceholder();
@@ -2789,14 +2882,14 @@ class EquationBalancerUI {
         else if (products.includes('Al₂O₃')) reactants.push('Al', 'O₂');
         else if (products.includes('MgO')) reactants.push('Mg', 'O₂');
         else if (products.includes('CaO')) reactants.push('Ca', 'O₂');
-        
+
         // Gas + Water → Oxide + Water
         else if (products.includes('CO₂')) {
             if (products.includes('CaO')) reactants.push('CaCO₃');
             else if (products.includes('MgO')) reactants.push('MgCO₃');
             else reactants.push('C', 'O₂');
         }
-        
+
         // Hydrogen gas production
         else if (products.includes('H₂')) {
             if (products.includes('ZnCl₂')) reactants.push('Zn', 'HCl');
@@ -2807,7 +2900,7 @@ class EquationBalancerUI {
             else if (products.includes('Ca(OH)₂')) reactants.push('Ca', 'H₂O');
             else reactants.push('H₂', 'O₂');
         }
-        
+
         // Oxygen gas production
         else if (products.includes('O₂')) {
             if (products.includes('KCl')) reactants.push('KClO₃');
@@ -2816,7 +2909,7 @@ class EquationBalancerUI {
             else if (products.includes('Ag')) reactants.push('Ag₂O');
             else if (products.includes('Hg')) reactants.push('HgO');
         }
-        
+
         // Reduction reactions (Metal + CO₂ → Metal oxide + CO)
         else if (products.includes('CO₂')) {
             if (products.includes('Fe')) reactants.push('Fe₂O₃', 'CO');
@@ -2824,7 +2917,7 @@ class EquationBalancerUI {
             else if (products.includes('Pb')) reactants.push('PbO', 'CO');
             else if (products.includes('Mn')) reactants.push('MnO₂', 'C');
         }
-        
+
         // Halogen displacement
         else if (products.includes('Br₂')) {
             if (products.includes('NaCl')) reactants.push('Cl₂', 'NaBr');
@@ -2839,7 +2932,7 @@ class EquationBalancerUI {
             if (products.includes('NaF')) reactants.push('F₂', 'NaCl');
             else if (products.includes('KCl')) reactants.push('KMnO₄', 'HCl');
         }
-        
+
         // Precipitation reactions
         else if (products.includes('AgCl')) {
             if (products.includes('NaNO₃')) reactants.push('AgNO₃', 'NaCl');
@@ -2850,7 +2943,7 @@ class EquationBalancerUI {
         else if (products.includes('AgBr')) {
             if (products.includes('KNO₃')) reactants.push('AgNO₃', 'KBr');
         }
-        
+
         // Ammonia reactions
         else if (products.includes('NH₄Cl')) {
             reactants.push('NH₃', 'HCl');
@@ -2878,7 +2971,7 @@ class EquationBalancerUI {
             'NO': ['N₂', 'O₂'],
             'SO₂': ['S', 'O₂'],
             'CO₂': ['C', 'O₂'],
-            
+
             // Salts
             'NaCl': ['Na', 'Cl₂'],
             'KCl': ['K', 'Cl₂'],
@@ -2887,7 +2980,7 @@ class EquationBalancerUI {
             'FeS': ['Fe', 'S'],
             'CuS': ['Cu', 'S'],
             'ZnS': ['Zn', 'S'],
-            
+
             // Metal oxides
             'Fe₂O₃': ['Fe', 'O₂'],
             'CuO': ['Cu', 'O₂'],
@@ -2897,13 +2990,13 @@ class EquationBalancerUI {
             'CaO': ['Ca', 'O₂'],
             'Na₂O': ['Na', 'O₂'],
             'K₂O': ['K', 'O₂'],
-            
+
             // Hydroxides
             'NaOH': ['Na', 'H₂O'],
             'KOH': ['K', 'H₂O'],
             'Ca(OH)₂': ['Ca', 'H₂O'],
             'Mg(OH)₂': ['Mg', 'H₂O'],
-            
+
             // Acids from oxides
             'H₂SO₄': ['SO₃', 'H₂O'],
             'H₂CO₃': ['CO₂', 'H₂O'],
@@ -3752,11 +3845,11 @@ class EquationBalancerUI {
         // Check which elements are already balanced with coefficient 1
         const alreadyBalanced = [];
         const needsBalancing = [];
-        
+
         result.elements.forEach(element => {
             let leftCount = 0;
             let rightCount = 0;
-            
+
             result.compounds.forEach(compound => {
                 const elementCount = compound.elements[element] || 0;
                 if (compound.isReactant) {
@@ -3765,7 +3858,7 @@ class EquationBalancerUI {
                     rightCount += elementCount;
                 }
             });
-            
+
             if (leftCount === rightCount) {
                 alreadyBalanced.push(element);
             } else {
@@ -3841,10 +3934,10 @@ class EquationBalancerUI {
                                         ${step.currentEquation}
                                     </div>
                                     <div class="text-center text-sm text-orange-600 mt-2">
-                                        ${step.beforeLeftCount !== step.beforeRightCount ? 
-                                            `❌ ${step.element}: ${step.beforeLeftCount} ≠ ${step.beforeRightCount} (unbalanced)` :
-                                            `✅ ${step.element}: ${step.beforeLeftCount} = ${step.beforeRightCount} (already balanced)`
-                                        }
+                                        ${step.beforeLeftCount !== step.beforeRightCount ?
+                `❌ ${step.element}: ${step.beforeLeftCount} ≠ ${step.beforeRightCount} (unbalanced)` :
+                `✅ ${step.element}: ${step.beforeLeftCount} = ${step.beforeRightCount} (already balanced)`
+            }
                                     </div>
                                 </div>
                             </div>
@@ -4078,12 +4171,12 @@ class EquationBalancerUI {
             // Generate coefficient reasoning for left and right sides
             let leftSideReasoning = "";
             let rightSideReasoning = "";
-            
+
             if (beforeLeftCount !== beforeRightCount) {
                 const imbalance = Math.abs(beforeLeftCount - beforeRightCount);
                 const leftChanges = [];
                 const rightChanges = [];
-                
+
                 result.compounds.forEach((compound, i) => {
                     if (beforeCoeffs[i] !== afterCoeffs[i]) {
                         const elementCount = compound.elements[element] || 0;
@@ -4097,7 +4190,7 @@ class EquationBalancerUI {
                                 atomChange: atomChange,
                                 elementCount: elementCount
                             };
-                            
+
                             if (compound.isReactant) {
                                 leftChanges.push(changeInfo);
                             } else {
@@ -4109,7 +4202,7 @@ class EquationBalancerUI {
 
                 if (leftChanges.length > 0) {
                     const totalAtomChange = leftChanges.reduce((sum, change) => sum + change.atomChange, 0);
-                    leftSideReasoning = `Need ${totalAtomChange} more ${element} atoms. ` + leftChanges.map(change => 
+                    leftSideReasoning = `Need ${totalAtomChange} more ${element} atoms. ` + leftChanges.map(change =>
                         `${change.formula}: ${change.elementCount} ${element} × ${change.afterCoeff} = ${change.elementCount * change.afterCoeff} atoms`
                     ).join(', ');
                 } else {
@@ -4118,7 +4211,7 @@ class EquationBalancerUI {
 
                 if (rightChanges.length > 0) {
                     const totalAtomChange = rightChanges.reduce((sum, change) => sum + change.atomChange, 0);
-                    rightSideReasoning = `Need ${totalAtomChange} more ${element} atoms. ` + rightChanges.map(change => 
+                    rightSideReasoning = `Need ${totalAtomChange} more ${element} atoms. ` + rightChanges.map(change =>
                         `${change.formula}: ${change.elementCount} ${element} × ${change.afterCoeff} = ${change.elementCount * change.afterCoeff} atoms`
                     ).join(', ');
                 } else {
@@ -4126,10 +4219,10 @@ class EquationBalancerUI {
                 }
             } else {
                 // Check if this element was affected by previous balancing steps
-                const wasAffected = result.compounds.some((compound, i) => 
+                const wasAffected = result.compounds.some((compound, i) =>
                     beforeCoeffs[i] !== 1 && compound.elements[element]
                 );
-                
+
                 if (wasAffected) {
                     leftSideReasoning = `${element} rebalanced due to previous coefficient changes`;
                     rightSideReasoning = `${element} rebalanced due to previous coefficient changes`;
@@ -4595,6 +4688,7 @@ class EquationBalancerUI {
         const testProductsInput = document.getElementById('test-products');
         const testBtn = document.getElementById('test-reaction');
         const batchTestBtn = document.getElementById('batch-test');
+        const comprehensiveTestBtn = document.getElementById('comprehensive-test');
         const clearBtn = document.getElementById('clear-results');
 
         if (!toggleBtn || !testerContent) return;
@@ -4636,6 +4730,11 @@ class EquationBalancerUI {
             this.runBatchTest();
         });
 
+        // Comprehensive test (includes recent improvements)
+        comprehensiveTestBtn?.addEventListener('click', () => {
+            this.runComprehensiveTest();
+        });
+
         // Clear results
         clearBtn?.addEventListener('click', () => {
             const resultsDiv = document.getElementById('test-results');
@@ -4647,13 +4746,13 @@ class EquationBalancerUI {
     testSingleReaction(reactantsText) {
         const reactants = reactantsText.split('+').map(r => r.trim()).filter(r => r);
         const products = this.predictProducts(reactants);
-        
+
         const resultsDiv = document.getElementById('test-results');
         if (!resultsDiv) return;
 
         const resultDiv = document.createElement('div');
         resultDiv.className = `p-3 rounded-lg border-l-4 ${products.length > 0 ? 'bg-green-50 border-green-500' : 'bg-red-50 border-red-500'}`;
-        
+
         resultDiv.innerHTML = `
             <div class="flex items-center justify-between">
                 <div>
@@ -4672,64 +4771,137 @@ class EquationBalancerUI {
         resultsDiv.insertBefore(resultDiv, resultsDiv.firstChild);
     }
 
+    // Run comprehensive test including recent improvements
+    runComprehensiveTest() {
+        const comprehensiveTestReactions = [
+            // RECENT FIXES - Single Displacement (Priority Fix)
+            'Cu + AgNO₃', 'Al + Fe₂O₃', 'Zn + CuSO₄', 'Fe + CuSO₄',
+
+            // RECENT FIXES - Halogen Displacement (Missing Compounds Fix)
+            'Br₂ + KI', 'Cl₂ + KBr', 'Cl₂ + KI', 'F₂ + KCl', 'F₂ + KBr',
+            'Br₂ + NaI', 'Cl₂ + NaBr', 'Cl₂ + NaI',
+
+            // NEW SMART SUGGESTIONS - Important Gases
+            'H₂O₂ + KI', 'H₂O₂ + MnO₂', 'SO₂ + O₂', 'SO₂ + NaOH',
+            'NO₂ + H₂O', 'CO + O₂', 'H₂S + O₂', 'N₂ + H₂', 'P₄ + O₂',
+
+            // NEW SMART SUGGESTIONS - Important Salts
+            'BaCl₂ + H₂SO₄', 'BaCl₂ + Na₂SO₄', 'MgSO₄ + NaOH',
+            'ZnSO₄ + NaOH', 'FeSO₄ + NaOH', 'AlCl₃ + NaOH',
+            'CaCl₂ + Na₂CO₃', 'MgCl₂ + AgNO₃',
+
+            // ENHANCED ORGANIC - Oxidation Reactions
+            'C₂H₅OH + K₂Cr₂O₇', 'CH₃OH + KMnO₄', 'C₆H₁₂O₆ + O₂',
+
+            // COMPREHENSIVE COVERAGE - All Reaction Types
+            'HCl + NaOH', 'H₂SO₄ + Ca(OH)₂', 'HNO₃ + Mg(OH)₂',
+            'Na + H₂O', 'K + H₂O', 'Ca + H₂O', 'Mg + HCl', 'Zn + H₂SO₄',
+            'CH₄ + O₂', 'C₂H₆ + O₂', 'C₃H₈ + O₂', 'C₂H₄ + Br₂',
+            'KClO₃', 'CaCO₃', 'NH₄Cl', 'H₂O₂',
+            'AgNO₃ + NaCl', 'Pb(NO₃)₂ + KI', 'BaCl₂ + Na₂SO₄',
+            'CaCO₃ + HCl', 'Na₂CO₃ + H₂SO₄', 'MgCO₃ + HNO₃',
+            'CaO + H₂O', 'SO₃ + H₂O', 'P₂O₅ + H₂O',
+            'KMnO₄ + HCl', 'K₂Cr₂O₇ + HCl', 'FeCl₃ + KI',
+
+            // EDGE CASES & COMPLEX REACTIONS
+            'NH₃ + O₂', 'NH₃ + HCl', 'C₆H₆ + Br₂', 'Fe + S', 'Cu + S',
+            'Al + CuO', 'Mg + CO₂', 'C + Fe₂O₃', 'H₂ + CuO',
+
+            // BIOLOGICAL & INDUSTRIAL
+            'C₆H₁₂O₆', 'CO₂ + H₂O', 'NaCl', 'Al₂O₃', 'CuSO₄'
+        ];
+
+        console.log('Running comprehensive test with', comprehensiveTestReactions.length, 'reactions...');
+
+        let successCount = 0;
+        let failCount = 0;
+        const failures = [];
+
+        comprehensiveTestReactions.forEach(reaction => {
+            const reactants = reaction.split('+').map(r => r.trim()).filter(r => r);
+            const products = this.predictProducts(reactants);
+
+            if (products.length > 0) {
+                successCount++;
+                console.log(`✓ ${reaction} → ${products.join(' + ')}`);
+            } else {
+                failCount++;
+                failures.push(reaction);
+                console.log(`✗ ${reaction} → NO PREDICTION`);
+            }
+        });
+
+        const resultsDiv = document.getElementById('test-results');
+        resultsDiv.innerHTML = `
+            <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h3 class="font-bold text-lg mb-2">Comprehensive Test Results</h3>
+                <p><strong>Total Reactions:</strong> ${comprehensiveTestReactions.length}</p>
+                <p class="text-green-600"><strong>✓ Working:</strong> ${successCount}</p>
+                <p class="text-red-600"><strong>✗ Missing:</strong> ${failCount}</p>
+                <p><strong>Success Rate:</strong> ${((successCount / comprehensiveTestReactions.length) * 100).toFixed(1)}%</p>
+                ${failures.length > 0 ? `<p class="mt-2"><strong>Missing Reactions:</strong> ${failures.join(', ')}</p>` : ''}
+            </div>
+        `;
+    }
+
     // Run batch test of common reactions
     runBatchTest() {
         const testReactions = [
             // Basic reactions
             'H₂ + O₂', 'Na + Cl₂', 'Ca + O₂', 'Mg + O₂',
-            
+
             // Acid-base
             'HCl + NaOH', 'H₂SO₄ + KOH', 'HNO₃ + Ca(OH)₂',
-            
+
             // Metal + water
             'Na + H₂O', 'K + H₂O', 'Ca + H₂O', 'Fe + H₂O', 'Zn + H₂O', 'Al + H₂O',
-            
+
             // Metal + acid
             'Zn + HCl', 'Mg + HCl', 'Fe + HCl', 'Al + H₂SO₄',
-            
+
             // Combustion
             'CH₄ + O₂', 'C₂H₆ + O₂', 'C₃H₈ + O₂', 'C₂H₅OH + O₂',
-            
+
             // Displacement
             'Zn + CuSO₄', 'Fe + CuSO₄', 'Al + Fe₂O₃', 'Cu + AgNO₃',
-            
+
             // Reduction
             'Fe₂O₃ + CO', 'CuO + H₂', 'ZnO + C', 'PbO + CO',
-            
+
             // Precipitation
             'AgNO₃ + NaCl', 'Pb(NO₃)₂ + KI', 'BaCl₂ + Na₂SO₄',
-            
+
             // Decomposition
             'H₂O₂', 'KClO₃', 'CaCO₃', 'NH₄Cl',
-            
+
             // Organic
             'C₂H₄ + H₂', 'C₂H₄ + Br₂', 'C₂H₅OH + H₂SO₄',
-            
+
             // Complex
             'KMnO₄ + HCl', 'Cl₂ + NaBr', 'NH₃ + HCl',
-            
+
             // Biological
             'CO₂ + H₂O', 'C₆H₁₂O₆ + O₂', 'C₆H₁₂O₆',
-            
+
             // Electrolysis
             'NaCl', 'H₂O', 'CuSO₄', 'Al₂O₃',
-            
+
             // Carbonate + acid
             'CaCO₃ + HCl', 'Na₂CO₃ + HCl', 'MgCO₃ + H₂SO₄',
-            
+
             // Oxide + water
             'CaO + H₂O', 'SO₃ + H₂O', 'CO₂ + H₂O',
-            
+
             // Halogen displacement
             'Cl₂ + KBr', 'Br₂ + KI', 'F₂ + NaCl',
-            
+
             // Less common but important
             'P + O₂', 'S + O₂', 'N₂ + H₂', 'H₂S + SO₂',
             'Fe + S', 'Cu + S', 'Pb + S',
-            
+
             // Industrial processes
             'CaC₂ + H₂O', 'Al₄C₃ + H₂O', 'Mg₃N₂ + H₂O',
-            
+
             // Advanced organic
             'C₂H₂ + H₂O', 'C₆H₆ + Br₂', 'CH₃OH + O₂'
         ];
@@ -4753,7 +4925,7 @@ class EquationBalancerUI {
         testReactions.forEach(reaction => {
             const reactants = reaction.split('+').map(r => r.trim()).filter(r => r);
             const products = this.predictProducts(reactants);
-            
+
             if (products.length > 0) {
                 foundCount++;
             } else {
@@ -4771,11 +4943,11 @@ class EquationBalancerUI {
             <div class="grid grid-cols-2 gap-4 text-sm">
                 <div class="text-green-700">
                     <i class="fas fa-check-circle mr-1"></i>
-                    Found: ${foundCount} reactions (${Math.round(foundCount/testReactions.length*100)}%)
+                    Found: ${foundCount} reactions (${Math.round(foundCount / testReactions.length * 100)}%)
                 </div>
                 <div class="text-red-700">
                     <i class="fas fa-times-circle mr-1"></i>
-                    Missing: ${missingCount} reactions (${Math.round(missingCount/testReactions.length*100)}%)
+                    Missing: ${missingCount} reactions (${Math.round(missingCount / testReactions.length * 100)}%)
                 </div>
             </div>
             <div class="mt-2 text-xs text-blue-600">
@@ -4805,8 +4977,8 @@ class EquationBalancerUI {
     // Carbide hydrolysis reactions
     isCarbideHydrolysis(reactants) {
         const carbides = ['CaC₂', 'Al₄C₃', 'Be₂C', 'Mg₂C₃'];
-        return reactants.includes('H₂O') && 
-               reactants.some(r => carbides.includes(r));
+        return reactants.includes('H₂O') &&
+            reactants.some(r => carbides.includes(r));
     }
 
     getCarbideHydrolysisProducts(reactants) {
@@ -4828,8 +5000,8 @@ class EquationBalancerUI {
     // Nitride hydrolysis reactions
     isNitrideHydrolysis(reactants) {
         const nitrides = ['Mg₃N₂', 'Ca₃N₂', 'AlN', 'Li₃N'];
-        return reactants.includes('H₂O') && 
-               reactants.some(r => nitrides.includes(r));
+        return reactants.includes('H₂O') &&
+            reactants.some(r => nitrides.includes(r));
     }
 
     getNitrideHydrolysisProducts(reactants) {
@@ -4864,13 +5036,13 @@ if (localStorage.getItem('theme') === 'dark') {
 if (toggleButton) {
     toggleButton.addEventListener('click', () => {
         body.classList.toggle('dark-mode');
-        
+
         // Update icon
         const isDark = body.classList.contains('dark-mode');
         if (themeIcon) {
             themeIcon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
         }
-        
+
         // Save theme choice
         if (body.classList.contains('dark-mode')) {
             localStorage.setItem('theme', 'dark');
