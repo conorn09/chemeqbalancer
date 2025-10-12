@@ -306,6 +306,41 @@
         .theme-toggle:hover {
             transform: scale(1.05);
         }
+
+        /* Smart suggestion styling */
+        .has-suggestion {
+            font-style: italic;
+        }
+
+        .has-suggestion::placeholder {
+            color: #6b7280 !important;
+        }
+
+        /* Dark mode suggestion styling */
+        body.dark-mode .has-suggestion {
+            color: #9ca3af !important;
+        }
+
+        /* Smart suggestion highlighting */
+        .smart-suggestion {
+            background-color: #f0f9ff !important;
+            border-left: 3px solid #3b82f6 !important;
+        }
+
+        body.dark-mode .smart-suggestion {
+            background-color: #1e3a8a !important;
+            border-left: 3px solid #60a5fa !important;
+        }
+
+        /* Smart suggestion headers */
+        .suggestion-header {
+            background-color: #f3f4f6 !important;
+        }
+
+        body.dark-mode .suggestion-header {
+            background-color: #374151 !important;
+            color: #d1d5db !important;
+        }
     </style>
 </head>
 

@@ -761,6 +761,7 @@ class EquationBalancerUI {
         this.balancer = new ChemicalEquationBalancer();
         this.compounds = COMPOUND_DATABASE;
         this.activeDropdown = null;
+        this.showingSmartSuggestions = false;
         this.initializeEventListeners();
         this.setupDropdowns();
     }
@@ -844,26 +845,66 @@ class EquationBalancerUI {
             });
 
             reactantsInput.addEventListener('focus', () => {
+                console.log('Reactants input focused, value:', reactantsInput.value);
+                
+                // If the input ends with " + ", show smart suggestions
+                if (reactantsInput.value.endsWith(' + ')) {
+                    const compounds = reactantsInput.value.replace(' + ', '').split('+').map(c => c.trim()).filter(c => c);
+                    if (compounds.length > 0) {
+                        console.log('Showing smart suggestions on focus for:', compounds[compounds.length - 1]);
+                        this.showSmartSuggestions('reactants', compounds[compounds.length - 1]);
+                        return;
+                    }
+                }
+                
                 this.showDropdown('reactants');
                 // Filter based on current input
                 const query = this.getCurrentCompound(reactantsInput.value);
                 this.filterDropdown('reactants', query);
             });
 
-            reactantsInput.addEventListener('input', (e) => {
-                const query = this.getCurrentCompound(e.target.value);
+            // Handle space bar for smart suggestions
+            reactantsInput.addEventListener('keydown', (e) => {
+                if (e.key === ' ' && e.target.value.trim() && !e.target.value.endsWith(' ') && !e.target.value.endsWith('+')) {
+                    console.log('Space bar pressed, current value:', e.target.value);
+                    e.preventDefault(); // Prevent the space from being added normally
+                    e.stopPropagation(); // Prevent other handlers from interfering
+                    
+                    const currentValue = e.target.value.trim();
+                    console.log('Adding + and showing suggestions for:', currentValue);
+                    
+                    // Add " + " to the input
+                    e.target.value = currentValue + ' + ';
+                    e.target.setSelectionRange(e.target.value.length, e.target.value.length);
+                    
+                    // Show smart suggestions with a small delay to ensure it's not immediately closed
+                    setTimeout(() => {
+                        console.log('Calling showSmartSuggestions...');
+                        this.showSmartSuggestions('reactants', currentValue);
+                        
+                        // Update product suggestions
+                        this.updateProductSuggestions();
+                    }, 10);
+                }
+            });
 
-                // If user just typed a space after a compound, prepare for next compound
-                if (e.target.value.endsWith(' ') && !e.target.value.endsWith(' + ')) {
-                    const trimmed = e.target.value.trim();
-                    if (trimmed && !trimmed.endsWith('+')) {
-                        e.target.value = trimmed + ' + ';
-                        e.target.setSelectionRange(e.target.value.length, e.target.value.length);
-                    }
+            reactantsInput.addEventListener('input', (e) => {
+                console.log('Input event fired, value:', e.target.value, 'inputType:', e.inputType, 'showingSmartSuggestions:', this.showingSmartSuggestions);
+                
+                // Don't process if we're showing smart suggestions or value ends with " + "
+                if (this.showingSmartSuggestions || e.target.value.endsWith(' + ')) {
+                    console.log('Skipping input event - smart suggestions active or value ends with " + "');
+                    return;
                 }
 
+                const query = this.getCurrentCompound(e.target.value);
+                console.log('Processing input event normally, query:', query);
+                
                 this.showDropdown('reactants');
                 this.filterDropdown('reactants', query);
+                
+                // Update product suggestions when reactants change
+                this.updateProductSuggestions();
             });
         }
 
@@ -879,22 +920,48 @@ class EquationBalancerUI {
             });
 
             productsInput.addEventListener('focus', () => {
+                // Clear placeholder suggestions when focused
+                if (productsInput.classList.contains('has-suggestion')) {
+                    productsInput.value = '';
+                    productsInput.classList.remove('has-suggestion');
+                    productsInput.style.color = '';
+                }
                 this.showDropdown('products');
-                // Filter based on current input
                 const query = this.getCurrentCompound(productsInput.value);
                 this.filterDropdown('products', query);
             });
 
+            // Handle space bar and Tab key for products
+            productsInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Tab' && productsInput.classList.contains('has-suggestion')) {
+                    e.preventDefault();
+                    productsInput.classList.remove('has-suggestion');
+                    productsInput.style.color = '';
+                } else if (e.key === ' ' && e.target.value.trim() && !e.target.value.endsWith(' ') && !e.target.value.endsWith('+')) {
+                    e.preventDefault(); // Prevent the space from being added normally
+                    
+                    const currentValue = e.target.value.trim();
+                    // Add " + " to the input
+                    e.target.value = currentValue + ' + ';
+                    e.target.setSelectionRange(e.target.value.length, e.target.value.length);
+                    
+                    // Show smart suggestions based on what was typed
+                    this.showSmartSuggestions('products', currentValue);
+                }
+            });
+
             productsInput.addEventListener('input', (e) => {
+                // Remove suggestion styling when user types
+                if (productsInput.classList.contains('has-suggestion')) {
+                    productsInput.classList.remove('has-suggestion');
+                    productsInput.style.color = '';
+                }
+
                 const query = this.getCurrentCompound(e.target.value);
 
-                // If user just typed a space after a compound, prepare for next compound
-                if (e.target.value.endsWith(' ') && !e.target.value.endsWith(' + ')) {
-                    const trimmed = e.target.value.trim();
-                    if (trimmed && !trimmed.endsWith('+')) {
-                        e.target.value = trimmed + ' + ';
-                        e.target.setSelectionRange(e.target.value.length, e.target.value.length);
-                    }
+                // Don't process if we just handled a space bar event
+                if (e.target.value.endsWith(' + ') && e.inputType !== 'insertText') {
+                    return;
                 }
 
                 this.showDropdown('products');
@@ -906,6 +973,385 @@ class EquationBalancerUI {
     // Get the current compound being typed (after the last +)
     getCurrentCompound(inputValue) {
         return inputValue.split('+').pop().trim();
+    }
+
+    // Smart suggestions based on existing compounds
+    getSmartSuggestions(type, currentCompounds) {
+        console.log('getSmartSuggestions called with:', type, currentCompounds);
+        const existing = currentCompounds.split('+').map(c => c.trim()).filter(c => c);
+        console.log('Existing compounds:', existing);
+        
+        if (type === 'reactants') {
+            const suggestions = this.getReactantSuggestions(existing);
+            console.log('Reactant suggestions:', suggestions);
+            return suggestions;
+        } else {
+            return this.getProductSuggestions(existing);
+        }
+    }
+
+    // Get smart reactant suggestions based on what's already entered
+    getReactantSuggestions(existingReactants) {
+        const suggestions = [];
+        
+        // Common reaction patterns - much more comprehensive
+        const patterns = {
+            // Acids - suggest bases and metals
+            'HCl': ['NaOH', 'KOH', 'Ca(OH)₂', 'Mg(OH)₂', 'Zn', 'Fe', 'Al', 'Mg', 'CaCO₃', 'Na₂CO₃'],
+            'H₂SO₄': ['NaOH', 'KOH', 'Ca(OH)₂', 'Mg(OH)₂', 'Zn', 'Fe', 'Al', 'Mg', 'CaCO₃', 'Na₂CO₃'],
+            'HNO₃': ['NaOH', 'KOH', 'Ca(OH)₂', 'Mg(OH)₂', 'Cu', 'Ag', 'Zn', 'Fe', 'Al'],
+            'CH₃COOH': ['NaOH', 'KOH', 'Ca(OH)₂', 'Mg(OH)₂', 'Na₂CO₃', 'CaCO₃'],
+            'H₃PO₄': ['NaOH', 'KOH', 'Ca(OH)₂', 'Mg(OH)₂'],
+            
+            // Bases - suggest acids
+            'NaOH': ['HCl', 'H₂SO₄', 'HNO₃', 'CH₃COOH', 'H₃PO₄', 'CO₂'],
+            'KOH': ['HCl', 'H₂SO₄', 'HNO₃', 'CH₃COOH', 'H₃PO₄', 'CO₂'],
+            'Ca(OH)₂': ['HCl', 'H₂SO₄', 'HNO₃', 'CH₃COOH', 'CO₂'],
+            'Mg(OH)₂': ['HCl', 'H₂SO₄', 'HNO₃', 'CH₃COOH'],
+            
+            // Metals - suggest oxygen, acids, water, or salts
+            'Fe': ['O₂', 'HCl', 'H₂SO₄', 'CuSO₄', 'AgNO₃', 'H₂O', 'S'],
+            'Cu': ['O₂', 'HNO₃', 'H₂SO₄', 'AgNO₃', 'S'],
+            'Zn': ['O₂', 'HCl', 'H₂SO₄', 'CuSO₄', 'AgNO₃', 'H₂O'],
+            'Al': ['O₂', 'HCl', 'H₂SO₄', 'CuSO₄', 'AgNO₃', 'Fe₂O₃'],
+            'Mg': ['O₂', 'HCl', 'H₂SO₄', 'CuSO₄', 'AgNO₃', 'H₂O'],
+            'Ca': ['O₂', 'HCl', 'H₂SO₄', 'H₂O'],
+            'Na': ['O₂', 'H₂O', 'Cl₂'],
+            'K': ['O₂', 'H₂O', 'Cl₂'],
+            
+            // Hydrocarbons - suggest oxygen for combustion
+            'CH₄': ['O₂'],
+            'C₂H₆': ['O₂'],
+            'C₃H₈': ['O₂'],
+            'C₄H₁₀': ['O₂'],
+            'C₂H₄': ['O₂', 'Br₂', 'H₂O'],
+            'C₂H₂': ['O₂', 'H₂O'],
+            'C₆H₆': ['O₂', 'Br₂'],
+            'C₂H₅OH': ['O₂'],
+            'CH₃OH': ['O₂'],
+            
+            // Oxygen - suggest fuels and metals
+            'O₂': ['CH₄', 'C₂H₆', 'C₃H₈', 'C₂H₄', 'C₂H₂', 'Fe', 'Cu', 'Zn', 'Al', 'Mg', 'Ca', 'Na', 'K', 'S', 'P'],
+            
+            // Salts for double displacement
+            'NaCl': ['AgNO₃', 'Pb(NO₃)₂', 'Ca(NO₃)₂', 'H₂SO₄'],
+            'AgNO₃': ['NaCl', 'KCl', 'CaCl₂', 'HCl'],
+            'Pb(NO₃)₂': ['NaCl', 'KCl', 'CaCl₂', 'H₂SO₄'],
+            'CuSO₄': ['NaOH', 'KOH', 'BaCl₂', 'Zn', 'Fe', 'Al'],
+            'FeCl₃': ['NaOH', 'KOH', 'AgNO₃'],
+            
+            // Carbonates - suggest acids
+            'CaCO₃': ['HCl', 'H₂SO₄', 'HNO₃', 'CH₃COOH'],
+            'Na₂CO₃': ['HCl', 'H₂SO₄', 'HNO₃', 'CH₃COOH'],
+            'MgCO₃': ['HCl', 'H₂SO₄', 'HNO₃'],
+            
+            // Oxides - suggest acids or water
+            'CaO': ['H₂O', 'HCl', 'H₂SO₄', 'CO₂'],
+            'MgO': ['H₂O', 'HCl', 'H₂SO₄'],
+            'Fe₂O₃': ['HCl', 'H₂SO₄', 'Al', 'CO'],
+            'CuO': ['HCl', 'H₂SO₄', 'H₂'],
+            'Al₂O₃': ['HCl', 'H₂SO₄'],
+            
+            // Gases
+            'H₂': ['O₂', 'Cl₂', 'Br₂', 'CuO', 'Fe₂O₃'],
+            'Cl₂': ['H₂', 'Na', 'K', 'Fe', 'NaBr', 'KI'],
+            'CO₂': ['NaOH', 'KOH', 'Ca(OH)₂', 'Mg', 'C'],
+            'NH₃': ['HCl', 'H₂SO₄', 'HNO₃', 'O₂'],
+            
+            // Water
+            'H₂O': ['Na', 'K', 'Ca', 'CaO', 'MgO', 'SO₃', 'P₂O₅'],
+        };
+
+        // Check each existing reactant for patterns
+        existingReactants.forEach(reactant => {
+            if (patterns[reactant]) {
+                suggestions.push(...patterns[reactant]);
+            }
+        });
+
+        // If no specific patterns found, suggest common reactants
+        if (suggestions.length === 0) {
+            suggestions.push('O₂', 'H₂O', 'HCl', 'NaOH', 'H₂SO₄', 'NaCl', 'AgNO₃');
+        }
+
+        // Remove duplicates and existing compounds
+        return [...new Set(suggestions)].filter(s => !existingReactants.includes(s));
+    }
+
+    // Get smart product suggestions based on what's already entered
+    getProductSuggestions(existingProducts) {
+        const suggestions = [];
+        
+        // Common product patterns
+        const patterns = {
+            // If we have water, suggest salts or gases
+            'H₂O': ['NaCl', 'CO₂', 'CaCl₂', 'MgCl₂'],
+            
+            // If we have CO₂, suggest water (combustion products)
+            'CO₂': ['H₂O'],
+            
+            // If we have a salt, suggest water
+            'NaCl': ['H₂O', 'AgCl'],
+            'CaCl₂': ['H₂O', 'CO₂'],
+            'MgCl₂': ['H₂O'],
+            
+            // If we have an oxide, suggest water or CO₂
+            'CaO': ['H₂O', 'CO₂'],
+            'MgO': ['H₂O'],
+            'Fe₂O₃': ['H₂O'],
+            'CuO': ['H₂O'],
+            'Al₂O₃': ['H₂O'],
+        };
+
+        // Check each existing product for patterns
+        existingProducts.forEach(product => {
+            if (patterns[product]) {
+                suggestions.push(...patterns[product]);
+            }
+        });
+
+        // If no specific patterns found, suggest common products
+        if (suggestions.length === 0) {
+            suggestions.push('H₂O', 'CO₂', 'NaCl', 'CaCl₂', 'MgCl₂', 'H₂');
+        }
+
+        // Remove duplicates and existing compounds
+        return [...new Set(suggestions)].filter(s => !existingProducts.includes(s));
+    }
+
+    // Update product suggestions based on reactants
+    updateProductSuggestions() {
+        const reactantsInput = document.getElementById('reactants-input');
+        const productsInput = document.getElementById('products-input');
+        
+        if (!reactantsInput || !productsInput || !reactantsInput.value.trim()) {
+            return;
+        }
+
+        const reactants = reactantsInput.value.split('+').map(r => r.trim()).filter(r => r);
+        const suggestedProducts = this.predictProducts(reactants);
+        
+        if (suggestedProducts.length > 0 && !productsInput.value.trim()) {
+            const suggestion = suggestedProducts.join(' + ');
+            productsInput.value = suggestion;
+            productsInput.style.color = '#9ca3af'; // Gray color
+            productsInput.classList.add('has-suggestion');
+        }
+    }
+
+    // Predict likely products based on reactants
+    predictProducts(reactants) {
+        if (reactants.length < 2) return [];
+
+        const products = [];
+        
+        // Common reaction patterns
+        if (this.isAcidBaseReaction(reactants)) {
+            products.push(...this.getAcidBaseProducts(reactants));
+        } else if (this.isCombustionReaction(reactants)) {
+            products.push('CO₂', 'H₂O');
+        } else if (this.isMetalOxidation(reactants)) {
+            products.push(...this.getMetalOxidationProducts(reactants));
+        } else if (this.isDoubleDisplacement(reactants)) {
+            products.push(...this.getDoubleDisplacementProducts(reactants));
+        }
+
+        return products;
+    }
+
+    // Check if it's an acid-base reaction
+    isAcidBaseReaction(reactants) {
+        const acids = ['HCl', 'H₂SO₄', 'HNO₃', 'CH₃COOH', 'H₃PO₄'];
+        const bases = ['NaOH', 'KOH', 'Ca(OH)₂', 'Mg(OH)₂', 'Ba(OH)₂'];
+        
+        const hasAcid = reactants.some(r => acids.includes(r));
+        const hasBase = reactants.some(r => bases.includes(r));
+        
+        return hasAcid && hasBase;
+    }
+
+    // Get acid-base reaction products
+    getAcidBaseProducts(reactants) {
+        // Simplified - always produces salt + water
+        return ['H₂O']; // Salt would depend on specific acid/base
+    }
+
+    // Check if it's a combustion reaction
+    isCombustionReaction(reactants) {
+        const hydrocarbons = ['CH₄', 'C₂H₆', 'C₃H₈', 'C₂H₄', 'C₂H₂', 'C₆H₆'];
+        const hasHydrocarbon = reactants.some(r => hydrocarbons.includes(r));
+        const hasOxygen = reactants.includes('O₂');
+        
+        return hasHydrocarbon && hasOxygen;
+    }
+
+    // Check if it's metal oxidation
+    isMetalOxidation(reactants) {
+        const metals = ['Fe', 'Cu', 'Zn', 'Al', 'Mg', 'Ca', 'Na', 'K'];
+        const hasOxygen = reactants.includes('O₂');
+        const hasMetal = reactants.some(r => metals.includes(r));
+        
+        return hasMetal && hasOxygen;
+    }
+
+    // Get metal oxidation products
+    getMetalOxidationProducts(reactants) {
+        const metalOxides = {
+            'Fe': 'Fe₂O₃',
+            'Cu': 'CuO',
+            'Zn': 'ZnO',
+            'Al': 'Al₂O₃',
+            'Mg': 'MgO',
+            'Ca': 'CaO',
+            'Na': 'Na₂O',
+            'K': 'K₂O'
+        };
+
+        const products = [];
+        reactants.forEach(r => {
+            if (metalOxides[r]) {
+                products.push(metalOxides[r]);
+            }
+        });
+
+        return products;
+    }
+
+    // Check if it's double displacement
+    isDoubleDisplacement(reactants) {
+        // Simplified check for two ionic compounds
+        return reactants.length === 2 && 
+               reactants.some(r => r.includes('Cl')) && 
+               reactants.some(r => r.includes('NO₃'));
+    }
+
+    // Get double displacement products
+    getDoubleDisplacementProducts(reactants) {
+        // Simplified - would need more complex logic for real implementation
+        return ['AgCl', 'NaNO₃']; // Example products
+    }
+
+    // Show smart suggestions in dropdown
+    showSmartSuggestions(type, currentValue) {
+        console.log('showSmartSuggestions called with:', type, currentValue);
+        this.showingSmartSuggestions = true;
+        
+        const compounds = currentValue.split('+').map(c => c.trim()).filter(c => c);
+        const suggestions = this.getSmartSuggestions(type, currentValue);
+        console.log('Got suggestions:', suggestions);
+        
+        const listElement = document.getElementById(`${type}-list`);
+        console.log('List element found:', !!listElement);
+        if (!listElement) return;
+
+        console.log('Clearing list element and populating with suggestions...');
+        listElement.innerHTML = '';
+
+        // If we have smart suggestions, show them first
+        if (suggestions.length > 0) {
+            console.log('Adding smart suggestions header...');
+            // Add header for smart suggestions
+            const header = document.createElement('div');
+            header.className = 'px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide suggestion-header';
+            header.textContent = '💡 Smart Suggestions';
+            listElement.appendChild(header);
+            console.log('Header added');
+
+            // Add suggested compounds
+            console.log('Adding suggested compounds:', suggestions.slice(0, 8));
+            suggestions.slice(0, 8).forEach((compound, index) => {
+                console.log(`Processing suggestion ${index + 1}:`, compound);
+                const compoundData = this.compounds.find(c => c.formula === compound);
+                console.log('Found compound data:', !!compoundData);
+                if (compoundData) {
+                    try {
+                        const option = this.createCompoundOption(compoundData, type);
+                        option.classList.add('smart-suggestion');
+                        listElement.appendChild(option);
+                        console.log(`Added suggestion ${index + 1} to list`);
+                    } catch (error) {
+                        console.error('Error creating compound option:', error);
+                    }
+                }
+            });
+            console.log('All suggestions added');
+
+            // Add separator
+            const separator = document.createElement('div');
+            separator.className = 'border-t border-gray-200 my-2';
+            listElement.appendChild(separator);
+
+            // Add "All Compounds" header
+            const allHeader = document.createElement('div');
+            allHeader.className = 'px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide bg-gray-50';
+            allHeader.textContent = 'All Compounds';
+            listElement.appendChild(allHeader);
+        }
+
+        // Group compounds by category
+        const categories = {};
+        this.compounds.forEach(compound => {
+            if (!categories[compound.category]) {
+                categories[compound.category] = [];
+            }
+            categories[compound.category].push(compound);
+        });
+
+        // Add all compounds organized by category
+        Object.keys(categories).sort().forEach(category => {
+            // Add category header
+            const categoryHeader = document.createElement('div');
+            categoryHeader.className = 'px-3 py-1 text-xs font-medium text-gray-600 bg-gray-50';
+            categoryHeader.textContent = category;
+            listElement.appendChild(categoryHeader);
+
+            // Add compounds in this category
+            categories[category].forEach(compound => {
+                // Skip if this compound is already in smart suggestions
+                if (suggestions.includes(compound.formula)) return;
+                
+                const option = this.createCompoundOption(compound, type);
+                listElement.appendChild(option);
+            });
+        });
+
+        console.log('About to call showDropdown from showSmartSuggestions');
+        this.showDropdown(type);
+        console.log('showDropdown called, dropdown should be visible now');
+        
+        // Double-check the dropdown visibility
+        const dropdown = document.getElementById(`${type}-dropdown`);
+        if (dropdown) {
+            console.log('Dropdown classes after showDropdown:', dropdown.className);
+            console.log('Dropdown hidden?', dropdown.classList.contains('hidden'));
+        }
+        
+        // Reset flag after a short delay
+        setTimeout(() => {
+            this.showingSmartSuggestions = false;
+        }, 100);
+    }
+
+    // Create a compound option element
+    createCompoundOption(compound, type) {
+        const option = document.createElement('div');
+        option.className = 'compound-option px-3 py-2 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0';
+        option.dataset.formula = compound.formula;
+        option.dataset.name = compound.name;
+        
+        option.innerHTML = `
+            <div class="flex justify-between items-center">
+                <span class="font-mono text-lg">${compound.formula}</span>
+                <span class="text-sm text-gray-500">${compound.name}</span>
+            </div>
+        `;
+        
+        // Add click handler
+        option.addEventListener('click', () => {
+            this.selectCompound(type, compound.formula);
+        });
+        
+        return option;
     }
 
     populateDropdown(type) {
@@ -1084,24 +1530,30 @@ class EquationBalancerUI {
     }
 
     showDropdown(type) {
+        console.log('showDropdown called for:', type);
         const dropdown = document.getElementById(`${type}-dropdown`);
+        console.log('Dropdown element found:', !!dropdown);
         if (dropdown) {
             dropdown.classList.remove('hidden');
             this.activeDropdown = type;
+            console.log('Dropdown should now be visible');
         }
     }
 
     closeDropdown(type) {
+        console.log('closeDropdown called for:', type);
         const dropdown = document.getElementById(`${type}-dropdown`);
         if (dropdown) {
             dropdown.classList.add('hidden');
             if (this.activeDropdown === type) {
                 this.activeDropdown = null;
             }
+            console.log('Dropdown closed for:', type);
         }
     }
 
     closeAllDropdowns() {
+        console.log('closeAllDropdowns called');
         this.closeDropdown('reactants');
         this.closeDropdown('products');
     }
