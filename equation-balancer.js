@@ -3988,15 +3988,20 @@ class EquationBalancerUI {
                                             </div>
                                         `).join('')}
                                     </div>
-                                    <div class="mt-3 p-2 bg-blue-100 dark:bg-blue-800 rounded">
-                                        <div class="text-sm font-semibold text-blue-800 dark:text-blue-100">
-                                            ${step.element}: ${step.leftCount} atoms total
-                                        </div>
-                                        ${step.leftSideReasoning ? `
-                                            <div class="text-xs text-blue-700 mt-1 italic">
+                                    ${step.leftSideReasoning ? `
+                                        <div class="mt-3 p-3 bg-blue-100 dark:bg-blue-800 rounded">
+                                            <div class="text-sm font-semibold text-blue-800 dark:text-blue-100 mb-2">
+                                                Balancing Strategy:
+                                            </div>
+                                            <div class="text-xs text-blue-700 dark:text-blue-200">
                                                 ${step.leftSideReasoning}
                                             </div>
-                                        ` : ''}
+                                        </div>
+                                    ` : ''}
+                                    <div class="mt-3 p-2 bg-blue-100 dark:bg-blue-800 rounded">
+                                        <div class="text-sm font-semibold text-blue-800 dark:text-blue-100">
+                                            Result: ${step.element}: ${step.leftCount} atoms total
+                                        </div>
                                     </div>
                                 </div>
 
@@ -4016,15 +4021,20 @@ class EquationBalancerUI {
                                             </div>
                                         `).join('')}
                                     </div>
-                                    <div class="mt-3 p-2 bg-purple-100 dark:bg-purple-800 rounded">
-                                        <div class="text-sm font-semibold text-purple-800 dark:text-purple-100">
-                                            ${step.element}: ${step.rightCount} atoms total
-                                        </div>
-                                        ${step.rightSideReasoning ? `
-                                            <div class="text-xs text-purple-700 mt-1 italic">
+                                    ${step.rightSideReasoning ? `
+                                        <div class="mt-3 p-3 bg-purple-100 dark:bg-purple-800 rounded">
+                                            <div class="text-sm font-semibold text-purple-800 dark:text-purple-100 mb-2">
+                                                Balancing Strategy:
+                                            </div>
+                                            <div class="text-xs text-purple-700 dark:text-purple-200">
                                                 ${step.rightSideReasoning}
                                             </div>
-                                        ` : ''}
+                                        </div>
+                                    ` : ''}
+                                    <div class="mt-3 p-2 bg-purple-100 dark:bg-purple-800 rounded">
+                                        <div class="text-sm font-semibold text-purple-800 dark:text-purple-100">
+                                            Result: ${step.element}: ${step.rightCount} atoms total
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -4230,19 +4240,21 @@ class EquationBalancerUI {
                 });
 
                 if (leftChanges.length > 0) {
-                    const totalAtomChange = leftChanges.reduce((sum, change) => sum + change.atomChange, 0);
-                    leftSideReasoning = `Need ${totalAtomChange} more ${element} atoms. ` + leftChanges.map(change =>
-                        `${change.formula}: ${change.elementCount} ${element} × ${change.afterCoeff} = ${change.elementCount * change.afterCoeff} atoms`
-                    ).join(', ');
+                    leftSideReasoning = leftChanges.map(change => {
+                        const originalAtoms = change.beforeCoeff * change.elementCount;
+                        const newAtoms = change.afterCoeff * change.elementCount;
+                        return `Add coefficient ${change.afterCoeff} to ${change.formula}: We have ${originalAtoms} ${element} atoms, multiply by ${change.afterCoeff} to get ${newAtoms} atoms`;
+                    }).join('. ');
                 } else {
                     leftSideReasoning = `Left side already has correct ${element} count`;
                 }
 
                 if (rightChanges.length > 0) {
-                    const totalAtomChange = rightChanges.reduce((sum, change) => sum + change.atomChange, 0);
-                    rightSideReasoning = `Need ${totalAtomChange} more ${element} atoms. ` + rightChanges.map(change =>
-                        `${change.formula}: ${change.elementCount} ${element} × ${change.afterCoeff} = ${change.elementCount * change.afterCoeff} atoms`
-                    ).join(', ');
+                    rightSideReasoning = rightChanges.map(change => {
+                        const originalAtoms = change.beforeCoeff * change.elementCount;
+                        const newAtoms = change.afterCoeff * change.elementCount;
+                        return `Add coefficient ${change.afterCoeff} to ${change.formula}: We have ${originalAtoms} ${element} atoms, multiply by ${change.afterCoeff} to get ${newAtoms} atoms`;
+                    }).join('. ');
                 } else {
                     rightSideReasoning = `Right side already has correct ${element} count`;
                 }
