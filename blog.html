@@ -12,91 +12,96 @@
     <nav class="bg-white shadow-sm border-b">
         <div class="container mx-auto px-4 py-4">
             <div class="flex items-center justify-between">
-                <a href="/" class="text-2xl font-bold text-orange-600">ChemEqBalancer</a>
-                <div class="space-x-4">
-                    <a href="/" class="text-gray-600 hover:text-orange-600">Balancer Tool</a>
-                    <a href="/practice.html" class="text-gray-600 hover:text-orange-600">Equation Practice</a>
-                    <a href="/atomic-practice.html" class="text-gray-600 hover:text-orange-600">Atomic Practice</a>
-                    <a href="/blog.html" class="text-orange-600 font-semibold">Blog</a>
+                <a href="/" class="text-xl sm:text-2xl font-bold text-orange-600">ChemEqBalancer</a>
+                <div class="flex flex-wrap gap-2 sm:gap-4 text-sm sm:text-base">
+                    <a href="/" class="text-gray-600 hover:text-orange-600 whitespace-nowrap">
+                        <i class="fas fa-balance-scale sm:mr-1"></i><span class="hidden sm:inline">Balancer Tool</span>
+                    </a>
+                    <a href="/practice.html" class="text-gray-600 hover:text-orange-600 whitespace-nowrap">
+                        <i class="fas fa-dumbbell sm:mr-1"></i><span class="hidden sm:inline">Equation Practice</span>
+                    </a>
+                    <a href="/atomic-practice.html" class="text-gray-600 hover:text-orange-600 whitespace-nowrap">
+                        <i class="fas fa-atom sm:mr-1"></i><span class="hidden sm:inline">Atomic Practice</span>
+                    </a>
+                    <a href="/blog.html" class="text-orange-600 font-semibold whitespace-nowrap">
+                        <i class="fas fa-blog sm:mr-1"></i><span class="hidden sm:inline">Blog</span>
+                    </a>
                 </div>
             </div>
         </div>
     </nav>
 
-    <div class="container mx-auto px-4 py-8">
-        <h1 class="text-4xl font-bold text-gray-800 mb-8">Chemistry Blog & Tutorials</h1>
+    <div class="container mx-auto px-4 py-6 sm:py-8">
+        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-6 sm:mb-8 text-center sm:text-left">
+            <i class="fas fa-book-open text-orange-600 mr-2"></i>
+            Chemistry Blog & Tutorials
+        </h1>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             <!-- Blog Post 1 -->
-            <article class="bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-xl font-bold mb-3">
-                    <a href="/how-to-balance-chemical-equations.html" class="text-gray-800 hover:text-orange-600">
+            <article class="bg-white rounded-lg shadow-lg p-4 sm:p-6 hover:shadow-xl transition-shadow">
+                <h2 class="text-lg sm:text-xl font-bold mb-3 leading-tight">
+                    <a href="/how-to-balance-chemical-equations.html" class="text-gray-800 hover:text-orange-600 transition-colors">
                         How to Balance Chemical Equations: A Step-by-Step Guide
                     </a>
                 </h2>
-                <p class="text-gray-600 mb-4">Learn the fundamental principles of balancing chemical equations with our comprehensive guide. Perfect for beginners and students.</p>
-                <div class="text-sm text-gray-500 mb-3">
-                    <i class="fas fa-calendar mr-1"></i> October 2024
-                    <span class="mx-2">•</span>
-                    <i class="fas fa-clock mr-1"></i> 8 min read
+                <p class="text-gray-600 mb-4 text-sm sm:text-base line-clamp-3">Learn the fundamental principles of balancing chemical equations with our comprehensive guide. Perfect for beginners and students.</p>
+                <div class="text-xs sm:text-sm text-gray-500 mb-3 flex flex-wrap gap-2">
+                    <span><i class="fas fa-calendar mr-1"></i> October 2024</span>
+                    <span><i class="fas fa-clock mr-1"></i> 8 min read</span>
                 </div>
-                <a href="/how-to-balance-chemical-equations.html" class="text-orange-600 hover:text-orange-700 text-sm font-medium">
-                    Read More →
+                <a href="/how-to-balance-chemical-equations.html" class="inline-block w-full sm:w-auto text-center sm:text-left bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                    Read More <i class="fas fa-arrow-right ml-1"></i>
                 </a>
             </article>
 
             <!-- Blog Post 2 -->
-            <article class="bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-xl font-bold mb-3">Common Types of Chemical Reactions Explained</h2>
-                <p class="text-gray-600 mb-4">Explore synthesis, decomposition, single displacement, double displacement, and combustion reactions with examples.</p>
-                <div class="text-sm text-gray-500">
-                    <i class="fas fa-calendar mr-1"></i> October 2024
-                    <span class="mx-2">•</span>
-                    <i class="fas fa-clock mr-1"></i> 7 min read
+            <article class="bg-white rounded-lg shadow-lg p-4 sm:p-6 hover:shadow-xl transition-shadow">
+                <h2 class="text-lg sm:text-xl font-bold mb-3 leading-tight">Common Types of Chemical Reactions Explained</h2>
+                <p class="text-gray-600 mb-4 text-sm sm:text-base line-clamp-3">Explore synthesis, decomposition, single displacement, double displacement, and combustion reactions with examples.</p>
+                <div class="text-xs sm:text-sm text-gray-500 flex flex-wrap gap-2">
+                    <span><i class="fas fa-calendar mr-1"></i> October 2024</span>
+                    <span><i class="fas fa-clock mr-1"></i> 7 min read</span>
                 </div>
             </article>
 
             <!-- Blog Post 3 -->
-            <article class="bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-xl font-bold mb-3">Stoichiometry Made Simple: Mole Calculations</h2>
-                <p class="text-gray-600 mb-4">Master stoichiometry calculations and mole conversions with practical examples and step-by-step solutions.</p>
-                <div class="text-sm text-gray-500">
-                    <i class="fas fa-calendar mr-1"></i> October 2024
-                    <span class="mx-2">•</span>
-                    <i class="fas fa-clock mr-1"></i> 6 min read
+            <article class="bg-white rounded-lg shadow-lg p-4 sm:p-6 hover:shadow-xl transition-shadow">
+                <h2 class="text-lg sm:text-xl font-bold mb-3 leading-tight">Stoichiometry Made Simple: Mole Calculations</h2>
+                <p class="text-gray-600 mb-4 text-sm sm:text-base line-clamp-3">Master stoichiometry calculations and mole conversions with practical examples and step-by-step solutions.</p>
+                <div class="text-xs sm:text-sm text-gray-500 flex flex-wrap gap-2">
+                    <span><i class="fas fa-calendar mr-1"></i> October 2024</span>
+                    <span><i class="fas fa-clock mr-1"></i> 6 min read</span>
                 </div>
             </article>
 
             <!-- Blog Post 4 -->
-            <article class="bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-xl font-bold mb-3">Acid-Base Reactions: Complete Guide with Examples</h2>
-                <p class="text-gray-600 mb-4">Understanding neutralization reactions, pH calculations, and predicting products in acid-base chemistry.</p>
-                <div class="text-sm text-gray-500">
-                    <i class="fas fa-calendar mr-1"></i> October 2024
-                    <span class="mx-2">•</span>
-                    <i class="fas fa-clock mr-1"></i> 8 min read
+            <article class="bg-white rounded-lg shadow-lg p-4 sm:p-6 hover:shadow-xl transition-shadow">
+                <h2 class="text-lg sm:text-xl font-bold mb-3 leading-tight">Acid-Base Reactions: Complete Guide with Examples</h2>
+                <p class="text-gray-600 mb-4 text-sm sm:text-base line-clamp-3">Understanding neutralization reactions, pH calculations, and predicting products in acid-base chemistry.</p>
+                <div class="text-xs sm:text-sm text-gray-500 flex flex-wrap gap-2">
+                    <span><i class="fas fa-calendar mr-1"></i> October 2024</span>
+                    <span><i class="fas fa-clock mr-1"></i> 8 min read</span>
                 </div>
             </article>
 
             <!-- Blog Post 5 -->
-            <article class="bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-xl font-bold mb-3">Redox Reactions: Oxidation and Reduction Explained</h2>
-                <p class="text-gray-600 mb-4">Learn to identify oxidation states, balance redox equations, and understand electron transfer in chemical reactions.</p>
-                <div class="text-sm text-gray-500">
-                    <i class="fas fa-calendar mr-1"></i> October 2024
-                    <span class="mx-2">•</span>
-                    <i class="fas fa-clock mr-1"></i> 9 min read
+            <article class="bg-white rounded-lg shadow-lg p-4 sm:p-6 hover:shadow-xl transition-shadow">
+                <h2 class="text-lg sm:text-xl font-bold mb-3 leading-tight">Redox Reactions: Oxidation and Reduction Explained</h2>
+                <p class="text-gray-600 mb-4 text-sm sm:text-base line-clamp-3">Learn to identify oxidation states, balance redox equations, and understand electron transfer in chemical reactions.</p>
+                <div class="text-xs sm:text-sm text-gray-500 flex flex-wrap gap-2">
+                    <span><i class="fas fa-calendar mr-1"></i> October 2024</span>
+                    <span><i class="fas fa-clock mr-1"></i> 9 min read</span>
                 </div>
             </article>
 
             <!-- Blog Post 6 -->
-            <article class="bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-xl font-bold mb-3">Chemistry Study Tips for Students</h2>
-                <p class="text-gray-600 mb-4">Effective study strategies, memorization techniques, and practice methods to excel in chemistry courses.</p>
-                <div class="text-sm text-gray-500">
-                    <i class="fas fa-calendar mr-1"></i> October 2024
-                    <span class="mx-2">•</span>
-                    <i class="fas fa-clock mr-1"></i> 4 min read
+            <article class="bg-white rounded-lg shadow-lg p-4 sm:p-6 hover:shadow-xl transition-shadow">
+                <h2 class="text-lg sm:text-xl font-bold mb-3 leading-tight">Chemistry Study Tips for Students</h2>
+                <p class="text-gray-600 mb-4 text-sm sm:text-base line-clamp-3">Effective study strategies, memorization techniques, and practice methods to excel in chemistry courses.</p>
+                <div class="text-xs sm:text-sm text-gray-500 flex flex-wrap gap-2">
+                    <span><i class="fas fa-calendar mr-1"></i> October 2024</span>
+                    <span><i class="fas fa-clock mr-1"></i> 4 min read</span>
                 </div>
             </article>
         </div>

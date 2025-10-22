@@ -8,34 +8,78 @@
     <meta name="keywords" content="how to balance chemical equations, chemical equation balancing, chemistry tutorial, stoichiometry guide">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Mobile optimizations */
+        @media (max-width: 640px) {
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            
+            /* Better touch targets */
+            a {
+                min-height: 44px;
+                display: inline-flex;
+                align-items: center;
+            }
+            
+            /* Responsive prose */
+            .prose h2 {
+                font-size: 1.5rem;
+                line-height: 1.3;
+            }
+            
+            .prose h3 {
+                font-size: 1.25rem;
+                line-height: 1.4;
+            }
+            
+            /* Better code blocks */
+            .prose code {
+                font-size: 0.875rem;
+            }
+        }
+        
+        /* Responsive navigation icons */
+        @media (min-width: 640px) {
+            .sm\\:inline {
+                display: inline !important;
+            }
+        }
+    </style>
 </head>
 <body class="bg-gray-50 dark-mode">
     <!-- Navigation -->
     <nav class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div class="container mx-auto px-4 py-4">
             <div class="flex items-center justify-between">
-                <a href="/" class="text-2xl font-bold text-orange-600">ChemEqBalancer</a>
-                <div class="space-x-4">
-                    <a href="/" class="text-gray-600 dark:text-gray-300 hover:text-orange-600">Balancer Tool</a>
-                    <a href="/practice.html" class="text-gray-600 dark:text-gray-300 hover:text-orange-600">Practice</a>
-                    <a href="/blog.html" class="text-gray-600 dark:text-gray-300 hover:text-orange-600">Blog</a>
+                <a href="/" class="text-xl sm:text-2xl font-bold text-orange-600">ChemEqBalancer</a>
+                <div class="flex flex-wrap gap-2 sm:gap-4 text-sm sm:text-base">
+                    <a href="/" class="text-gray-600 dark:text-gray-300 hover:text-orange-600 whitespace-nowrap">
+                        <i class="fas fa-balance-scale sm:mr-1"></i><span class="hidden sm:inline">Balancer Tool</span>
+                    </a>
+                    <a href="/practice.html" class="text-gray-600 dark:text-gray-300 hover:text-orange-600 whitespace-nowrap">
+                        <i class="fas fa-dumbbell sm:mr-1"></i><span class="hidden sm:inline">Practice</span>
+                    </a>
+                    <a href="/blog.html" class="text-gray-600 dark:text-gray-300 hover:text-orange-600 whitespace-nowrap">
+                        <i class="fas fa-blog sm:mr-1"></i><span class="hidden sm:inline">Blog</span>
+                    </a>
                 </div>
             </div>
         </div>
     </nav>
 
-    <article class="container mx-auto px-4 py-8 max-w-4xl">
-        <header class="mb-8">
-            <h1 class="text-4xl font-bold text-gray-800 dark:text-white mb-4">How to Balance Chemical Equations: Complete Step-by-Step Guide</h1>
-            <div class="text-gray-600 dark:text-gray-400 mb-4">
-                <i class="fas fa-calendar mr-2"></i>October 21, 2024
-                <span class="mx-2">•</span>
-                <i class="fas fa-clock mr-2"></i>8 min read
+    <article class="container mx-auto px-4 py-6 sm:py-8 max-w-4xl">
+        <header class="mb-6 sm:mb-8">
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 dark:text-white mb-4 leading-tight">How to Balance Chemical Equations: Complete Step-by-Step Guide</h1>
+            <div class="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-4 flex flex-wrap gap-2 sm:gap-4">
+                <span><i class="fas fa-calendar mr-1"></i>October 21, 2024</span>
+                <span><i class="fas fa-clock mr-1"></i>8 min read</span>
             </div>
-            <p class="text-xl text-gray-700 dark:text-gray-300">Master the art of balancing chemical equations with our comprehensive guide. Learn the fundamental principles and practice with real examples.</p>
+            <p class="text-lg sm:text-xl text-gray-700 dark:text-gray-300 leading-relaxed">Master the art of balancing chemical equations with our comprehensive guide. Learn the fundamental principles and practice with real examples.</p>
         </header>
 
-        <div class="prose prose-lg max-w-none dark:prose-invert">
+        <div class="prose prose-sm sm:prose-lg max-w-none dark:prose-invert">
             <h2>What is Chemical Equation Balancing?</h2>
             <p>Chemical equation balancing is the process of ensuring that the number of atoms of each element is equal on both sides of a chemical equation. This follows the <strong>Law of Conservation of Mass</strong>, which states that matter cannot be created or destroyed in a chemical reaction.</p>
 
@@ -50,50 +94,52 @@
             
             <h3>Step 1: Write the Unbalanced Equation</h3>
             <p>Start with the chemical formulas of reactants and products:</p>
-            <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg font-mono text-lg">
+            <div class="bg-gray-100 dark:bg-gray-800 p-3 sm:p-4 rounded-lg font-mono text-base sm:text-lg overflow-x-auto">
                 CH₄ + O₂ → CO₂ + H₂O
             </div>
 
             <h3>Step 2: Count Atoms on Each Side</h3>
             <p>Make a table to track each element:</p>
-            <table class="w-full border-collapse border border-gray-300 dark:border-gray-600">
-                <thead>
-                    <tr class="bg-gray-100 dark:bg-gray-700">
-                        <th class="border border-gray-300 dark:border-gray-600 p-2">Element</th>
-                        <th class="border border-gray-300 dark:border-gray-600 p-2">Reactants</th>
-                        <th class="border border-gray-300 dark:border-gray-600 p-2">Products</th>
-                        <th class="border border-gray-300 dark:border-gray-600 p-2">Balanced?</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="border border-gray-300 dark:border-gray-600 p-2">C</td>
-                        <td class="border border-gray-300 dark:border-gray-600 p-2">1</td>
-                        <td class="border border-gray-300 dark:border-gray-600 p-2">1</td>
-                        <td class="border border-gray-300 dark:border-gray-600 p-2">✅</td>
-                    </tr>
-                    <tr>
-                        <td class="border border-gray-300 dark:border-gray-600 p-2">H</td>
-                        <td class="border border-gray-300 dark:border-gray-600 p-2">4</td>
-                        <td class="border border-gray-300 dark:border-gray-600 p-2">2</td>
-                        <td class="border border-gray-300 dark:border-gray-600 p-2">❌</td>
-                    </tr>
-                    <tr>
-                        <td class="border border-gray-300 dark:border-gray-600 p-2">O</td>
-                        <td class="border border-gray-300 dark:border-gray-600 p-2">2</td>
-                        <td class="border border-gray-300 dark:border-gray-600 p-2">3</td>
-                        <td class="border border-gray-300 dark:border-gray-600 p-2">❌</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse border border-gray-300 dark:border-gray-600 min-w-full">
+                    <thead>
+                        <tr class="bg-gray-100 dark:bg-gray-700">
+                            <th class="border border-gray-300 dark:border-gray-600 p-2 text-sm sm:text-base">Element</th>
+                            <th class="border border-gray-300 dark:border-gray-600 p-2 text-sm sm:text-base">Reactants</th>
+                            <th class="border border-gray-300 dark:border-gray-600 p-2 text-sm sm:text-base">Products</th>
+                            <th class="border border-gray-300 dark:border-gray-600 p-2 text-sm sm:text-base">Balanced?</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="border border-gray-300 dark:border-gray-600 p-2 text-sm sm:text-base font-semibold">C</td>
+                            <td class="border border-gray-300 dark:border-gray-600 p-2 text-sm sm:text-base text-center">1</td>
+                            <td class="border border-gray-300 dark:border-gray-600 p-2 text-sm sm:text-base text-center">1</td>
+                            <td class="border border-gray-300 dark:border-gray-600 p-2 text-sm sm:text-base text-center">✅</td>
+                        </tr>
+                        <tr>
+                            <td class="border border-gray-300 dark:border-gray-600 p-2 text-sm sm:text-base font-semibold">H</td>
+                            <td class="border border-gray-300 dark:border-gray-600 p-2 text-sm sm:text-base text-center">4</td>
+                            <td class="border border-gray-300 dark:border-gray-600 p-2 text-sm sm:text-base text-center">2</td>
+                            <td class="border border-gray-300 dark:border-gray-600 p-2 text-sm sm:text-base text-center">❌</td>
+                        </tr>
+                        <tr>
+                            <td class="border border-gray-300 dark:border-gray-600 p-2 text-sm sm:text-base font-semibold">O</td>
+                            <td class="border border-gray-300 dark:border-gray-600 p-2 text-sm sm:text-base text-center">2</td>
+                            <td class="border border-gray-300 dark:border-gray-600 p-2 text-sm sm:text-base text-center">3</td>
+                            <td class="border border-gray-300 dark:border-gray-600 p-2 text-sm sm:text-base text-center">❌</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
             <h3>Step 3: Balance Each Element</h3>
             <p>Start with the most complex molecule. Balance hydrogen first:</p>
-            <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg font-mono text-lg">
+            <div class="bg-gray-100 dark:bg-gray-800 p-3 sm:p-4 rounded-lg font-mono text-base sm:text-lg overflow-x-auto">
                 CH₄ + O₂ → CO₂ + 2H₂O
             </div>
             <p>Now balance oxygen:</p>
-            <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg font-mono text-lg">
+            <div class="bg-gray-100 dark:bg-gray-800 p-3 sm:p-4 rounded-lg font-mono text-base sm:text-lg overflow-x-auto">
                 CH₄ + 2O₂ → CO₂ + 2H₂O
             </div>
 
@@ -107,11 +153,12 @@
 
             <h2>Common Balancing Tips</h2>
             <div class="bg-blue-50 dark:bg-blue-900 p-4 rounded-lg">
-                <ul>
-                    <li>Balance metals first, then non-metals, then hydrogen and oxygen last</li>
-                    <li>Use fractions if needed, then multiply to get whole numbers</li>
-                    <li>Never change chemical formulas, only coefficients</li>
-                    <li>Start with the most complex molecule</li>
+                <h4 class="font-semibold mb-2 text-blue-800 dark:text-blue-200">💡 Pro Tips:</h4>
+                <ul class="space-y-1 text-sm sm:text-base">
+                    <li>• Balance metals first, then non-metals, then hydrogen and oxygen last</li>
+                    <li>• Use fractions if needed, then multiply to get whole numbers</li>
+                    <li>• Never change chemical formulas, only coefficients</li>
+                    <li>• Start with the most complex molecule</li>
                 </ul>
             </div>
 
