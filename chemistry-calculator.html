@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemistry Calculator - Free Online Chemical Equation Solver & Balancer</title>
+    <meta name="description" content="Free chemistry calculator for balancing equations, stoichiometry, and chemical reactions. Instant solutions with step-by-step explanations.">
+    <meta name="keywords" content="chemistry calculator, chemical equation solver, stoichiometry calculator, chemistry tool, equation balancer">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <a href="/" class="text-xl sm:text-2xl font-bold text-orange-600">ChemEqBalancer</a>
+                <div class="flex flex-wrap gap-2 sm:gap-4 text-sm sm:text-base">
+                    <a href="/" class="text-gray-600 hover:text-orange-600 whitespace-nowrap">
+                        <i class="fas fa-balance-scale sm:mr-1"></i><span class="hidden sm:inline">Balancer Tool</span>
+                    </a>
+                    <a href="/practice.html" class="text-gray-600 hover:text-orange-600 whitespace-nowrap">
+                        <i class="fas fa-dumbbell sm:mr-1"></i><span class="hidden sm:inline">Practice</span>
+                    </a>
+                    <a href="/blog.html" class="text-gray-600 hover:text-orange-600 whitespace-nowrap">
+                        <i class="fas fa-blog sm:mr-1"></i><span class="hidden sm:inline">Blog</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-4">
+                <i class="fas fa-calculator text-orange-600 mr-2"></i>
+                Chemistry Calculator - Free Online Tool
+            </h1>
+            <p class="text-xl text-gray-600 mb-6">Solve chemical equations, balance reactions, and calculate stoichiometry with our comprehensive chemistry calculator</p>
+            
+            <!-- Quick Access Buttons -->
+            <div class="flex flex-wrap justify-center gap-4 mb-8">
+                <a href="/" class="bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors">
+                    <i class="fas fa-balance-scale mr-2"></i>Equation Balancer
+                </a>
+                <a href="/practice.html" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-dumbbell mr-2"></i>Practice Problems
+                </a>
+                <a href="/atomic-practice.html" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors">
+                    <i class="fas fa-atom mr-2"></i>Atomic Calculator
+                </a>
+            </div>
+        </div>
+
+        <!-- Calculator Features -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+                <div class="text-4xl text-orange-600 mb-4">
+                    <i class="fas fa-balance-scale"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">Equation Balancer</h3>
+                <p class="text-gray-600 mb-4">Balance any chemical equation instantly with step-by-step solutions and explanations.</p>
+                <a href="/" class="text-orange-600 hover:text-orange-700 font-medium">Try Now →</a>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+                <div class="text-4xl text-blue-600 mb-4">
+                    <i class="fas fa-atom"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">Atomic Structure</h3>
+                <p class="text-gray-600 mb-4">Calculate protons, neutrons, electrons, and practice atomic theory problems.</p>
+                <a href="/atomic-practice.html" class="text-blue-600 hover:text-blue-700 font-medium">Calculate →</a>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+                <div class="text-4xl text-green-600 mb-4">
+                    <i class="fas fa-flask"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">Reaction Types</h3>
+                <p class="text-gray-600 mb-4">Identify and balance synthesis, decomposition, and displacement reactions.</p>
+                <a href="/chemical-equation-balancing-guide.html" class="text-green-600 hover:text-green-700 font-medium">Learn More →</a>
+            </div>
+        </div>
+
+        <!-- How to Use -->
+        <section class="bg-white rounded-lg shadow-lg p-8 mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+                <i class="fas fa-question-circle text-blue-600 mr-2"></i>
+                How to Use Our Chemistry Calculator
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">For Chemical Equation Balancing:</h3>
+                    <ol class="space-y-2 text-gray-600">
+                        <li>1. Enter your unbalanced chemical equation</li>
+                        <li>2. Use our smart compound suggestions</li>
+                        <li>3. Click "Balance Equation" for instant results</li>
+                        <li>4. Review step-by-step explanations</li>
+                        <li>5. Copy or practice with similar equations</li>
+                    </ol>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">For Atomic Calculations:</h3>
+                    <ol class="space-y-2 text-gray-600">
+                        <li>1. Select an element or isotope</li>
+                        <li>2. Enter known values (mass number, charge, etc.)</li>
+                        <li>3. Calculate missing protons, neutrons, electrons</li>
+                        <li>4. Get detailed explanations and formulas</li>
+                        <li>5. Practice with different elements</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chemistry Calculator Types -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Types of Chemistry Calculations</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-blue-50 rounded-lg p-6">
+                    <h3 class="text-lg font-bold text-blue-800 mb-3">
+                        <i class="fas fa-equals mr-2"></i>Equation Balancing
+                    </h3>
+                    <ul class="text-blue-700 space-y-1 text-sm">
+                        <li>• Balance coefficients automatically</li>
+                        <li>• Handle complex organic reactions</li>
+                        <li>• Predict reaction products</li>
+                        <li>• Verify conservation of mass</li>
+                    </ul>
+                </div>
+
+                <div class="bg-green-50 rounded-lg p-6">
+                    <h3 class="text-lg font-bold text-green-800 mb-3">
+                        <i class="fas fa-weight mr-2"></i>Stoichiometry
+                    </h3>
+                    <ul class="text-green-700 space-y-1 text-sm">
+                        <li>• Mole-to-mole calculations</li>
+                        <li>• Mass-to-mass conversions</li>
+                        <li>• Limiting reagent problems</li>
+                        <li>• Percent yield calculations</li>
+                    </ul>
+                </div>
+
+                <div class="bg-purple-50 rounded-lg p-6">
+                    <h3 class="text-lg font-bold text-purple-800 mb-3">
+                        <i class="fas fa-atom mr-2"></i>Atomic Structure
+                    </h3>
+                    <ul class="text-purple-700 space-y-1 text-sm">
+                        <li>• Proton, neutron, electron counts</li>
+                        <li>• Isotope calculations</li>
+                        <li>• Ion charge determinations</li>
+                        <li>• Electron configuration</li>
+                    </ul>
+                </div>
+
+                <div class="bg-orange-50 rounded-lg p-6">
+                    <h3 class="text-lg font-bold text-orange-800 mb-3">
+                        <i class="fas fa-fire mr-2"></i>Reaction Types
+                    </h3>
+                    <ul class="text-orange-700 space-y-1 text-sm">
+                        <li>• Synthesis reactions (A + B → AB)</li>
+                        <li>• Decomposition (AB → A + B)</li>
+                        <li>• Single & double displacement</li>
+                        <li>• Combustion reactions</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Benefits -->
+        <section class="bg-gradient-to-r from-orange-50 to-blue-50 rounded-lg p-8 mb-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Why Choose Our Chemistry Calculator?</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="text-center">
+                    <div class="text-3xl text-orange-600 mb-3">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-800 mb-2">Instant Results</h3>
+                    <p class="text-gray-600 text-sm">Get balanced equations and calculations in seconds, not minutes.</p>
+                </div>
+
+                <div class="text-center">
+                    <div class="text-3xl text-blue-600 mb-3">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-800 mb-2">Educational</h3>
+                    <p class="text-gray-600 text-sm">Learn with step-by-step explanations and detailed solutions.</p>
+                </div>
+
+                <div class="text-center">
+                    <div class="text-3xl text-green-600 mb-3">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-800 mb-2">Mobile Friendly</h3>
+                    <p class="text-gray-600 text-sm">Works perfectly on phones, tablets, and computers.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Call to Action -->
+        <div class="text-center bg-white rounded-lg shadow-lg p-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Ready to Solve Chemistry Problems?</h2>
+            <p class="text-gray-600 mb-6">Join thousands of students using our free chemistry calculator for homework, exams, and learning.</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="/" class="bg-orange-600 text-white px-8 py-3 rounded-lg hover:bg-orange-700 transition-colors font-medium">
+                    <i class="fas fa-play mr-2"></i>Start Calculating
+                </a>
+                <a href="/practice.html" class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                    <i class="fas fa-dumbbell mr-2"></i>Practice Mode
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2024 ChemEqBalancer.com - Free Chemistry Calculator & Equation Balancer</p>
+            <p class="text-gray-400 text-sm mt-2">Helping students master chemistry one equation at a time</p>
+        </div>
+    </footer>
+</body>
+</html>
