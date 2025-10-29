@@ -48,4 +48,34 @@
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
+    <url>
+        <loc>https://chemeqbalancer.com/chemical-reactions-types.html</loc>
+        <lastmod>2024-10-28</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://chemeqbalancer.com/stoichiometry-guide.html</loc>
+        <lastmod>2024-10-28</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://chemeqbalancer.com/acid-base-reactions.html</loc>
+        <lastmod>2024-10-28</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://chemeqbalancer.com/redox-reactions.html</loc>
+        <lastmod>2024-10-28</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://chemeqbalancer.com/chemistry-study-tips.html</loc>
+        <lastmod>2024-10-28</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
 </urlset>

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redox Reactions: Oxidation and Reduction Explained (2024)</title>
+    <meta name="description" content="Master redox reactions, oxidation states, and electron transfer. Learn to identify and balance oxidation-reduction equations with examples.">
+    <meta name="keywords" content="redox reactions, oxidation reduction, oxidation states, electron transfer, balancing redox equations">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <a href="/" class="text-xl sm:text-2xl font-bold text-orange-600">ChemEqBalancer</a>
+                <div class="flex flex-wrap gap-2 sm:gap-4 text-sm sm:text-base">
+                    <a href="/" class="text-gray-600 hover:text-orange-600 whitespace-nowrap">
+                        <i class="fas fa-balance-scale sm:mr-1"></i><span class="hidden sm:inline">Balancer Tool</span>
+                    </a>
+                    <a href="/practice.html" class="text-gray-600 hover:text-orange-600 whitespace-nowrap">
+                        <i class="fas fa-dumbbell sm:mr-1"></i><span class="hidden sm:inline">Practice</span>
+                    </a>
+                    <a href="/blog.html" class="text-gray-600 hover:text-orange-600 whitespace-nowrap">
+                        <i class="fas fa-blog sm:mr-1"></i><span class="hidden sm:inline">Blog</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="bg-gradient-to-br from-yellow-50 via-orange-50 to-red-50 py-12">
+        <div class="container mx-auto px-4 max-w-4xl text-center">
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+                Redox Reactions
+                <span class="block text-orange-600">Oxidation & Reduction</span>
+            </h1>
+            <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+                Master electron transfer, oxidation states, and balancing redox equations with clear examples and practice.
+            </p>
+        </div>
+    </div>
+
+    <article class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- What are Redox Reactions -->
+        <section class="mb-12">
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-exchange-alt text-orange-600 mr-3"></i>
+                    What are Redox Reactions?
+                </h2>
+                
+                <div class="mb-8">
+                    <p class="text-lg text-gray-700 mb-6 leading-relaxed">
+                        <strong class="text-orange-600">Redox</strong> reactions involve the transfer of electrons between substances. The name comes from <strong>RED</strong>uction and <strong>OX</strong>idation happening simultaneously.
+                    </p>
+                    
+                    <div class="bg-orange-50 border-l-4 border-orange-500 p-4 rounded-r-lg">
+                        <h3 class="font-bold text-orange-800 mb-2">
+                            <i class="fas fa-lightbulb mr-2"></i>Remember: OIL RIG
+                        </h3>
+                        <p class="text-orange-700">
+                            <strong>O</strong>xidation <strong>I</strong>s <strong>L</strong>osing electrons<br>
+                            <strong>R</strong>eduction <strong>I</strong>s <strong>G</strong>aining electrons
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-red-50 p-6 rounded-lg border-l-4 border-red-500">
+                        <h3 class="text-2xl font-bold text-red-800 mb-4">
+                            <i class="fas fa-minus mr-2"></i>Oxidation
+                        </h3>
+                        <ul class="space-y-2 text-red-700">
+                            <li>• <strong>Loses</strong> electrons</li>
+                            <li>• Oxidation state <strong>increases</strong></li>
+                            <li>• The substance is <strong>oxidized</strong></li>
+                            <li>• Acts as a <strong>reducing agent</strong></li>
+                            <li>• Example: Na → Na⁺ + e⁻</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-6 rounded-lg border-l-4 border-blue-500">
+                        <h3 class="text-2xl font-bold text-blue-800 mb-4">
+                            <i class="fas fa-plus mr-2"></i>Reduction
+                        </h3>
+                        <ul class="space-y-2 text-blue-700">
+                            <li>• <strong>Gains</strong> electrons</li>
+                            <li>• Oxidation state <strong>decreases</strong></li>
+                            <li>• The substance is <strong>reduced</strong></li>
+                            <li>• Acts as an <strong>oxidizing agent</strong></li>
+                            <li>• Example: Cl₂ + 2e⁻ → 2Cl⁻</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Oxidation States -->
+        <section class="mb-12">
+            <div class="bg-white rounded-xl shadow-lg p-8 border-l-4 border-purple-500">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-hashtag text-purple-600 mr-3"></i>
+                    Oxidation States (Numbers)
+                </h2>
+                
+                <p class="text-lg text-gray-700 mb-6">
+                    Oxidation states help us track electron transfer. They're like "bookkeeping" for electrons in compounds.
+                </p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-purple-50 p-6 rounded-lg">
+                        <h3 class="font-bold text-purple-800 mb-4">Rules for Assigning Oxidation States:</h3>
+                        <ol class="space-y-2 text-purple-700 text-sm">
+                            <li>1. Free elements = 0 (Na, O₂, Cl₂)</li>
+                            <li>2. Monatomic ions = charge (Na⁺ = +1, Cl⁻ = -1)</li>
+                            <li>3. Oxygen usually = -2 (except in peroxides)</li>
+                            <li>4. Hydrogen usually = +1 (except in metal hydrides)</li>
+                            <li>5. Group 1 metals = +1, Group 2 = +2</li>
+                            <li>6. Sum of all oxidation states = total charge</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="bg-green-50 p-6 rounded-lg">
+                        <h3 class="font-bold text-green-800 mb-4">Examples:</h3>
+                        <div class="space-y-2 font-mono text-sm text-green-700">
+                            <div>H₂O: H = +1, O = -2</div>
+                            <div>CO₂: C = +4, O = -2</div>
+                            <div>SO₄²⁻: S = +6, O = -2</div>
+                            <div>NH₃: N = -3, H = +1</div>
+                            <div>MnO₄⁻: Mn = +7, O = -2</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-yellow-50 p-4 rounded-lg">
+                    <h4 class="font-bold text-yellow-800 mb-2">💡 Pro Tip:</h4>
+                    <p class="text-yellow-700">If oxidation states change during a reaction, it's a redox reaction!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Identifying Redox Reactions -->
+        <section class="mb-12">
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">
+                    <i class="fas fa-search text-green-600 mr-3"></i>
+                    How to Identify Redox Reactions
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="text-center">
+                        <div class="bg-green-100 p-6 rounded-lg">
+                            <div class="text-3xl text-green-600 mb-4">1️⃣</div>
+                            <h3 class="font-bold text-green-800 mb-2">Assign Oxidation States</h3>
+                            <p class="text-green-700 text-sm">Calculate oxidation numbers for all elements</p>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="bg-blue-100 p-6 rounded-lg">
+                            <div class="text-3xl text-blue-600 mb-4">2️⃣</div>
+                            <h3 class="font-bold text-blue-800 mb-2">Compare Changes</h3>
+                            <p class="text-blue-700 text-sm">Look for elements that change oxidation states</p>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="bg-purple-100 p-6 rounded-lg">
+                            <div class="text-3xl text-purple-600 mb-4">3️⃣</div>
+                            <h3 class="font-bold text-purple-800 mb-2">Identify Agents</h3>
+                            <p class="text-purple-700 text-sm">Find what's oxidized and what's reduced</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-r from-green-500 to-blue-500 text-white p-6 rounded-lg">
+                    <h3 class="text-xl font-bold mb-4 text-center">Example: Zn + CuSO₄ → ZnSO₄ + Cu</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-bold mb-2">Oxidation States:</h4>
+                            <div class="font-mono text-sm">
+                                Zn: 0 → +2 (increases)<br>
+                                Cu: +2 → 0 (decreases)
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-bold mb-2">Conclusion:</h4>
+                            <div class="text-sm">
+                                Zn is oxidized (loses e⁻)<br>
+                                Cu²⁺ is reduced (gains e⁻)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Common Redox Reactions -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">
+                <i class="fas fa-list text-indigo-600 mr-3"></i>
+                Common Types of Redox Reactions
+            </h2>
+            
+            <div class="space-y-6">
+                <!-- Combustion -->
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500">
+                    <h3 class="text-xl font-bold text-red-800 mb-4">
+                        <i class="fas fa-fire mr-2"></i>
+                        Combustion Reactions
+                    </h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <p class="text-gray-700 mb-3">Organic compounds react with oxygen. Carbon is oxidized, oxygen is reduced.</p>
+                            <div class="bg-red-50 p-3 rounded font-mono text-sm">
+                                CH₄ + 2O₂ → CO₂ + 2H₂O<br>
+                                <span class="text-red-600">C: -4 → +4 (oxidized)</span><br>
+                                <span class="text-blue-600">O: 0 → -2 (reduced)</span>
+                            </div>
+                        </div>
+                        <div class="bg-red-50 p-4 rounded-lg">
+                            <h4 class="font-bold text-red-800 mb-2">Key Points:</h4>
+                            <ul class="text-red-700 text-sm space-y-1">
+                                <li>• Always involves O₂</li>
+                                <li>• Produces CO₂ and H₂O</li>
+                                <li>• Releases energy (exothermic)</li>
+                                <li>• Carbon gets oxidized</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metal Displacement -->
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+                    <h3 class="text-xl font-bold text-blue-800 mb-4">
+                        <i class="fas fa-exchange-alt mr-2"></i>
+                        Metal Displacement
+                    </h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <p class="text-gray-700 mb-3">More reactive metal displaces less reactive metal from its compound.</p>
+                            <div class="bg-blue-50 p-3 rounded font-mono text-sm">
+                                Fe + CuSO₄ → FeSO₄ + Cu<br>
+                                <span class="text-red-600">Fe: 0 → +2 (oxidized)</span><br>
+                                <span class="text-blue-600">Cu: +2 → 0 (reduced)</span>
+                            </div>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h4 class="font-bold text-blue-800 mb-2">Activity Series:</h4>
+                            <div class="text-blue-700 text-sm">
+                                Most reactive: K, Na, Ca, Mg, Al, Zn, Fe, Pb, H, Cu, Ag, Au :Least reactive
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Corrosion -->
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500">
+                    <h3 class="text-xl font-bold text-orange-800 mb-4">
+                        <i class="fas fa-rust mr-2"></i>
+                        Corrosion (Rusting)
+                    </h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <p class="text-gray-700 mb-3">Metals react with oxygen and water in the environment.</p>
+                            <div class="bg-orange-50 p-3 rounded font-mono text-sm">
+                                4Fe + 3O₂ + 6H₂O → 4Fe(OH)₃<br>
+                                <span class="text-red-600">Fe: 0 → +3 (oxidized)</span><br>
+                                <span class="text-blue-600">O: 0 → -2 (reduced)</span>
+                            </div>
+                        </div>
+                        <div class="bg-orange-50 p-4 rounded-lg">
+                            <h4 class="font-bold text-orange-800 mb-2">Prevention:</h4>
+                            <ul class="text-orange-700 text-sm space-y-1">
+                                <li>• Galvanization (zinc coating)</li>
+                                <li>• Paint or oil barriers</li>
+                                <li>• Cathodic protection</li>
+                                <li>• Alloying (stainless steel)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Balancing Redox Equations -->
+        <section class="mb-12">
+            <div class="bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl p-8">
+                <h2 class="text-3xl font-bold mb-6 text-center">
+                    <i class="fas fa-balance-scale mr-3"></i>
+                    Balancing Redox Equations
+                </h2>
+                
+                <div class="bg-white text-gray-900 rounded-lg p-6 mb-6">
+                    <h3 class="text-xl font-bold mb-4 text-center">Half-Reaction Method:</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-bold text-purple-800 mb-3">Oxidation Half-Reaction:</h4>
+                            <div class="bg-red-50 p-3 rounded font-mono text-sm">
+                                Zn → Zn²⁺ + 2e⁻
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2">Shows electron loss</p>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-bold text-purple-800 mb-3">Reduction Half-Reaction:</h4>
+                            <div class="bg-blue-50 p-3 rounded font-mono text-sm">
+                                Cu²⁺ + 2e⁻ → Cu
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2">Shows electron gain</p>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-6">
+                        <h4 class="font-bold text-purple-800 mb-2">Overall Reaction:</h4>
+                        <div class="bg-green-50 p-3 rounded font-mono">
+                            Zn + Cu²⁺ → Zn²⁺ + Cu
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-purple-600 p-6 rounded-lg">
+                    <h4 class="font-bold mb-4 text-center">Key Rule: Electrons must balance!</h4>
+                    <p class="text-center text-sm opacity-90">
+                        The number of electrons lost in oxidation must equal the number gained in reduction.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Practice Section -->
+        <section class="mb-12">
+            <div class="bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-xl p-8 text-center">
+                <h2 class="text-3xl font-bold mb-4">
+                    <i class="fas fa-dumbbell mr-3"></i>
+                    Practice Redox Reactions
+                </h2>
+                <p class="text-xl mb-6 opacity-90">
+                    Master electron transfer and oxidation states with our interactive tools!
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="/" class="bg-white text-green-600 px-8 py-4 rounded-lg hover:bg-gray-100 transition-colors font-bold text-lg">
+                        <i class="fas fa-balance-scale mr-2"></i>
+                        Balance Redox Equations
+                    </a>
+                    <a href="/practice.html" class="bg-green-600 border-2 border-white text-white px-8 py-4 rounded-lg hover:bg-green-700 transition-colors font-bold text-lg">
+                        <i class="fas fa-atom mr-2"></i>
+                        Practice Problems
+                    </a>
+                </div>
+            </div>
+        </section>
+    </article>
+
+    <!-- Related Content -->
+    <section class="bg-gray-100 py-12">
+        <div class="container mx-auto px-4 max-w-4xl">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">
+                <i class="fas fa-book-open text-blue-600 mr-3"></i>
+                Continue Learning
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <a href="/chemical-reactions-types.html" class="block bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+                    <div class="text-3xl text-green-600 mb-4">
+                        <i class="fas fa-flask"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Reaction Types</h3>
+                    <p class="text-gray-600">Learn about all 5 types of chemical reactions.</p>
+                </a>
+                
+                <a href="/how-to-balance-chemical-equations.html" class="block bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+                    <div class="text-3xl text-orange-600 mb-4">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Balance Equations</h3>
+                    <p class="text-gray-600">Master the art of balancing chemical equations.</p>
+                </a>
+                
+                <a href="/blog.html" class="block bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+                    <div class="text-3xl text-blue-600 mb-4">
+                        <i class="fas fa-blog"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">More Tutorials</h3>
+                    <p class="text-gray-600">Explore more chemistry guides and tutorials.</p>
+                </a>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

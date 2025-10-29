@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acid-Base Reactions: Complete Guide with Examples (2024)</title>
+    <meta name="description" content="Master acid-base reactions, neutralization, pH calculations, and product prediction. Complete guide with examples and practice problems.">
+    <meta name="keywords" content="acid base reactions, neutralization reactions, pH calculations, acids and bases, chemistry guide">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <a href="/" class="text-xl sm:text-2xl font-bold text-orange-600">ChemEqBalancer</a>
+                <div class="flex flex-wrap gap-2 sm:gap-4 text-sm sm:text-base">
+                    <a href="/" class="text-gray-600 hover:text-orange-600 whitespace-nowrap">
+                        <i class="fas fa-balance-scale sm:mr-1"></i><span class="hidden sm:inline">Balancer Tool</span>
+                    </a>
+                    <a href="/practice.html" class="text-gray-600 hover:text-orange-600 whitespace-nowrap">
+                        <i class="fas fa-dumbbell sm:mr-1"></i><span class="hidden sm:inline">Practice</span>
+                    </a>
+                    <a href="/blog.html" class="text-gray-600 hover:text-orange-600 whitespace-nowrap">
+                        <i class="fas fa-blog sm:mr-1"></i><span class="hidden sm:inline">Blog</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="bg-gradient-to-br from-red-50 via-pink-50 to-rose-50 py-12">
+        <div class="container mx-auto px-4 max-w-4xl text-center">
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+                Acid-Base Reactions
+                <span class="block text-red-600">Complete Guide</span>
+            </h1>
+            <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+                Master neutralization reactions, pH calculations, and product prediction with clear examples and practice.
+            </p>
+        </div>
+    </div>
+
+    <article class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- What are Acids and Bases -->
+        <section class="mb-12">
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-flask text-red-600 mr-3"></i>
+                    What are Acids and Bases?
+                </h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-red-50 p-6 rounded-lg border-l-4 border-red-500">
+                        <h3 class="text-2xl font-bold text-red-800 mb-4">
+                            <i class="fas fa-tint mr-2"></i>Acids
+                        </h3>
+                        <ul class="space-y-2 text-red-700">
+                            <li>• <strong>Donate</strong> hydrogen ions (H⁺)</li>
+                            <li>• Taste sour (like lemon juice)</li>
+                            <li>• pH less than 7</li>
+                            <li>• Turn litmus paper red</li>
+                            <li>• Examples: HCl, H₂SO₄, CH₃COOH</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-6 rounded-lg border-l-4 border-blue-500">
+                        <h3 class="text-2xl font-bold text-blue-800 mb-4">
+                            <i class="fas fa-soap mr-2"></i>Bases
+                        </h3>
+                        <ul class="space-y-2 text-blue-700">
+                            <li>• <strong>Accept</strong> hydrogen ions (H⁺)</li>
+                            <li>• Taste bitter, feel slippery</li>
+                            <li>• pH greater than 7</li>
+                            <li>• Turn litmus paper blue</li>
+                            <li>• Examples: NaOH, Ca(OH)₂, NH₃</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- pH Scale -->
+        <section class="mb-12">
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">
+                    <i class="fas fa-thermometer-half text-purple-600 mr-3"></i>
+                    The pH Scale
+                </h2>
+                
+                <div class="bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 to-blue-500 h-16 rounded-lg mb-6 relative">
+                    <div class="absolute inset-0 flex items-center justify-between px-4 text-white font-bold">
+                        <span>0</span>
+                        <span>7</span>
+                        <span>14</span>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="text-center">
+                        <div class="bg-red-100 p-4 rounded-lg">
+                            <h3 class="font-bold text-red-800 mb-2">Acidic (pH 0-7)</h3>
+                            <p class="text-red-700 text-sm">More H⁺ ions than OH⁻ ions</p>
+                            <div class="mt-2 text-xs text-red-600">
+                                Battery acid (0), Lemon juice (2), Coffee (5)
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="bg-green-100 p-4 rounded-lg">
+                            <h3 class="font-bold text-green-800 mb-2">Neutral (pH 7)</h3>
+                            <p class="text-green-700 text-sm">Equal H⁺ and OH⁻ ions</p>
+                            <div class="mt-2 text-xs text-green-600">
+                                Pure water (7)
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="bg-blue-100 p-4 rounded-lg">
+                            <h3 class="font-bold text-blue-800 mb-2">Basic (pH 7-14)</h3>
+                            <p class="text-blue-700 text-sm">More OH⁻ ions than H⁺ ions</p>
+                            <div class="mt-2 text-xs text-blue-600">
+                                Baking soda (9), Ammonia (11), Bleach (13)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Neutralization Reactions -->
+        <section class="mb-12">
+            <div class="bg-white rounded-xl shadow-lg p-8 border-l-4 border-green-500">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-balance-scale text-green-600 mr-3"></i>
+                    Neutralization Reactions
+                </h2>
+                
+                <div class="mb-8">
+                    <h3 class="text-2xl font-bold text-green-800 mb-4">General Pattern:</h3>
+                    <div class="bg-green-50 p-6 rounded-lg text-center">
+                        <div class="font-mono text-2xl font-bold text-green-800">
+                            Acid + Base → Salt + Water
+                        </div>
+                        <div class="font-mono text-lg text-green-600 mt-2">
+                            HCl + NaOH → NaCl + H₂O
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-bold text-gray-800 mb-3">What Happens:</h4>
+                        <ul class="space-y-2 text-gray-700">
+                            <li>• H⁺ from acid combines with OH⁻ from base</li>
+                            <li>• Forms water (H₂O)</li>
+                            <li>• Remaining ions form a salt</li>
+                            <li>• pH moves toward 7 (neutral)</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-bold text-gray-800 mb-3">Common Examples:</h4>
+                        <div class="space-y-2 font-mono text-sm bg-gray-50 p-4 rounded">
+                            <div>HCl + NaOH → NaCl + H₂O</div>
+                            <div>H₂SO₄ + 2KOH → K₂SO₄ + 2H₂O</div>
+                            <div>HNO₃ + Ca(OH)₂ → Ca(NO₃)₂ + H₂O</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Types of Acid-Base Reactions -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">
+                <i class="fas fa-list text-purple-600 mr-3"></i>
+                Types of Acid-Base Reactions
+            </h2>
+            
+            <div class="space-y-6">
+                <!-- Strong Acid + Strong Base -->
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500">
+                    <h3 class="text-xl font-bold text-red-800 mb-4">
+                        <i class="fas fa-fire mr-2"></i>
+                        Strong Acid + Strong Base
+                    </h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <p class="text-gray-700 mb-3">Complete neutralization - pH = 7 at equivalence point</p>
+                            <div class="bg-red-50 p-3 rounded font-mono text-sm">
+                                HCl + NaOH → NaCl + H₂O
+                            </div>
+                        </div>
+                        <div class="bg-red-50 p-4 rounded-lg">
+                            <h4 class="font-bold text-red-800 mb-2">Strong Acids:</h4>
+                            <div class="text-red-700 text-sm">HCl, HBr, HI, HNO₃, H₂SO₄, HClO₄</div>
+                            <h4 class="font-bold text-red-800 mb-2 mt-3">Strong Bases:</h4>
+                            <div class="text-red-700 text-sm">NaOH, KOH, Ca(OH)₂, Ba(OH)₂</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weak Acid + Strong Base -->
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-yellow-500">
+                    <h3 class="text-xl font-bold text-yellow-800 mb-4">
+                        <i class="fas fa-adjust mr-2"></i>
+                        Weak Acid + Strong Base
+                    </h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <p class="text-gray-700 mb-3">pH > 7 at equivalence point (slightly basic)</p>
+                            <div class="bg-yellow-50 p-3 rounded font-mono text-sm">
+                                CH₃COOH + NaOH → CH₃COONa + H₂O
+                            </div>
+                        </div>
+                        <div class="bg-yellow-50 p-4 rounded-lg">
+                            <h4 class="font-bold text-yellow-800 mb-2">Why pH > 7?</h4>
+                            <p class="text-yellow-700 text-sm">The salt formed can act as a weak base, making the solution slightly basic.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Strong Acid + Weak Base -->
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+                    <h3 class="text-xl font-bold text-blue-800 mb-4">
+                        <i class="fas fa-tint mr-2"></i>
+                        Strong Acid + Weak Base
+                    </h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <p class="text-gray-700 mb-3">pH < 7 at equivalence point (slightly acidic)</p>
+                            <div class="bg-blue-50 p-3 rounded font-mono text-sm">
+                                HCl + NH₃ → NH₄Cl
+                            </div>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h4 class="font-bold text-blue-800 mb-2">Why pH < 7?</h4>
+                            <p class="text-blue-700 text-sm">The salt formed can act as a weak acid, making the solution slightly acidic.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Predicting Products -->
+        <section class="mb-12">
+            <div class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl p-8">
+                <h2 class="text-3xl font-bold mb-6 text-center">
+                    <i class="fas fa-crystal-ball mr-3"></i>
+                    Predicting Products
+                </h2>
+                
+                <div class="bg-white text-gray-900 rounded-lg p-6 mb-6">
+                    <h3 class="text-xl font-bold mb-4 text-center">3-Step Method:</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="text-center">
+                            <div class="bg-indigo-100 p-4 rounded-lg">
+                                <div class="font-bold text-indigo-800 mb-2">Step 1</div>
+                                <div class="text-sm text-indigo-700">Identify the acid (H⁺ donor) and base (H⁺ acceptor)</div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <div class="bg-purple-100 p-4 rounded-lg">
+                                <div class="font-bold text-purple-800 mb-2">Step 2</div>
+                                <div class="text-sm text-purple-700">Combine the remaining ions to form the salt</div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <div class="bg-pink-100 p-4 rounded-lg">
+                                <div class="font-bold text-pink-800 mb-2">Step 3</div>
+                                <div class="text-sm text-pink-700">H⁺ + OH⁻ → H₂O (water is always formed)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-indigo-600 p-6 rounded-lg">
+                    <h4 class="font-bold mb-4 text-center">Example: HBr + Ca(OH)₂ → ?</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                        <div>
+                            <div class="font-bold mb-2">Identify:</div>
+                            <div class="text-sm">HBr = acid<br>Ca(OH)₂ = base</div>
+                        </div>
+                        <div>
+                            <div class="font-bold mb-2">Form Salt:</div>
+                            <div class="text-sm">Ca²⁺ + Br⁻<br>= CaBr₂</div>
+                        </div>
+                        <div>
+                            <div class="font-bold mb-2">Add Water:</div>
+                            <div class="text-sm">2HBr + Ca(OH)₂<br>→ CaBr₂ + 2H₂O</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Practice Section -->
+        <section class="mb-12">
+            <div class="bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-xl p-8 text-center">
+                <h2 class="text-3xl font-bold mb-4">
+                    <i class="fas fa-dumbbell mr-3"></i>
+                    Practice Acid-Base Reactions
+                </h2>
+                <p class="text-xl mb-6 opacity-90">
+                    Use our tools to practice balancing acid-base equations and predicting products!
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="/" class="bg-white text-green-600 px-8 py-4 rounded-lg hover:bg-gray-100 transition-colors font-bold text-lg">
+                        <i class="fas fa-balance-scale mr-2"></i>
+                        Balance Equations
+                    </a>
+                    <a href="/practice.html" class="bg-green-600 border-2 border-white text-white px-8 py-4 rounded-lg hover:bg-green-700 transition-colors font-bold text-lg">
+                        <i class="fas fa-flask mr-2"></i>
+                        Practice Problems
+                    </a>
+                </div>
+            </div>
+        </section>
+    </article>
+
+    <!-- Related Content -->
+    <section class="bg-gray-100 py-12">
+        <div class="container mx-auto px-4 max-w-4xl">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">
+                <i class="fas fa-book-open text-blue-600 mr-3"></i>
+                Continue Learning
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <a href="/chemical-reactions-types.html" class="block bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+                    <div class="text-3xl text-green-600 mb-4">
+                        <i class="fas fa-flask"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Reaction Types</h3>
+                    <p class="text-gray-600">Learn about all 5 types of chemical reactions.</p>
+                </a>
+                
+                <a href="/how-to-balance-chemical-equations.html" class="block bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+                    <div class="text-3xl text-orange-600 mb-4">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Balance Equations</h3>
+                    <p class="text-gray-600">Master the art of balancing chemical equations.</p>
+                </a>
+                
+                <a href="/blog.html" class="block bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow">
+                    <div class="text-3xl text-blue-600 mb-4">
+                        <i class="fas fa-blog"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">More Tutorials</h3>
+                    <p class="text-gray-600">Explore more chemistry guides and tutorials.</p>
+                </a>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
